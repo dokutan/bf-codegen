@@ -20,10 +20,15 @@
 
 (fn bf.inc [value]
   "Add `value` to current cell"
-  (if
-    (> value 0) (string.rep "+" value)
-    (< value 0) (string.rep "-" (- value))
-    ""))
+  (if (> (math.abs value) 127)
+    (if
+      (> value 0) (string.rep "-" (- 256 value))
+      (< value 0) (string.rep "+" (- 256 value))
+      "")
+    (if
+      (> value 0) (string.rep "+" value)
+      (< value 0) (string.rep "-" (- value))
+      "")))
 
 (fn bf.zero []
   "Set current cell to 0"
@@ -92,14 +97,20 @@
         (table.concat [...] "")
         (bf.zero)))))
 
-(fn bf.print! [str]
+(fn bf.print! [str ?initial]
   "Print `str` using the current cell"
-  (faccumulate [result (bf.zero)
-                i 1 (length str)]
-    (.. result
-        (bf.inc (- (string.byte str i) 
-                   (or (string.byte str (- i 1)) 0)))
-        ".")))
+  (if ?initial
+
+    (faccumulate [result ""
+                  i 1 (length str)]
+      (.. result
+          (bf.inc (- (string.byte str i)
+                     (or (string.byte str (- i 1)) ?initial)))
+          "."))
+
+    (..
+      (bf.zero)
+      (bf.print! str 0))))
 
 (fn bf.optimize [code]
   "Remove useless combinations of brainfuck commands from `code`"
