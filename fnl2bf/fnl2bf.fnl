@@ -302,30 +302,59 @@
 
 (λ bf.inc2 [value temp0]
   "Add `value` to the current cell, using `temp0`. `temp0` must be 0."
-  (if (<= 0 (math.abs value) 255)
+  (let [_inc2
+        (fn [value sign]
+          (..
+            (bf.inc (* sign (. bf.factors value 3)))
+            (bf.at temp0
+              (bf.inc (. bf.factors value 2))
+              (bf.loop
+                (bf.at (- temp0)
+                  (bf.inc (* sign (. bf.factors value 1))))
+                "-"))))]
+
+    (if (<= 1 (math.abs value) 255)
+      (bf.shortest
+        (bf.inc value)
+        (if
+          (> value 0)
+          (_inc2 value 1)
+
+          (< value 0)
+          (_inc2 (- value) -1)
+
+          "")
+        (if
+          (> value 0)
+          (_inc2 (- (- value 256)) -1)
+
+          (< value 0)
+          (_inc2 (+ value 256) 1)
+
+          ""))
+      (bf.inc value))))
+
+(λ bf.inc3 [value temp0 temp1]
+  "Add `value` to the current cell, using `temp0` and `temp1`.
+  `temp0` and `temp1` must be 0."
+  (if (<= 1 (math.abs value) 255)
     (bf.shortest
-      (bf.inc value)
+      (bf.inc2 value temp0)
+      (bf.inc2 value temp1)
 
       (if
         (> value 0)
         (..
-          (bf.inc (. bf.factors value 3))
+          (bf.inc2 (. bf.factors value 3) temp0)
           (bf.at temp0
-            (bf.inc (. bf.factors value 2))
+            (bf.inc2 (. bf.factors value 2) (- temp1 temp0))
             (bf.loop
               (bf.at (- temp0)
-                (bf.inc (. bf.factors value 1)))
+                (bf.inc2 (. bf.factors value 1) temp1))
               "-")))
 
         (< value 0)
-        (..
-          (bf.inc (- (. bf.factors (- value) 3)))
-          (bf.at temp0
-            (bf.inc (. bf.factors (- value) 2))
-            (bf.loop
-              (bf.at (- temp0)
-                (bf.inc (- (. bf.factors (- value) 1))))
-              "-")))
+        (bf.inc2 value temp0) ; TODO
 
         ""))
     (bf.inc value)))
@@ -354,6 +383,30 @@
     (bf.ptr (- to))
     "-"))
 
+(λ bf.mul! [y temp0 temp1]
+  "current cell <- current cell * cell at `y`.
+   `temp0` and `temp1` must to be 0.
+   `y` is not modified."
+  (..
+    (bf.add! temp1)
+
+    (bf.ptr temp1)
+    (bf.loop
+      (bf.ptr (- y temp1))
+      (bf.loop
+        (bf.ptr (- y)) "+"
+        (bf.ptr temp0) "+"
+        (bf.ptr (- y temp0)) "-")
+
+      (bf.ptr (- temp0 y))
+      (bf.loop
+        (bf.ptr (- y temp0)) "+"
+        (bf.ptr (- temp0 y)) "-")
+
+      (bf.ptr (- temp1 temp0)) "-")
+
+    (bf.ptr (- temp1))))
+
 (λ bf.mov! [to]
   "Destructively move current cell to `to`"
   (..
@@ -378,7 +431,7 @@
     (bf.ptr (- temp))))
 
 (λ bf.not=! [y]
- "current cell <- current cell != y"
+ "current cell <- current cell != cell at `y`. Sets `y`to 0."
  (..
   (bf.loop
     (bf.at y
@@ -419,6 +472,17 @@
         (table.concat [...] "")
         (bf.zero)))))
 
+(λ bf.if-not= [value temp0 ...]
+  "If current cell ≠ `value`, then ...
+   The body is run at the current cell.
+   Sets the current cell to 0."
+  (..
+    (bf.inc2 (- value) temp0)
+    (bf.loop
+      (bf.inc2 value temp0)
+      (table.concat [...] "")
+      (bf.zero))))
+
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
    The value of the current cell is assumed to be `?initial`, if given."
@@ -451,6 +515,54 @@
     (..
       (bf.zero)
       (bf.print2! str temp0 0))))
+
+(λ bf.string! [str move]
+  "Store `str` in memory, starting at the current cell.
+  All used cells must be initialized as 0. `move` should be ±1."
+  (faccumulate [result ""
+                i 1 (length str)]
+    (.. result
+        (bf.inc2 (string.byte str i) move)
+        (bf.ptr move))))
+
+(λ bf.string2! [str move temp0 initial]
+  "Store `str` in memory, starting at the current cell.
+  All used cells must be initialized as 0. `move` should be ±1.
+  `initial` can be any number between 1 and 255."
+  (let [result
+        (..
+          (bf.ptr temp0)
+          (bf.set (. bf.factors initial 1)) ; set temp0 to factor.1
+
+          (bf.loop ; while temp0 > 0
+            (bf.ptr (- temp0))
+
+            ;; add factor.2 to each string cell
+            (string.rep
+              (..
+                (bf.inc (. bf.factors initial 2))
+                (bf.ptr move))
+              (length str))
+            (bf.ptr (* (length str) (- move)))
+
+            (bf.ptr temp0) ; decrement temp0
+            "-")
+
+          (bf.ptr (- temp0)))]
+
+    (..
+      ;; change each string cell from the initial value
+      (faccumulate [result result
+                    i 1 (length str)]
+        (.. result
+            (bf.inc (% (- (string.byte str i)
+                         (* (. bf.factors initial 1)
+                            (. bf.factors initial 2)))
+                      256))
+            (bf.ptr move)))
+
+      ;; move back to the initial cell, TODO: replace with loop if possible
+      (bf.ptr (* (length str) (- move))))))
 
 (λ bf.optimize [code]
   "Remove useless combinations of brainfuck commands from `code`"
