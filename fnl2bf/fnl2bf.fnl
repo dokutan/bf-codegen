@@ -1,5 +1,15 @@
 (local bf {})
 
+"This is a Fennel library for working with Brainfuck code at a higher level.
+
+## Naming conventions:
+symbol | meaning
+---|---
+`!` | modifies the current cell
+`\\` | requires manual initialization of cells that are not specified as a parameter
+
+Parameters beginning with `temp` are always pointers to cells."
+
 (set bf.factors [
   [0 0 1]
   [0 0 2]
@@ -409,14 +419,16 @@
     (bf.ptr 0 temp1)))
 
 (λ bf.divmod\! []
-  "# >n d 1 0 0 0
-   # >0 d-n%d n%d n/d 0 0"
+  "Current cell divided/module by the next cell to the right.
+   Uses 5 cells to the right of the current cell, cells must be initialized as shown:
+   - Before: `>n d 1 0 0 0`
+   - After:  `>0 d-n%d n%d n/d 0 0`"
   (..
     "[->-[>+>>]>[[-<+>]+>+>>]<<<<<]"
     (bf.at 2 "-")))
 
 (λ bf.divmod-by! [value]
-  "Current cell divided/modulo by value."
+  "Current cell divided/modulo by value. Uses 5 cells to the right of the current cell."
   (..
     ;; prepare temp cells
     (bf.at 5 (bf.zero))
@@ -431,7 +443,7 @@
         (bf.at 2 (bf.set 1))
         (bf.at 1 (bf.set value))))
 
-    (bf.divmod/!)))
+    (bf.divmod\!)))
 
 (λ bf.mov! [to]
   "Destructively move current cell to `to`"
@@ -457,7 +469,7 @@
     (bf.ptr (- temp))))
 
 (λ bf.not=! [y]
- "current cell <- current cell != cell at `y`. Sets `y`to 0."
+ "current cell <- current cell != cell at `y`. Sets `y` to 0."
  (..
   (bf.loop
     (bf.at y
