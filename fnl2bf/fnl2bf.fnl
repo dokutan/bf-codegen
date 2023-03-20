@@ -281,11 +281,12 @@
     (table.concat [...] "")
     (bf.ptr (- distance))))
 
-(λ bf.ptr [distance]
-  "Move pointer by `distance`"
+(λ bf.ptr [distance ?from]
+  "Move pointer by `distance`. If `?from` is not nil, assume the ptr starts at `?from`"
   (if
-    (> distance 0) (string.rep ">" distance)
-    (< distance 0) (string.rep "<" (- distance))
+    (not= ?from nil) (bf.ptr (- distance ?from))
+    (> distance 0)   (string.rep ">" distance)
+    (< distance 0)   (string.rep "<" (- distance))
     ""))
 
 (λ bf.inc [value]
@@ -392,20 +393,45 @@
 
     (bf.ptr temp1)
     (bf.loop
-      (bf.ptr (- y temp1))
+      (bf.ptr y temp1)
       (bf.loop
-        (bf.ptr (- y)) "+"
+        (bf.ptr 0 y) "+"
         (bf.ptr temp0) "+"
-        (bf.ptr (- y temp0)) "-")
+        (bf.ptr y temp0) "-")
 
-      (bf.ptr (- temp0 y))
+      (bf.ptr temp0 y)
       (bf.loop
-        (bf.ptr (- y temp0)) "+"
-        (bf.ptr (- temp0 y)) "-")
+        (bf.ptr y temp0) "+"
+        (bf.ptr temp0 y) "-")
 
-      (bf.ptr (- temp1 temp0)) "-")
+      (bf.ptr temp1 temp0) "-")
 
-    (bf.ptr (- temp1))))
+    (bf.ptr 0 temp1)))
+
+(λ bf.divmod\! []
+  "# >n d 1 0 0 0
+   # >0 d-n%d n%d n/d 0 0"
+  (..
+    "[->-[>+>>]>[[-<+>]+>+>>]<<<<<]"
+    (bf.at 2 "-")))
+
+(λ bf.divmod-by! [value]
+  "Current cell divided/modulo by value."
+  (..
+    ;; prepare temp cells
+    (bf.at 5 (bf.zero))
+    (bf.at 4 (bf.zero))
+    (bf.at 3 (bf.zero))
+    (bf.shortest
+      (..
+        (bf.at 2 (bf.zero))
+        (bf.at 1 (bf.set2 value 1))
+        (bf.at 2 "+"))
+      (..
+        (bf.at 2 (bf.set 1))
+        (bf.at 1 (bf.set value))))
+
+    (bf.divmod/!)))
 
 (λ bf.mov! [to]
   "Destructively move current cell to `to`"
@@ -482,6 +508,15 @@
       (bf.inc2 value temp0)
       (table.concat [...] "")
       (bf.zero))))
+
+(λ bf.do-times [n temp ...]
+  "Run the body `n` times."
+  (bf.at temp
+    (bf.set n)
+    (bf.loop
+      (bf.at (- temp)
+        (table.concat [...] ""))
+      "-")))
 
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
@@ -564,10 +599,10 @@
       ;; move back to the initial cell, TODO: replace with loop if possible
       (bf.ptr (* (length str) (- move))))))
 
-(λ bf.optimize [code]
+(λ bf.optimize [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`"
   (faccumulate [result code
-                _ 1 100]
+                _ 1 (or ?steps 100)]
     (-> result
       (string.gsub "<>" "")
       (string.gsub "><" "")
