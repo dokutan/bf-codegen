@@ -301,15 +301,19 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.inc [value]
   "Add `value` to current cell"
-  (if (> (math.abs value) 127)
-    (if
-      (> value 0) (string.rep "-" (- 256 value))
-      (< value 0) (string.rep "+" (- 256 value))
-      "")
-    (if
-      (> value 0) (string.rep "+" value)
-      (< value 0) (string.rep "-" (- value))
-      "")))
+  ; (if (> (math.abs value) 127)
+  ;   (if
+  ;     (> value 0) (string.rep "-" (- 256 value))
+  ;     (< value 0) (string.rep "+" (- 256 value))
+  ;     "")
+  ;   (if
+  ;     (> value 0) (string.rep "+" value)
+  ;     (< value 0) (string.rep "-" (- value))
+  ;     ""))
+  (if
+    (> value 0) (string.rep "+" value)
+    (< value 0) (string.rep "-" (- value))
+    ""))
 
 (λ bf.inc2 [value temp0]
   "Add `value` to the current cell, using `temp0`. `temp0` must be 0."
@@ -389,9 +393,15 @@ Parameters beginning with `temp` are always pointers to cells."
 (λ bf.add! [to]
   "Destructively add current cell to `to`"
   (bf.loop
-    (bf.ptr to)
-    "+"
-    (bf.ptr (- to))
+    (bf.at to
+      "+")
+    "-"))
+
+(λ bf.sub! [to]
+  "Destructively subtract current cell from `to`"
+  (bf.loop
+    (bf.at to
+      "-")
     "-"))
 
 (λ bf.mul! [y temp0 temp1]
@@ -445,6 +455,19 @@ Parameters beginning with `temp` are always pointers to cells."
 
     (bf.divmod\!)))
 
+(λ bf.invert [temp ?init]
+  "Equivalent to current cell <- (256 - current cell)."
+  (..
+    (if ?init (bf.at temp (bf.zero)) "")
+    (bf.loop
+      (bf.at temp "-")
+      "-")
+    (bf.at temp
+      (bf.loop
+        (bf.at (- temp) "-")
+        "+"))
+    ))
+
 (λ bf.mov! [to]
   "Destructively move current cell to `to`"
   (..
@@ -452,9 +475,16 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.zero))
     (bf.add! to)))
 
-(λ bf.mov [to temp]
-  "Move current cell to `to`, using `temp`"
+(λ bf.mov [to temp ?init]
+  "Copy value of the current cell to `to`, using `temp`.
+   `temp` and `to` must be manually set to 0, unless `?init` is true."
   (..
+    (if ?init
+      (..
+        (bf.at to   (bf.zero))
+        (bf.at temp (bf.zero)))
+      "")
+
     (bf.loop
       (bf.ptr to)
       "+"
@@ -468,6 +498,27 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.add! (- temp))
     (bf.ptr (- temp))))
 
+(λ bf.swap [y temp0]
+  "Swap the current cell with `y`, using `temp0`. `temp0` must be 0."
+  (..
+    (bf.loop
+      "-"
+      (bf.ptr temp0) "+"
+      (bf.ptr y temp0) "-"
+      (bf.ptr 0 y))
+
+    (bf.at y
+      (bf.loop
+        "-"
+        (bf.at (- y) "+")))
+
+    (bf.at temp0
+      (bf.loop
+        "-"
+        (bf.ptr y temp0) "+"
+        (bf.ptr 0 y) "+"
+        (bf.ptr temp0)))))
+
 (λ bf.not=! [y]
  "current cell <- current cell != cell at `y`. Sets `y` to 0."
  (..
@@ -480,6 +531,38 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.zero)
       (bf.at (- y)
         "+")))))
+
+(λ bf.=! [y]
+ "current cell <- current cell == cell at `y`. Sets `y` to 0."
+ (..
+  (bf.loop
+    (bf.at y
+      "-")
+    "-")
+  "+"
+  (bf.at y
+    (bf.loop
+      (bf.zero)
+      (bf.at (- y)
+        "-")))))
+
+(λ bf.<\! [?init]
+  "current cell <- current cell < next cell.
+  - before: >x y 0 0
+  - after: >(x<y) 0 0 0"
+  (..
+    (if ?init
+      (..
+        (bf.at 2 (bf.zero))
+        (bf.at 3 (bf.zero)))
+      "")q
+    "[->>+<[->-]>[<<[-]>>->]<<<]>[[-]<+>]<"))
+
+(λ bf.if [...]
+  "Equivalent to `[...[-]]`. Sets the current cell to 0."
+  (bf.loop
+    (table.concat [...] "")
+    (bf.zero)))
 
 (λ bf.if= [value temp0 temp1 ...]
   "If current cell == `value`, then ...
@@ -621,5 +704,32 @@ Parameters beginning with `temp` are always pointers to cells."
       (string.gsub "%+%-" "")
       (string.gsub "%-%+" "")
       (string.gsub "%]%[%-%]" "]"))))
+
+(λ bf.double [...]
+  "
+   low reserved reserved high
+   ^ptr
+    "
+  (let [code (table.concat [...])]
+    (faccumulate [result ""
+                  i 1 (length code)]
+      (..
+        result
+        (match (string.sub code i i)
+          ">" ">>>>"
+          "<" "<<<<"
+          "+" ">+<+[>-]>[->>+<]<<"
+          "-" ">+<[>-]>[->>-<]<<-"
+          "[" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-[+<"
+          "]" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-]<"
+          _ (string.sub code i i))))))
+
+(λ bf.print-cell\ []
+  "Print the value of the current cell as a decimal number.
+   Requires 6 cells containing 0 to the right of the current cell."
+  (..
+    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
+    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
+    "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
 bf

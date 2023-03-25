@@ -71,6 +71,11 @@ Set current cell to value, using `temp0`. `temp0` must be 0.
 
 Destructively add current cell to `to`
 
+## `bf.sub!` (λ)
+```(bf.sub! to)```
+
+Destructively subtract current cell from `to`
+
 ## `bf.mul!` (λ)
 ```(bf.mul! y temp0 temp1)```
 
@@ -91,20 +96,48 @@ Uses 5 cells to the right of the current cell, cells must be initialized as show
 
 Current cell divided/modulo by value. Uses 5 cells to the right of the current cell.
 
+## `bf.invert` (λ)
+```(bf.invert temp ?init)```
+
+Equivalent to current cell <- (256 - current cell).
+
 ## `bf.mov!` (λ)
 ```(bf.mov! to)```
 
 Destructively move current cell to `to`
 
 ## `bf.mov` (λ)
-```(bf.mov to temp)```
+```(bf.mov to temp ?init)```
 
-Move current cell to `to`, using `temp`
+Copy value of the current cell to `to`, using `temp`.
+`temp` and `to` must be manually set to 0, unless `?init` is true.
+
+## `bf.swap` (λ)
+```(bf.swap y temp0)```
+
+Swap the current cell with `y`, using `temp0`. `temp0` must be 0.
 
 ## `bf.not=!` (λ)
 ```(bf.not=! y)```
 
 current cell <- current cell != cell at `y`. Sets `y` to 0.
+
+## `bf.=!` (λ)
+```(bf.=! y)```
+
+current cell <- current cell == cell at `y`. Sets `y` to 0.
+
+## `bf.<\!` (λ)
+```(bf.<\! ?init)```
+
+current cell <- current cell < next cell.
+- before: >x y 0 0
+- after: >(x<y) 0 0 0
+
+## `bf.if` (λ)
+```(bf.if ...)```
+
+Equivalent to `[...[-]]`. Sets the current cell to 0.
 
 ## `bf.if=` (λ)
 ```(bf.if= value temp0 temp1 ...)```
@@ -160,4 +193,18 @@ All used cells must be initialized as 0. `move` should be ±1.
 ```(bf.optimize code ?steps)```
 
 Remove useless combinations of brainfuck commands from `code`
+
+## `bf.double` (λ)
+```(bf.double ...)```
+
+
+low reserved reserved high
+^ptr
+
+
+## `bf.print-cell\` (λ)
+```(bf.print-cell\)```
+
+Print the value of the current cell as a decimal number.
+Requires 6 cells containing 0 to the right of the current cell.
 
