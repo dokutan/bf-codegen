@@ -33,7 +33,7 @@ Parameters beginning with `temp` are always pointers to cells."
   [5 4 0]
   [7 3 0]
   [7 3 1]
-  [7 3 2]
+  [6 4 -1]
   [6 4 0]
   [5 5 0]
   [5 5 1]
@@ -44,12 +44,12 @@ Parameters beginning with `temp` are always pointers to cells."
   [6 5 1]
   [8 4 0]
   [8 4 1]
-  [8 4 2]
+  [7 5 -1]
   [7 5 0]
   [6 6 0]
   [6 6 1]
   [6 6 2]
-  [6 6 3]
+  [8 5 -1]
   [8 5 0]
   [8 5 1]
   [7 6 0]
@@ -57,55 +57,55 @@ Parameters beginning with `temp` are always pointers to cells."
   [11 4 0]
   [9 5 0]
   [9 5 1]
-  [9 5 2]
+  [8 6 -1]
   [8 6 0]
   [7 7 0]
   [10 5 0]
   [10 5 1]
   [13 4 0]
-  [13 4 1]
+  [9 6 -1]
   [9 6 0]
   [11 5 0]
   [8 7 0]
   [8 7 1]
   [8 7 2]
-  [8 7 3]
+  [10 6 -1]
   [10 6 0]
   [10 6 1]
-  [10 6 2]
+  [9 7 -1]
   [9 7 0]
   [8 8 0]
   [8 8 1]
   [11 6 0]
   [11 6 1]
   [11 6 2]
-  [11 6 3]
+  [10 7 -1]
   [10 7 0]
   [10 7 1]
   [9 8 0]
   [9 8 1]
   [9 8 2]
   [15 5 0]
-  [15 5 1]
+  [11 7 -1]
   [11 7 0]
   [13 6 0]
-  [13 6 1]
+  [10 8 -1]
   [10 8 0]
   [9 9 0]
   [9 9 1]
-  [9 9 2]
+  [12 7 -1]
   [12 7 0]
   [12 7 1]
   [12 7 2]
-  [12 7 3]
+  [11 8 -1]
   [11 8 0]
   [11 8 1]
   [10 9 0]
   [13 7 0]
   [13 7 1]
   [13 7 2]
-  [13 7 3]
-  [19 5 0]
+  [12 8 -2]
+  [12 8 -1]
   [12 8 0]
   [12 8 1]
   [14 7 0]
@@ -113,11 +113,11 @@ Parameters beginning with `temp` are always pointers to cells."
   [10 10 0]
   [10 10 1]
   [10 10 2]
-  [10 10 3]
+  [13 8 -1]
   [13 8 0]
   [15 7 0]
   [15 7 1]
-  [15 7 2]
+  [12 9 -1]
   [12 9 0]
   [12 9 1]
   [11 10 0]
@@ -125,41 +125,41 @@ Parameters beginning with `temp` are always pointers to cells."
   [14 8 0]
   [14 8 1]
   [14 8 2]
-  [14 8 3]
-  [14 8 4]
+  [13 9 -2]
+  [13 9 -1]
   [13 9 0]
   [13 9 1]
-  [17 7 0]
+  [12 10 -1]
   [12 10 0]
   [11 11 0]
   [11 11 1]
   [11 11 2]
-  [11 11 3]
-  [11 11 4]
+  [14 9 -2]
+  [14 9 -1]
   [14 9 0]
   [14 9 1]
   [16 8 0]
-  [16 8 1]
+  [13 10 -1]
   [13 10 0]
   [13 10 1]
   [12 11 0]
   [12 11 1]
-  [12 11 2]
+  [15 9 -1]
   [15 9 0]
   [17 8 0]
   [17 8 1]
-  [17 8 2]
-  [17 8 3]
+  [14 10 -2]
+  [14 10 -1]
   [14 10 0]
   [14 10 1]
-  [14 10 2]
+  [13 11 -1]
   [13 11 0]
   [12 12 0]
   [12 12 1]
   [12 12 2]
   [12 12 3]
-  [12 12 4]
-  [12 12 5]
+  [15 10 -2]
+  [15 10 -1]
   [15 10 0]
   [15 10 1]
   [19 8 0]
@@ -169,42 +169,42 @@ Parameters beginning with `temp` are always pointers to cells."
   [13 12 0]
   [13 12 1]
   [13 12 2]
-  [13 12 3]
+  [16 10 -1]
   [16 10 0]
   [16 10 1]
   [18 9 0]
   [18 9 1]
-  [18 9 2]
+  [15 11 -1]
   [15 11 0]
   [15 11 1]
-  [15 11 2]
+  [14 12 -1]
   [14 12 0]
   [13 13 0]
   [17 10 0]
   [19 9 0]
   [19 9 1]
   [19 9 2]
-  [19 9 3]
-  [25 7 0]
+  [16 11 -2]
+  [16 11 -1]
   [16 11 0]
   [16 11 1]
   [16 11 2]
-  [16 11 3]
+  [15 12 -1]
   [15 12 0]
   [15 12 1]
   [14 13 0]
   [14 13 1]
   [14 13 2]
-  [14 13 3]
-  [14 13 4]
+  [17 11 -2]
+  [17 11 -1]
   [17 11 0]
   [17 11 1]
   [21 9 0]
   [19 10 0]
-  [19 10 1]
+  [16 12 -1]
   [16 12 0]
   [16 12 1]
-  [16 12 2]
+  [15 13 -1]
   [15 13 0]
   [14 14 0]
   [14 14 1]
@@ -212,42 +212,42 @@ Parameters beginning with `temp` are always pointers to cells."
   [18 11 1]
   [20 10 0]
   [20 10 1]
-  [20 10 2]
-  [20 10 3]
+  [17 12 -2]
+  [17 12 -1]
   [17 12 0]
   [17 12 1]
   [17 12 2]
-  [23 9 0]
+  [16 13 -1]
   [16 13 0]
   [19 11 0]
   [15 14 0]
   [15 14 1]
   [15 14 2]
   [15 14 3]
-  [15 14 4]
-  [15 14 5]
+  [18 12 -2]
+  [18 12 -1]
   [18 12 0]
   [18 12 1]
   [18 12 2]
-  [18 12 3]
+  [20 11 -1]
   [20 11 0]
   [17 13 0]
   [17 13 1]
-  [17 13 2]
+  [16 14 -1]
   [16 14 0]
   [15 15 0]
   [15 15 1]
-  [15 15 2]
+  [19 12 -1]
   [19 12 0]
   [19 12 1]
   [23 10 0]
   [21 11 0]
   [21 11 1]
-  [21 11 2]
+  [18 13 -1]
   [18 13 0]
   [18 13 1]
   [18 13 2]
-  [18 13 3]
+  [17 14 -1]
   [17 14 0]
   [17 14 1]
   [16 15 0]
@@ -255,16 +255,16 @@ Parameters beginning with `temp` are always pointers to cells."
   [22 11 0]
   [22 11 1]
   [22 11 2]
-  [22 11 3]
-  [22 11 4]
+  [19 13 -2]
+  [19 13 -1]
   [19 13 0]
   [19 13 1]
   [19 13 2]
-  [25 10 0]
-  [25 10 1]
+  [18 14 -2]
+  [18 14 -1]
   [18 14 0]
   [18 14 1]
-  [18 14 2]
+  [17 15 -1]
   [17 15 0]
 ])
 
@@ -301,19 +301,23 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.inc [value]
   "Add `value` to current cell"
-  ; (if (> (math.abs value) 127)
-  ;   (if
-  ;     (> value 0) (string.rep "-" (- 256 value))
-  ;     (< value 0) (string.rep "+" (- 256 value))
-  ;     "")
-  ;   (if
-  ;     (> value 0) (string.rep "+" value)
-  ;     (< value 0) (string.rep "-" (- value))
-  ;     ""))
   (if
-    (> value 0) (string.rep "+" value)
-    (< value 0) (string.rep "-" (- value))
-    ""))
+    (> value 255)
+    (bf.inc (% value 256))
+
+    (< value -255)
+    (bf.inc (- (% (- value) 256)))
+
+    (> (math.abs value) 127)
+    (if
+      (> value 0) (string.rep "-" (- 256 value))
+      (< value 0) (string.rep "+" (- 256 (- value)))
+      "")
+
+    (if
+      (> value 0) (string.rep "+" value)
+      (< value 0) (string.rep "-" (- value))
+      "")))
 
 (λ bf.inc2 [value temp0]
   "Add `value` to the current cell, using `temp0`. `temp0` must be 0."
@@ -555,7 +559,7 @@ Parameters beginning with `temp` are always pointers to cells."
       (..
         (bf.at 2 (bf.zero))
         (bf.at 3 (bf.zero)))
-      "")q
+      "")
     "[->>+<[->-]>[<<[-]>>->]<<<]>[[-]<+>]<"))
 
 (λ bf.if [...]
@@ -648,15 +652,91 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.string! [str move]
   "Store `str` in memory, starting at the current cell.
-  All used cells must be initialized as 0. `move` should be ±1."
+   All used cells must be initialized as 0. `move` should be ±1."
   (faccumulate [result ""
                 i 1 (length str)]
     (.. result
         (bf.inc2 (string.byte str i) move)
         (bf.ptr move))))
 
+(λ bf.string-opt1! [str move]
+  "Slightly optimized version of `bf.string!`.
+   Store `str` in memory, starting at the current cell.
+   All used cells must be initialized as 0. `move` should be ±1."
+  (faccumulate [result ""
+                i 1 (length str)]
+    (.. result
+        ;; current byte = last byte ?
+        (if (and (> i 1) (= (string.byte str i) (string.byte str (- i 1))))
+
+          ;; try copying the last byte
+          (bf.shortest
+            (bf.at (- move)
+              (bf.mov move (* 2 move)))
+            (bf.inc2 (string.byte str i) move))
+
+          ;; else
+          (bf.inc2 (string.byte str i) move))
+        (bf.ptr move))))
+
+(λ bf.string-opt2! [str move]
+  "Better optimized version of `bf.string!`.
+   Store `str` in memory, starting at the current cell.
+   All used cells must be initialized as 0. `move` should be ±1."
+
+  (fn count [str i]
+    "Count how many initial bytes of `str` share the same `bf.factors.1`"
+    (if
+      (= nil i)
+      (count str 2)
+
+      (> i (length str))
+      (- i 1)
+
+      (=
+        (. bf.factors (string.byte str 1 1) 1)
+        (. bf.factors (string.byte str i i) 1))
+      (count str (+ i 1))
+
+      (- i 1)))
+
+  (fn iterate [result str]
+    (if (= "" str)
+      result
+      (let [this (string.byte str 1 1)]
+        (iterate
+          (..
+            result
+
+            ;; initialize all current cells with factors.3
+            (bf.ptr (- move))
+            (faccumulate [r "" i 1 (count str)]
+              (..
+                r
+                (bf.ptr move)
+                (bf.inc (. bf.factors (string.byte str i i) 3))))
+
+            ;; add factors.2 × factors.1
+            (bf.at move
+              (bf.inc (. bf.factors this 1))
+              (bf.loop
+                (faccumulate [r "" i (count str) 1 -1]
+                  (..
+                    r
+                    (bf.at (- (* (- (count str) i -1) move))
+                      (bf.inc (. bf.factors (string.byte str i i) 2)))))
+                "-"))
+
+            ;; move to the next position
+            (bf.ptr move))
+
+          (string.sub str (+ 1 (count str)))))))
+
+  (iterate "" str))
+
 (λ bf.string2! [str move temp0 initial]
-  "Store `str` in memory, starting at the current cell.
+  "TODO! remove when bf.string2-opt! works
+  Store `str` in memory, starting at the current cell.
   All used cells must be initialized as 0. `move` should be ±1.
   `initial` can be any number between 1 and 255."
   (let [result
@@ -694,11 +774,40 @@ Parameters beginning with `temp` are always pointers to cells."
       ;; move back to the initial cell, TODO: replace with loop if possible
       (bf.ptr (* (length str) (- move))))))
 
+(λ bf.string2-opt! [str move initial]
+  "TODO! fails for some `initial` values
+   Store `str` in memory, starting at the current cell.
+   All used cells must be initialized as 0. `move` should be ±1.
+   `initial` can be any number between 1 and 255."
+  (let [initial (if (= initial (string.byte str 1 1)) 0 initial)
+        str-
+        (faccumulate [r "" i 1 (length str)]
+          (..
+            r
+            (string.char
+              (if (< (string.byte str i i) initial)
+                (+ 256 (- (string.byte str i i) initial))
+                (- (string.byte str i i) initial)))))]
+
+    (..
+      (bf.string! str- move)
+
+      (if (= 0 initial)
+        ""
+        (..
+          (bf.ptr (* -1 (length str) move))
+          (bf.loop
+            (bf.inc initial)
+            (bf.ptr move)))))))
+
 (λ bf.optimize [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`"
   (faccumulate [result code
                 _ 1 (or ?steps 100)]
     (-> result
+      (string.gsub "[%+%-]+%[%-%]" "[-]")
+      (string.gsub "%[%[%-%]%]" "[-]")
+      (string.gsub "[<>]+$" "")
       (string.gsub "<>" "")
       (string.gsub "><" "")
       (string.gsub "%+%-" "")
@@ -731,5 +840,55 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
+
+(λ bf.case! [temp ...]
+  "A switch-case-like construct.
+   Takes an arbitrary number of value+code pairs and an optional default case.
+   The code will be run at `temp`."
+  (let [_
+        (fn _case [initial value body ...]
+          (..
+            (bf.inc (- initial value))
+            (bf.loop
+              (if (>= (length [...]) 2)
+                (_case value ...) ; next case
+                (..               ; default case
+                  (bf.zero)
+                  (bf.at temp
+                    (bf.if
+                      (if (>= (length [...]) 1)
+                        (. [...] 1)
+                        ""))))))
+            (bf.at temp
+              (bf.if
+                body))))]
+    (..
+      (bf.at temp (bf.set 1))
+      (_case 0 ...))))
+
+(λ bf.case2! [temp0 temp1 ...]
+  "A switch-case-like construct.
+   Takes an arbitrary number of value+code pairs and an optional default case.
+   The code will be run at `temp0`."
+  (let [_
+        (fn _case [initial value body ...]
+          (..
+            (bf.inc2 (- initial value) temp1)
+            (bf.loop
+              (if (>= (length [...]) 2)
+                (_case value ...) ; next case
+                (..               ; default case
+                  (bf.zero)
+                  (bf.at temp0
+                    (bf.if
+                      (if (>= (length [...]) 1)
+                        (. [...] 1)
+                        ""))))))
+            (bf.at temp0
+              (bf.if
+                body))))]
+    (..
+      (bf.at temp0 (bf.set 1))
+      (_case 0 ...))))
 
 bf

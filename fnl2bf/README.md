@@ -182,9 +182,32 @@ The value of the current cell is assumed to be `?initial`, if given.
 Store `str` in memory, starting at the current cell.
 All used cells must be initialized as 0. `move` should be ±1.
 
+## `bf.string-opt1!` (λ)
+```(bf.string-opt1! str move)```
+
+Slightly optimized version of `bf.string!`.
+Store `str` in memory, starting at the current cell.
+All used cells must be initialized as 0. `move` should be ±1.
+
+## `bf.string-opt2!` (λ)
+```(bf.string-opt2! str move)```
+
+Better optimized version of `bf.string!`.
+Store `str` in memory, starting at the current cell.
+All used cells must be initialized as 0. `move` should be ±1.
+
 ## `bf.string2!` (λ)
 ```(bf.string2! str move temp0 initial)```
 
+TODO! remove when bf.string2-opt! works
+Store `str` in memory, starting at the current cell.
+All used cells must be initialized as 0. `move` should be ±1.
+`initial` can be any number between 1 and 255.
+
+## `bf.string2-opt!` (λ)
+```(bf.string2-opt! str move initial)```
+
+TODO! fails for some `initial` values
 Store `str` in memory, starting at the current cell.
 All used cells must be initialized as 0. `move` should be ±1.
 `initial` can be any number between 1 and 255.
@@ -207,4 +230,18 @@ low reserved reserved high
 
 Print the value of the current cell as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
+
+## `bf.case!` (λ)
+```(bf.case! temp ...)```
+
+A switch-case-like construct.
+Takes an arbitrary number of value+code pairs and an optional default case.
+The code will be run at `temp`.
+
+## `bf.case2!` (λ)
+```(bf.case2! temp0 temp1 ...)```
+
+A switch-case-like construct.
+Takes an arbitrary number of value+code pairs and an optional default case.
+The code will be run at `temp0`.
 
