@@ -382,17 +382,21 @@ Parameters beginning with `temp` are always pointers to cells."
   "Set current cell to 0"
   (bf.loop "-"))
 
-(λ bf.set [value]
+(λ bf.set [value ?initial]
   "Set current cell to value"
-  (..
-    (bf.zero)
-    (bf.inc value)))
+  (if ?initial
+    (bf.inc (- value ?initial))
+    (..
+      (bf.zero)
+      (bf.inc value))))
 
-(λ bf.set2 [value temp0]
+(λ bf.set2 [value temp0 ?initial]
   "Set current cell to value, using `temp0`. `temp0` must be 0."
-  (..
-    (bf.zero)
-    (bf.inc2 value temp0)))
+  (if ?initial
+    (bf.inc2 (- value ?initial) temp0)
+    (..
+      (bf.zero)
+      (bf.inc2 value temp0))))
 
 (λ bf.add! [to]
   "Destructively add current cell to `to`"
@@ -625,8 +629,10 @@ Parameters beginning with `temp` are always pointers to cells."
     (faccumulate [result ""
                   i 1 (length str)]
       (.. result
-          (bf.inc (- (string.byte str i)
-                     (or (string.byte str (- i 1)) ?initial)))
+          (bf.shortest
+            (bf.inc (- (string.byte str i)
+                       (or (string.byte str (- i 1)) ?initial)))
+            (bf.set (string.byte str i)))
           "."))
 
     (..
@@ -641,9 +647,11 @@ Parameters beginning with `temp` are always pointers to cells."
     (faccumulate [result ""
                   i 1 (length str)]
       (.. result
-          (bf.inc2 (- (string.byte str i)
-                      (or (string.byte str (- i 1)) ?initial))
-                   temp0)
+          (bf.shortest
+            (bf.inc2 (- (string.byte str i)
+                        (or (string.byte str (- i 1)) ?initial))
+                     temp0)
+            (bf.set2 (string.byte str i) temp0))
           "."))
 
     (..
@@ -807,12 +815,18 @@ Parameters beginning with `temp` are always pointers to cells."
     (-> result
       (string.gsub "[%+%-]+%[%-%]" "[-]")
       (string.gsub "%[%[%-%]%]" "[-]")
-      (string.gsub "[<>]+$" "")
       (string.gsub "<>" "")
       (string.gsub "><" "")
       (string.gsub "%+%-" "")
       (string.gsub "%-%+" "")
       (string.gsub "%]%[%-%]" "]"))))
+
+(λ bf.optimize2 [code ?steps]
+  "Remove useless combinations of brainfuck commands from `code`"
+  (faccumulate [result (bf.optimize code ?steps)
+                _ 1 (or ?steps 100)]
+    (-> result
+      (string.gsub "[<>%+%-]+$" ""))))
 
 (λ bf.double [...]
   "

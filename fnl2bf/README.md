@@ -57,12 +57,12 @@ Add `value` to the current cell, using `temp0` and `temp1`.
 Set current cell to 0
 
 ## `bf.set` (λ)
-```(bf.set value)```
+```(bf.set value ?initial)```
 
 Set current cell to value
 
 ## `bf.set2` (λ)
-```(bf.set2 value temp0)```
+```(bf.set2 value temp0 ?initial)```
 
 Set current cell to value, using `temp0`. `temp0` must be 0.
 
@@ -214,6 +214,11 @@ All used cells must be initialized as 0. `move` should be ±1.
 
 ## `bf.optimize` (λ)
 ```(bf.optimize code ?steps)```
+
+Remove useless combinations of brainfuck commands from `code`
+
+## `bf.optimize2` (λ)
+```(bf.optimize2 code ?steps)```
 
 Remove useless combinations of brainfuck commands from `code`
 
