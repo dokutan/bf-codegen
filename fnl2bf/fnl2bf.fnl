@@ -822,7 +822,8 @@ Parameters beginning with `temp` are always pointers to cells."
       (string.gsub "%]%[%-%]" "]"))))
 
 (λ bf.optimize2 [code ?steps]
-  "Remove useless combinations of brainfuck commands from `code`"
+  "Remove useless combinations of brainfuck commands from `code`.
+   More aggressive version of `bf.optimize`."
   (faccumulate [result (bf.optimize code ?steps)
                 _ 1 (or ?steps 100)]
     (-> result
@@ -855,54 +856,68 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
+(λ _generic-case [inc-fn temp0 ?temp1 args]
+  "This function is used to implement both `bf.case!` and `bf.case2!`.
+   Do not use this directly."
+  (fn _case [initial args]
+    (let [[value body & args] args]
+      (if
+        ;; string: convert to number
+        (= :string (type value))
+        (do
+          (table.insert args 1 body)
+          (table.insert args 1 (string.byte value 1 1))
+          (_case initial args))
+
+        (..
+          (inc-fn (- initial value) ?temp1)
+          (bf.loop
+            (if (>= (length args) 2)
+              (_case value args) ; next case
+              (..                ; default case
+                (bf.zero)
+                (bf.at temp0
+                  (bf.if
+                    (if (>= (length args) 1)
+                      (. args 1)
+                      ""))))))
+          (if body
+            (bf.at temp0
+              (bf.if
+                body))
+            "")))))
+  (..
+    (bf.at temp0 (bf.set 1))
+    (_case 0 args)))
+
+(λ _build-case-args [inc-fn temp0 ?temp1 ...]
+  "This function generates the `args` for `_generic-case`.
+   Do not use this directly."
+  (let [result []]
+    (for [i 1 (length [...]) 2]
+      (if (= :table (type (. [...] i)))
+        (do
+          (table.insert result (+ 1 (length result)) (. [...] i 1))
+          (table.insert result (+ 1 (length result)) (. [...] (+ 1 i)))
+          (for [j 2 (length (. [...] i))]
+            (table.insert result (+ 1 (length result)) (. [...] i j))
+            (table.insert result (+ 1 (length result)) false)))
+
+        (do
+          (table.insert result (+ 1 (length result)) (. [...] i))
+          (table.insert result (+ 1 (length result)) (. [...] (+ 1 i))))))
+    (_generic-case inc-fn temp0 ?temp1 result)))
+
 (λ bf.case! [temp ...]
   "A switch-case-like construct.
    Takes an arbitrary number of value+code pairs and an optional default case.
    The code will be run at `temp`."
-  (let [_
-        (fn _case [initial value body ...]
-          (..
-            (bf.inc (- initial value))
-            (bf.loop
-              (if (>= (length [...]) 2)
-                (_case value ...) ; next case
-                (..               ; default case
-                  (bf.zero)
-                  (bf.at temp
-                    (bf.if
-                      (if (>= (length [...]) 1)
-                        (. [...] 1)
-                        ""))))))
-            (bf.at temp
-              (bf.if
-                body))))]
-    (..
-      (bf.at temp (bf.set 1))
-      (_case 0 ...))))
+  (_build-case-args bf.inc temp :nil ...))
 
 (λ bf.case2! [temp0 temp1 ...]
   "A switch-case-like construct.
    Takes an arbitrary number of value+code pairs and an optional default case.
    The code will be run at `temp0`."
-  (let [_
-        (fn _case [initial value body ...]
-          (..
-            (bf.inc2 (- initial value) temp1)
-            (bf.loop
-              (if (>= (length [...]) 2)
-                (_case value ...) ; next case
-                (..               ; default case
-                  (bf.zero)
-                  (bf.at temp0
-                    (bf.if
-                      (if (>= (length [...]) 1)
-                        (. [...] 1)
-                        ""))))))
-            (bf.at temp0
-              (bf.if
-                body))))]
-    (..
-      (bf.at temp0 (bf.set 1))
-      (_case 0 ...))))
+  (_build-case-args bf.inc2 temp0 temp1 ...))
 
 bf

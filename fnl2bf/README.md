@@ -220,7 +220,8 @@ Remove useless combinations of brainfuck commands from `code`
 ## `bf.optimize2` (λ)
 ```(bf.optimize2 code ?steps)```
 
-Remove useless combinations of brainfuck commands from `code`
+Remove useless combinations of brainfuck commands from `code`.
+More aggressive version of `bf.optimize`.
 
 ## `bf.double` (λ)
 ```(bf.double ...)```
@@ -235,6 +236,18 @@ low reserved reserved high
 
 Print the value of the current cell as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
+
+## `_generic-case` (λ)
+```(_generic-case inc-fn temp0 ?temp1 args)```
+
+This function is used to implement both `bf.case!` and `bf.case2!`.
+Do not use this directly.
+
+## `_build-case-args` (λ)
+```(_build-case-args inc-fn temp0 ?temp1 ...)```
+
+This function generates the `args` for `_generic-case`.
+Do not use this directly.
 
 ## `bf.case!` (λ)
 ```(bf.case! temp ...)```
