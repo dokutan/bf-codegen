@@ -827,7 +827,9 @@ Parameters beginning with `temp` are always pointers to cells."
   (faccumulate [result (bf.optimize code ?steps)
                 _ 1 (or ?steps 100)]
     (-> result
-      (string.gsub "[<>%+%-]+$" ""))))
+      (string.gsub "[<>%+%-]+$" "")
+      (string.gsub "^[<>]+" "")
+      (string.gsub "^%[%-%]+" ""))))
 
 (λ bf.double [...]
   "
@@ -856,7 +858,7 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ _generic-case [inc-fn temp0 ?temp1 args]
+(λ _generic-case [inc-fn temp0 temp0-init ?temp1 args]
   "This function is used to implement both `bf.case!` and `bf.case2!`.
    Do not use this directly."
   (fn _case [initial args]
@@ -887,15 +889,31 @@ Parameters beginning with `temp` are always pointers to cells."
                 body))
             "")))))
   (..
-    (bf.at temp0 (bf.set 1))
+    ;; set temp0
+    (if temp0-init
+      (bf.at temp0
+        (bf.zero)
+        (inc-fn temp0-init ?temp1))
+      "")
+
     (_case 0 args)))
 
 (λ _build-case-args [inc-fn temp0 ?temp1 ...]
   "This function generates the `args` for `_generic-case`.
    Do not use this directly."
   (let [result []]
+    (var init 1)
+
+    ;; iterate over value+code pairs and fill `result`
     (for [i 1 (length [...]) 2]
-      (if (= :table (type (. [...] i)))
+      (if
+        ;; value is :init : set `temp0-init` of `_generic_case`
+        (= :init (. [...] i))
+        (set init (. [...] (+ 1 i)))
+
+        ;; value is a table:
+        ;; transform '[1 2 3] :foo' into '1 :foo 2 false 3 false'
+        (= :table (type (. [...] i)))
         (do
           (table.insert result (+ 1 (length result)) (. [...] i 1))
           (table.insert result (+ 1 (length result)) (. [...] (+ 1 i)))
@@ -903,10 +921,12 @@ Parameters beginning with `temp` are always pointers to cells."
             (table.insert result (+ 1 (length result)) (. [...] i j))
             (table.insert result (+ 1 (length result)) false)))
 
+        ;; else
         (do
           (table.insert result (+ 1 (length result)) (. [...] i))
           (table.insert result (+ 1 (length result)) (. [...] (+ 1 i))))))
-    (_generic-case inc-fn temp0 ?temp1 result)))
+
+    (_generic-case inc-fn temp0 init ?temp1 result)))
 
 (λ bf.case! [temp ...]
   "A switch-case-like construct.

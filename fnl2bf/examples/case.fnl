@@ -34,14 +34,14 @@
     ","
     (bf.inc (- (string.byte "0")))
 
-    (bf.case! 1
-      9 (bf.print2! "nine" 1)
-      8 (bf.print2! "eight" 1)
-      7 (bf.print2! "seven" 1)
-      6 (bf.print2! "six" 1)
-      5 (bf.print2! "five" 1)
-      4 (bf.print2! "four" 1)
-      3 (bf.print2! "three" 1)
-      2 (bf.print2! "two" 1)
-      1 (bf.print2! "one" 1)
-      0 (bf.print2! "zero" 1))))
+    (bf.case! 1 :init 10
+      9 (bf.print2! "nine"  1 10)
+      8 (bf.print2! "eight" 1 10)
+      7 (bf.print2! "seven" 1 10)
+      6 (bf.print2! "six"   1 10)
+      5 (bf.print2! "five"  1 10)
+      4 (bf.print2! "four"  1 10)
+      3 (bf.print2! "three" 1 10)
+      2 (bf.print2! "two"   1 10)
+      1 (bf.print2! "one"   1 10)
+      0 (bf.print2! "zero"  1 10))))
