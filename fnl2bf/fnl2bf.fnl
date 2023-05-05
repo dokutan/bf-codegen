@@ -1231,7 +1231,7 @@ Parameters beginning with `temp` are always pointers to cells."
         (: logfile :write "],\n")))
 
     (when logfile
-      (: logfile :write (.. "]\np = plot(lengths)\nsavefig(" ?logfile ".svg)\n")))
+      (: logfile :write (.. "]\np = plot(lengths)\nsavefig(\"" ?logfile ".svg\")\n")))
 
     optimal-parms))
 
