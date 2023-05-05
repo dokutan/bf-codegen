@@ -238,7 +238,7 @@ Print the value of the current cell as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
 
 ## `_generic-case` (λ)
-```(_generic-case inc-fn temp0 ?temp1 args)```
+```(_generic-case inc-fn temp0 temp0-init ?temp1 args)```
 
 This function is used to implement both `bf.case!` and `bf.case2!`.
 Do not use this directly.
@@ -262,4 +262,15 @@ The code will be run at `temp`.
 A switch-case-like construct.
 Takes an arbitrary number of value+code pairs and an optional default case.
 The code will be run at `temp0`.
+
+## `bf.optimize-parms` (fn)
+```(bf.optimize-parms func parms ?progress ?logfile)```
+
+Optimize the independent parameters `parms` of the function `func`.
+The goal is to find the parameters producing the shortest result of `func`.
+The parameters should not influence each other and must be given as a table of
+tables, each containing a minimum and maximum value, e.g. `[[1 100] [0 255]]`.
+If `?progress` is true, print the progress to stderr.
+If `?logfile` is a filename, a Julia script producing a plot of the result
+length is generated.
 

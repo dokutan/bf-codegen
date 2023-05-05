@@ -268,6 +268,222 @@ Parameters beginning with `temp` are always pointers to cells."
   [17 15 0]
 ])
 
+;; adapted from: https://esolangs.org/wiki/Brainfuck_constants
+(set bf.inc2-templates [
+  nil nil nil nil nil nil nil nil nil nil
+  nil nil nil nil nil nil nil nil nil nil
+  nil nil nil nil nil nil nil nil nil nil
+  nil nil nil
+  "}--[{--}+++++++]{--"
+  "}--[{--}+++++++]{-"
+  "}--[{--}+++++++]{"
+  "}---[{+}+++++++]{"
+  "}---[{+}+++++++]{+"
+  "}---[{+}+++++++]{++"
+  "}--[{+}++++++]{---"
+  "}--[{+}++++++]{--"
+  "}--[{+}++++++]{-"
+  "}--[{+}++++++]{"
+  "}--[{+}++++++]{+"
+  "}--[{+}++++++]{++"
+  "}--[{+}++++++]{+++"
+  "}-[{+}-----]{----"
+  "}-[{+}-----]{---"
+  "}-[{+}-----]{--"
+  "}-[{+}-----]{-"
+  "}-[{+}-----]{"
+  "}-[{+}-----]{+"
+  "}-[{+}-----]{++"
+  "}-[{+}-----]{+++"
+  "}-[{+}-----]{++++"
+  "}-[{+}-----]{+++++"
+  "}-[{+}+++++++++]{"
+  "}-[{+}+++++++++]{+"
+  "}----[{+}----]{----"
+  "}----[{+}----]{---"
+  "}----[{+}----]{--"
+  "}----[{+}----]{-"
+  "}----[{+}----]{"
+  "}----[{+}----]{+"
+  "}----[{+}----]{++"
+  "}----[{+}----]{+++"
+  "}----[{---}----]{"
+  "}----[{---}----]{+"
+  "}----[{---}----]{++"
+  "}-[{+}-------]{---"
+  "}-[{+}-------]{--"
+  "}-[{+}-------]{-"
+  "}-[{+}-------]{"
+  "}-[{+}-------]{+"
+  "}-[{+}-------]{++"
+  "}-[{+}-------]{+++"
+  "}-[{+}---]{--------"
+  "}-[{+}---]{-------"
+  "}-[{+}---]{------"
+  "}-[{+}---]{-----"
+  "}-[{+}---]{----"
+  "}-[{+}---]{---"
+  "}-[{+}---]{--"
+  "}-[{+}---]{-"
+  "}-[{+}---]{"
+  "}-[{+}---]{+"
+  "}-[{+}---]{++"
+  "}-[{+}---]{+++"
+  "}-[{+}---]{++++"
+  "}-[{+}---]{+++++"
+  "}-[{+}---]{++++++"
+  "}-[{+}---]{+++++++"
+  "}-[{+}---]{++++++++"
+  "}-[{+}---]{+++++++++"
+  "}-[{++}-----]{-------"
+  "}-[{++}-----]{------"
+  "}-[{++}-----]{-----"
+  "}-[{++}-----]{----"
+  "}-[{++}-----]{---"
+  "}-[{++}-----]{--"
+  "}-[{++}-----]{-"
+  "}-[{++}-----]{"
+  "}-[{++}-----]{+"
+  "}-[{++}-----]{++"
+  "}-[{++}-----]{+++"
+  "}-[{++}-----]{++++"
+  "}-[{++}-----]{+++++"
+  "}-[{--}-------]{--"
+  "}-[{--}-------]{-"
+  "}-[{--}-------]{"
+  "}-[{--}-------]{+"
+  "}-[{--}-------]{++"
+  "}-[{++}+++++++++]{-"
+  "}-[{++}+++++++++]{"
+  "}-[{++}+++++++++]{+"
+  "}--------[{+++}--]{"
+  "}----[{+++++}--]{-"
+  "}----[{+++++}--]{"
+  "}------[{+++}--]{"
+  "}----[{+++}--]{--"
+  "}----[{+++}--]{-"
+  "}----[{+++}--]{"
+  "}--[{+}--]{----"
+  "}--[{+}--]{---"
+  "}--[{+}--]{--"
+  "}--[{+}--]{-"
+  "}--[{+}--]{"
+  "}--[{-}--]{-"
+  "}--[{-}--]{"
+  "}--[{-}--]{+"
+  "}--[{-}--]{++"
+  "}--[{-}--]{+++"
+  "}--[{-}--]{++++"
+  "}----[{---}--]{"
+  "}----[{---}--]{+"
+  "}----[{---}--]{++"
+  "}------[{---}--]{"
+  "}----[{-----}--]{"
+  "}----[{-----}--]{+"
+  "}--------[{---}--]{"
+  "}-[{--}+++++++++]{-"
+  "}-[{--}+++++++++]{"
+  "}-[{--}+++++++++]{+"
+  "}-[{++}-------]{--"
+  "}-[{++}-------]{-"
+  "}-[{++}-------]{"
+  "}-[{++}-------]{+"
+  "}-[{++}-------]{++"
+  "}-[{--}-----]{-----"
+  "}-[{--}-----]{----"
+  "}-[{--}-----]{---"
+  "}-[{--}-----]{--"
+  "}-[{--}-----]{-"
+  "}-[{--}-----]{"
+  "}-[{--}-----]{+"
+  "}-[{--}-----]{++"
+  "}-[{--}-----]{+++"
+  "}-[{--}-----]{++++"
+  "}-[{--}-----]{+++++"
+  "}-[{--}-----]{++++++"
+  "}-[{--}-----]{+++++++"
+  "}-[{-}---]{---------"
+  "}-[{-}---]{--------"
+  "}-[{-}---]{-------"
+  "}-[{-}---]{------"
+  "}-[{-}---]{-----"
+  "}-[{-}---]{----"
+  "}-[{-}---]{---"
+  "}-[{-}---]{--"
+  "}-[{-}---]{-"
+  "}-[{-}---]{"
+  "}-[{-}---]{+"
+  "}-[{-}---]{++"
+  "}-[{-}---]{+++"
+  "}-[{-}---]{++++"
+  "}-[{-}---]{+++++"
+  "}-[{-}---]{++++++"
+  "}-[{-}---]{+++++++"
+  "}-[{-}---]{++++++++"
+  "}-[{-}-------]{---"
+  "}-[{-}-------]{--"
+  "}-[{-}-------]{-"
+  "}-[{-}-------]{"
+  "}-[{-}-------]{+"
+  "}-[{-}-------]{++"
+  "}-[{-}-------]{+++"
+  "}----[{+++}----]{--"
+  "}----[{+++}----]{-"
+  "}----[{+++}----]{"
+  "}----[{-}----]{---"
+  "}----[{-}----]{--"
+  "}----[{-}----]{-"
+  "}----[{-}----]{"
+  "}----[{-}----]{+"
+  "}----[{-}----]{++"
+  "}----[{-}----]{+++"
+  "}----[{-}----]{++++"
+  "}-[{-}+++++++++]{-"
+  "}-[{-}+++++++++]{"
+  "}-[{-}-----]{-----"
+  "}-[{-}-----]{----"
+  "}-[{-}-----]{---"
+  "}-[{-}-----]{--"
+  "}-[{-}-----]{-"
+  "}-[{-}-----]{"
+  "}-[{-}-----]{+"
+  "}-[{-}-----]{++"
+  "}-[{-}-----]{+++"
+  "}-[{-}-----]{++++"
+  "}--[{-}++++++]{---"
+  "}--[{-}++++++]{--"
+  "}--[{-}++++++]{-"
+  "}--[{-}++++++]{"
+  "}--[{-}++++++]{+"
+  "}--[{-}++++++]{++"
+  "}--[{-}++++++]{+++"
+  "}---[{-}+++++++]{--"
+  "}---[{-}+++++++]{-"
+  "}---[{-}+++++++]{"
+  "}--[{++}+++++++]{"
+  "}--[{++}+++++++]{+"
+  "}--[{++}+++++++]{++"
+  "}----[{--------}+]{-"
+  "}----[{--------}+]{"
+  "}-----[{------}+]{-"
+  "}-----[{------}+]{"
+  "}----[{-------}+]{-"
+  "}----[{-------}+]{"
+  "}---[{---------}+]{"
+  "}-----[{-----}+]{-"
+  "}-----[{-----}+]{"
+  "}----[{------}+]{"
+  "}----[{------}+]{+"
+  "}---[{-------}+]{-"
+  "}---[{-------}+]{"
+  "}----[{-----}+]{"
+  "}---[{------}+]{-"
+  "}---[{------}+]{"
+  "}----[{----}+]{-"
+  "}----[{----}+]{"
+  "}---[{-----}+]{"
+])
+
 (λ bf.shortest [...]
   "Returns the shortest argument"
   (let [t [...]]
@@ -321,37 +537,55 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.inc2 [value temp0]
   "Add `value` to the current cell, using `temp0`. `temp0` must be 0."
-  (let [_inc2
-        (fn [value sign]
-          (..
-            (bf.inc (* sign (. bf.factors value 3)))
-            (bf.at temp0
-              (bf.inc (. bf.factors value 2))
-              (bf.loop
-                (bf.at (- temp0)
-                  (bf.inc (* sign (. bf.factors value 1))))
-                "-"))))]
+  (λ bf._inc2 [value temp0]
+    (let [_inc2
+          (fn [value sign]
+            (..
+              (bf.inc (* sign (. bf.factors value 3)))
+              (bf.at temp0
+                (bf.inc (. bf.factors value 2))
+                (bf.loop
+                  (bf.at (- temp0)
+                    (bf.inc (* sign (. bf.factors value 1))))
+                  "-"))))]
 
-    (if (<= 1 (math.abs value) 255)
-      (bf.shortest
-        (bf.inc value)
-        (if
-          (> value 0)
-          (_inc2 value 1)
+      (if (<= 1 (math.abs value) 255)
+        (bf.shortest
+          (bf.inc value)
+          (if
+            (> value 0)
+            (_inc2 value 1)
 
-          (< value 0)
-          (_inc2 (- value) -1)
+            (< value 0)
+            (_inc2 (- value) -1)
 
-          "")
-        (if
-          (> value 0)
-          (_inc2 (- (- value 256)) -1)
+            "")
+          (if
+            (> value 0)
+            (_inc2 (- (- value 256)) -1)
 
-          (< value 0)
-          (_inc2 (+ value 256) 1)
+            (< value 0)
+            (_inc2 (+ value 256) 1)
 
-          ""))
-      (bf.inc value))))
+            ""))
+        (bf.inc value))))
+
+  (if
+    (. bf.inc2-templates value)
+    (bf.shortest
+      (-> (. bf.inc2-templates value)
+        (string.gsub "}" (bf.ptr temp0))
+        (string.gsub "{" (bf.ptr (- temp0))))
+      (bf._inc2 value temp0))
+
+    (and (< value 0) (. bf.inc2-templates (+ 256 value)))
+    (bf.shortest
+      (-> (. bf.inc2-templates (+ 256 value))
+        (string.gsub "}" (bf.ptr temp0))
+        (string.gsub "{" (bf.ptr (- temp0))))
+      (bf._inc2 value temp0))
+
+    (bf._inc2 value temp0)))
 
 (λ bf.inc3 [value temp0 temp1]
   "Add `value` to the current cell, using `temp0` and `temp1`.
@@ -810,26 +1044,35 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.optimize [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`"
+  (var last-length 0)
   (faccumulate [result code
-                _ 1 (or ?steps 100)]
-    (-> result
-      (string.gsub "[%+%-]+%[%-%]" "[-]")
-      (string.gsub "%[%[%-%]%]" "[-]")
-      (string.gsub "<>" "")
-      (string.gsub "><" "")
-      (string.gsub "%+%-" "")
-      (string.gsub "%-%+" "")
-      (string.gsub "%]%[%-%]" "]"))))
+                _ 1 (or ?steps 100)
+                &until (= last-length (length result))]
+    (do
+      (set last-length (length result))
+      (-> result
+        (string.gsub "[%+%-]+%[%-%]" "[-]")
+        (string.gsub "%[%[%-%]%]" "[-]")
+        (string.gsub "<>" "")
+        (string.gsub "><" "")
+        (string.gsub "%+%-" "")
+        (string.gsub "%-%+" "")
+        (string.gsub "%]%[%-%]" "]")))))
 
 (λ bf.optimize2 [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`.
    More aggressive version of `bf.optimize`."
+  (var last-length 0)
   (faccumulate [result (bf.optimize code ?steps)
-                _ 1 (or ?steps 100)]
-    (-> result
-      (string.gsub "[<>%+%-]+$" "")
-      (string.gsub "^[<>]+" "")
-      (string.gsub "^%[%-%]+" ""))))
+                _ 1 (or ?steps 100)
+                &until (= last-length (length result))]
+    (do
+      (set last-length (length result))
+      (-> result
+        (string.gsub "[%+%-]+," ",")
+        (string.gsub "[<>%+%-]+$" "")
+        (string.gsub "^[<>]+" "")
+        (string.gsub "^%[%-%]+" "")))))
 
 (λ bf.double [...]
   "
@@ -939,5 +1182,57 @@ Parameters beginning with `temp` are always pointers to cells."
    Takes an arbitrary number of value+code pairs and an optional default case.
    The code will be run at `temp0`."
   (_build-case-args bf.inc2 temp0 temp1 ...))
+
+(fn bf.optimize-parms [func parms ?progress ?logfile]
+  "Optimize the independent parameters `parms` of the function `func`.
+   The goal is to find the parameters producing the shortest result of `func`.
+   The parameters should not influence each other and must be given as a table of
+   tables, each containing a minimum and maximum value, e.g. `[[1 100] [0 255]]`.
+   If `?progress` is true, print the progress to stderr.
+   If `?logfile` is a filename, a Julia script producing a plot of the result
+   length is generated."
+  (let [parms-count (length parms)
+        current-parms
+        (fcollect [i 1 parms-count]
+          (. parms i 1))
+        optimal-parms []
+        logfile (if ?logfile (io.open ?logfile :w) nil)]
+
+    (when logfile
+      (: logfile :write "using Plots\nlengths = [\n"))
+
+    ;; for each parameter
+    (for [i 1 parms-count]
+      (var optimal-value nil)
+      (var optimal-length (/ 1 0))
+
+      (when logfile
+        (: logfile :write "[\n"))
+      ;; for minimal to maximal value
+      (for [v (. parms i 1) (. parms i 2)]
+        (when ?progress
+          (io.stderr:write "\roptimizing parameter " i " ... " v))
+        (tset current-parms i v)
+
+        ;; get length for current parms
+        (let [current-length (length (func current-parms))]
+          (when logfile
+            (: logfile :write current-length ","))
+          (when (< current-length optimal-length)
+            (set optimal-length current-length)
+            (set optimal-value v))))
+
+      ;; reset current-parms, store optimal value
+      (tset current-parms i (. parms i 1))
+      (tset optimal-parms i optimal-value)
+      (when ?progress
+        (io.stderr:write " → " optimal-value "\n"))
+      (when logfile
+        (: logfile :write "],\n")))
+
+    (when logfile
+      (: logfile :write (.. "]\np = plot(lengths)\nsavefig(" ?logfile ".svg)\n")))
+
+    optimal-parms))
 
 bf
