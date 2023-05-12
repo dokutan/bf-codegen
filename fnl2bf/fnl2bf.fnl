@@ -612,6 +612,31 @@ Parameters beginning with `temp` are always pointers to cells."
         ""))
     (bf.inc value)))
 
+(λ bf.inc2-2 [value1 value2 at2 temp]
+  "Increment the current cell by `value1` and the cell at `at2` by velue2`.
+   `temp` must be zero."
+
+  ;; load inc2-2-factors lazily to improve performance when it is not needed
+  (when (not bf.inc2-2-factors)
+    (tset bf :inc2-2-factors (require "inc2-2-factors")))
+
+  (let [[i1 i2 il a1 a2 al]
+        (. bf.inc2-2-factors (.. value1 "," value2))]
+    (..
+      (bf.inc i1)
+      (bf.ptr at2)
+      (bf.inc i2)
+      (bf.ptr temp at2)
+      (bf.inc il)
+      (bf.loop
+        (bf.ptr (- temp))
+        (bf.inc a1)
+        (bf.ptr at2)
+        (bf.inc a2)
+        (bf.ptr temp at2)
+        (bf.inc al))
+      (bf.ptr (- temp)))))
+
 (λ bf.zero []
   "Set current cell to 0"
   (bf.loop "-"))
@@ -913,8 +938,10 @@ Parameters beginning with `temp` are always pointers to cells."
 
           ;; try copying the last byte
           (bf.shortest
-            (bf.at (- move)
-              (bf.mov move (* 2 move)))
+            (..
+              (bf.at (- move)
+                (bf.mov move (* 2 move)))
+              (bf.set2 (string.byte str i) move (string.byte str (- i 1))))
             (bf.inc2 (string.byte str i) move))
 
           ;; else
@@ -975,6 +1002,31 @@ Parameters beginning with `temp` are always pointers to cells."
           (string.sub str (+ 1 (count str)))))))
 
   (iterate "" str))
+
+(λ bf.string-opt3! [str move]
+  "Slightly optimized version of `bf.string!`.
+   Store `str` in memory, starting at the current cell.
+   All used cells must be initialized as 0. `move` should be ±1."
+  (faccumulate [result ""
+                i 1 (length str) 2]
+    (.. result
+        (if (< i (length str)) ; current byte not the last byte
+
+          (bf.shortest
+            (bf.optimize
+              (..
+                (bf.inc2-2 (string.byte str i) (string.byte str (+ 1 i)) move (* 2 move))
+                (bf.ptr move)))
+
+            (..
+              (bf.inc2 (string.byte str i) move)
+              (bf.ptr move)
+              (bf.inc2 (string.byte str (+ 1 i)) move)))
+
+          ;; else
+          (..
+            (bf.inc2 (string.byte str i) move)))
+        (bf.ptr move))))
 
 (λ bf.string2! [str move temp0 initial]
   "TODO! remove when bf.string2-opt! works
