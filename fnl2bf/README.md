@@ -54,7 +54,7 @@ Add `value` to the current cell, using `temp0` and `temp1`.
 ## `bf.inc2-2` (λ)
 ```(bf.inc2-2 value1 value2 at2 temp)```
 
-Increment the current cell by `value1` and the cell at `at2` by velue2`.
+Increment the current cell by `value1` and the cell at `at2` by `value2`.
 `temp` must be zero.
 
 ## `bf.zero` (λ)
@@ -182,6 +182,13 @@ The value of the current cell is assumed to be `?initial`, if given.
 Print `str` using the current cell and `temp0`, `temp0` must be 0.
 The value of the current cell is assumed to be `?initial`, if given.
 
+## `bf.print3!` (fn)
+```(bf.print3! str temp0 temp1 ?initial)```
+
+Print `str` using the current cell, `temp0` and `temp1`, `temp0` and `temp1` must be 0.
+The value of the current cell is assumed to be `?initial`, if given.
+`temp0` can have a non-zero value afterwards.
+
 ## `bf.string!` (λ)
 ```(bf.string! str move)```
 
@@ -205,7 +212,7 @@ All used cells must be initialized as 0. `move` should be ±1.
 ## `bf.string-opt3!` (λ)
 ```(bf.string-opt3! str move)```
 
-Slightly optimized version of `bf.string!`.
+Optimized version of `bf.string!`.
 Store `str` in memory, starting at the current cell.
 All used cells must be initialized as 0. `move` should be ±1.
 

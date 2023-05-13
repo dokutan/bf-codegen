@@ -613,29 +613,39 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.inc value)))
 
 (λ bf.inc2-2 [value1 value2 at2 temp]
-  "Increment the current cell by `value1` and the cell at `at2` by velue2`.
+  "Increment the current cell by `value1` and the cell at `at2` by `value2`.
    `temp` must be zero."
 
   ;; load inc2-2-factors lazily to improve performance when it is not needed
   (when (not bf.inc2-2-factors)
     (tset bf :inc2-2-factors (require "inc2-2-factors")))
 
-  (let [[i1 i2 il a1 a2 al]
+  (let [value1 (if (< value1 0) (+ 256 value1) value1)
+        value2 (if (< value2 0) (+ 256 value2) value2)
+        value1 (% value1 256)
+        value2 (% value2 256)
+        [i1 i2 il a1 a2 al]
         (. bf.inc2-2-factors (.. value1 "," value2))]
-    (..
-      (bf.inc i1)
-      (bf.ptr at2)
-      (bf.inc i2)
-      (bf.ptr temp at2)
-      (bf.inc il)
-      (bf.loop
-        (bf.ptr (- temp))
-        (bf.inc a1)
+    (bf.shortest
+      (..
+        (bf.inc i1)
         (bf.ptr at2)
-        (bf.inc a2)
+        (bf.inc i2)
         (bf.ptr temp at2)
-        (bf.inc al))
-      (bf.ptr (- temp)))))
+        (bf.inc il)
+        (bf.loop
+          (bf.ptr (- temp))
+          (bf.inc a1)
+          (bf.ptr at2)
+          (bf.inc a2)
+          (bf.ptr temp at2)
+          (bf.inc al))
+        (bf.ptr (- temp)))
+
+      (..
+        (bf.inc2 value1 temp)
+        (bf.at at2
+          (bf.inc2 value2 (- temp at2)))))))
 
 (λ bf.zero []
   "Set current cell to 0"
@@ -644,7 +654,9 @@ Parameters beginning with `temp` are always pointers to cells."
 (λ bf.set [value ?initial]
   "Set current cell to value"
   (if ?initial
-    (bf.inc (- value ?initial))
+    (bf.shortest
+      (bf.inc (- value ?initial))
+      (bf.set value))
     (..
       (bf.zero)
       (bf.inc value))))
@@ -652,7 +664,9 @@ Parameters beginning with `temp` are always pointers to cells."
 (λ bf.set2 [value temp0 ?initial]
   "Set current cell to value, using `temp0`. `temp0` must be 0."
   (if ?initial
-    (bf.inc2 (- value ?initial) temp0)
+    (bf.shortest
+      (bf.inc2 (- value ?initial) temp0)
+      (bf.set2 value temp0))
     (..
       (bf.zero)
       (bf.inc2 value temp0))))
@@ -917,6 +931,41 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.zero)
       (bf.print2! str temp0 0))))
 
+(fn bf.print3! [str temp0 temp1 ?initial]
+  "Print `str` using the current cell, `temp0` and `temp1`, `temp0` and `temp1` must be 0.
+   The value of the current cell is assumed to be `?initial`, if given.
+   `temp0` can have a non-zero value afterwards."
+  (fn print3 [str temp0 temp1 ?initial]
+    (faccumulate [result ""
+                  i 1 (length str) 2]
+      (.. result
+          (if (< i (length str)) ; current byte not the last byte
+            (..
+              (bf.inc2-2
+                (if (> i 2)
+                  (- (string.byte str i) (string.byte str (- i 2)))
+                  (- (string.byte str i) (if ?initial ?initial 0)))
+                (if (> i 2)
+                  (- (string.byte str (+ 1 i)) (string.byte str (- i 1)))
+                  (string.byte str (+ 1 i)))
+                temp0
+                temp1)
+              "." (bf.at temp0 "."))
+            ;; else
+            (..
+              (bf.set2
+                (string.byte str i)
+                temp1
+                (if (> i 2)
+                  (string.byte str (- i 2))
+                  0))
+              ".")))))
+    (bf.shortest
+      (bf.print2! str temp1 ?initial)
+      (bf.print2! str temp0 ?initial)
+      (print3 str temp0 temp1 ?initial)
+      (print3 str temp1 temp0 ?initial)))
+
 (λ bf.string! [str move]
   "Store `str` in memory, starting at the current cell.
    All used cells must be initialized as 0. `move` should be ±1."
@@ -1004,29 +1053,28 @@ Parameters beginning with `temp` are always pointers to cells."
   (iterate "" str))
 
 (λ bf.string-opt3! [str move]
-  "Slightly optimized version of `bf.string!`.
+  "Optimized version of `bf.string!`.
    Store `str` in memory, starting at the current cell.
    All used cells must be initialized as 0. `move` should be ±1."
-  (faccumulate [result ""
-                i 1 (length str) 2]
-    (.. result
-        (if (< i (length str)) ; current byte not the last byte
-
-          (bf.shortest
-            (bf.optimize
-              (..
-                (bf.inc2-2 (string.byte str i) (string.byte str (+ 1 i)) move (* 2 move))
-                (bf.ptr move)))
-
+  (fn string-opt3 [str move]
+    (faccumulate [result ""
+                  i 1 (length str) 2]
+      (.. result
+          (if (< i (length str)) ; current byte not the last byte
             (..
-              (bf.inc2 (string.byte str i) move)
-              (bf.ptr move)
-              (bf.inc2 (string.byte str (+ 1 i)) move)))
+              (bf.inc2-2 (string.byte str i) (string.byte str (+ 1 i)) move (* 2 move))
+              (bf.ptr move))
 
-          ;; else
-          (..
-            (bf.inc2 (string.byte str i) move)))
-        (bf.ptr move))))
+            ;; else
+            (bf.inc2 (string.byte str i) move))
+          (bf.ptr move))))
+
+  (bf.shortest
+    (string-opt3 str move)
+    (..
+      (bf.inc2 (string.byte str 1 1) move)
+      (bf.ptr move)
+      (string-opt3 (string.sub str 2) move))))
 
 (λ bf.string2! [str move temp0 initial]
   "TODO! remove when bf.string2-opt! works
