@@ -41,9 +41,10 @@ Move pointer by `distance`. If `?from` is not nil, assume the ptr starts at `?fr
 Add `value` to current cell
 
 ## `bf.inc2` (λ)
-```(bf.inc2 value temp0)```
+```(bf.inc2 value temp ?temp-initial)```
 
-Add `value` to the current cell, using `temp0`. `temp0` must be 0.
+Add `value` to the current cell, using `temp0`.
+`temp0` must be 0 or have the value `?temp-initial`.
 
 ## `bf.inc2-2` (λ)
 ```(bf.inc2-2 value1 value2 at2 temp)```
