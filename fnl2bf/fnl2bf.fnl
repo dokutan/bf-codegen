@@ -587,31 +587,6 @@ Parameters beginning with `temp` are always pointers to cells."
 
     (bf._inc2 value temp0)))
 
-(λ bf.inc3 [value temp0 temp1]
-  "Add `value` to the current cell, using `temp0` and `temp1`.
-  `temp0` and `temp1` must be 0."
-  (if (<= 1 (math.abs value) 255)
-    (bf.shortest
-      (bf.inc2 value temp0)
-      (bf.inc2 value temp1)
-
-      (if
-        (> value 0)
-        (..
-          (bf.inc2 (. bf.factors value 3) temp0)
-          (bf.at temp0
-            (bf.inc2 (. bf.factors value 2) (- temp1 temp0))
-            (bf.loop
-              (bf.at (- temp0)
-                (bf.inc2 (. bf.factors value 1) temp1))
-              "-")))
-
-        (< value 0)
-        (bf.inc2 value temp0) ; TODO
-
-        ""))
-    (bf.inc value)))
-
 (λ bf.inc2-2 [value1 value2 at2 temp]
   "Increment the current cell by `value1` and the cell at `at2` by `value2`.
    `temp` must be zero."

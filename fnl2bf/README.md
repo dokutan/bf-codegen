@@ -45,12 +45,6 @@ Add `value` to current cell
 
 Add `value` to the current cell, using `temp0`. `temp0` must be 0.
 
-## `bf.inc3` (λ)
-```(bf.inc3 value temp0 temp1)```
-
-Add `value` to the current cell, using `temp0` and `temp1`.
-`temp0` and `temp1` must be 0.
-
 ## `bf.inc2-2` (λ)
 ```(bf.inc2-2 value1 value2 at2 temp)```
 
