@@ -666,6 +666,62 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.zero)
       (bf.print2! str temp0 0))))
 
+(λ bf.print2+! [str temp0 ?initial]
+  "Print `str` using the current cell and `temp0`, `temp0` must be 0.
+   The value of the current cell is assumed to be `?initial`, if given."
+  (var last-current ?initial)
+  (var last-temp 0) ; TODO add as parameter
+
+  (if ?initial
+
+    (faccumulate [result ""
+                  i 1 (length str)]
+      (let [swapped? (= 0 (% i 2)) ; TODO try both this and: (not= 0 (% i 2))
+
+            print-char
+            (..
+              ;; TODO: explore alternatives, e.g. zero+inc, no swapping, ...
+              ; (bf.inc2 (- (string.byte str i)
+              ;             (or (string.byte str (- i 1)) ?initial))
+              ;          temp0)
+              ; (bf.set2 (string.byte str i) temp0)
+
+              (if swapped? ; current cell is temp0, temp cell is -temp0
+                (bf.at temp0
+                  (bf.inc2
+                    (- (string.byte str i) last-temp)
+                    (- temp0)
+                    last-current)
+                  ".")
+                (..
+                  (bf.inc2
+                    (- (string.byte str i) last-current)
+                    temp0
+                    last-temp)
+                  ".")
+                ))
+
+              last-temp-value ; value of the cell last used as temp
+              (if
+                (string.find print-char "%[") 0
+                swapped? last-current
+                last-temp)]
+
+        ;; update last-current and last-temp
+        (if swapped?
+          (do
+            (set last-current last-temp-value)
+            (set last-temp (string.byte str i)))
+          (do
+            (set last-temp last-temp-value)
+            (set last-current (string.byte str i))))
+
+        (.. result print-char)))
+
+    (..
+      (bf.zero)
+      (bf.print2+! str temp0 0))))
+
 (fn bf.print3! [str temp0 temp1 ?initial]
   "Print `str` using the current cell, `temp0` and `temp1`, `temp0` and `temp1` must be 0.
    The value of the current cell is assumed to be `?initial`, if given.
