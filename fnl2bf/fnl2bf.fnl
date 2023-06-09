@@ -935,20 +935,34 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.optimize [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`"
-  (var last-length 0)
-  (faccumulate [result code
-                _ 1 (or ?steps 100)
-                &until (= last-length (length result))]
-    (do
-      (set last-length (length result))
-      (-> result
-        (string.gsub "[%+%-]+%[%-%]" "[-]")
-        (string.gsub "%[%[%-%]%]" "[-]")
-        (string.gsub "<>" "")
-        (string.gsub "><" "")
-        (string.gsub "%+%-" "")
-        (string.gsub "%-%+" "")
-        (string.gsub "%]%[%-%]" "]")))))
+  (fn optimize [code ?steps]
+    (var last-length 0)
+    (faccumulate [result code
+                  _ 1 (or ?steps 100)
+                  &until (= last-length (length result))]
+      (do
+        (set last-length (length result))
+        (-> result
+          (string.gsub "[%+%-]+%[%-%]" "[-]")
+          (string.gsub "%[%[%-%]%]" "[-]")
+          (string.gsub "<>" "")
+          (string.gsub "><" "")
+          (string.gsub "%+%-" "")
+          (string.gsub "%-%+" "")
+          (string.gsub "%]%[%-%]" "]")))))
+
+  (-> code ; TODO improve this
+    (optimize ?steps)
+    (string.gsub "(>>[%+%-]+%[<<[%+%-]+>>[%+%-]+%]<<)([%+%-]+)" "%2%1")
+    (string.gsub "(>[%+%-]+%[<[%+%-]+>[%+%-]+%]<)([%+%-]+)" "%2%1")
+    (string.gsub "(<[%+%-]+%[>[%+%-]+<[%+%-]+%]>)([%+%-]+)" "%2%1")
+    (string.gsub "(<<[%+%-]+%[>>[%+%-]+<<[%+%-]+%]>>)([%+%-]+)" "%2%1")
+    (optimize ?steps)
+    (string.gsub "([%+%-]+)(>>[%+%-]+%[<<[%+%-]+>>[%+%-]+%]<<)" "%2%1")
+    (string.gsub "([%+%-]+)(>[%+%-]+%[<[%+%-]+>[%+%-]+%]<)" "%2%1")
+    (string.gsub "([%+%-]+)(<[%+%-]+%[>[%+%-]+<[%+%-]+%]>)" "%2%1")
+    (string.gsub "([%+%-]+)(<<[%+%-]+%[>>[%+%-]+<<[%+%-]+%]>>)" "%2%1")
+    (optimize ?steps)))
 
 (λ bf.optimize2 [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`.
