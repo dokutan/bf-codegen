@@ -274,11 +274,16 @@ Parameters beginning with `temp` are always pointers to cells."
     (table.sort t (λ [a b] (< (length a) (length b))))
     (. t 1)))
 
-(λ bf.shortest-in [tbl]
-  "Returns the shortest element from `tbl`"
+(λ bf.shortest-in [tbl ?randomize]
+  "Returns the shortest element from `tbl`
+   If `?randomize` is true and there are two shortest elements, choose one randomly."
   (let [t tbl]
     (table.sort t (λ [a b] (< (length a) (length b))))
-    (. t 1)))
+    (if (and ?randomize
+             (= (length (. t 1)) (length (. t 2)))
+             (= 1 (math.random 0 1)))
+      (. t 2)
+      (. t 1))))
 
 (λ bf.loop [...]
   "A loop: [...]"
@@ -872,6 +877,40 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.print2! str temp0 ?initial)
       (print3 str temp0 temp1 ?initial)
       (print3 str temp1 temp0 ?initial)))
+
+(λ bf.print-from-memory [str memory ptr ?randomize]
+  "Print `str`, assumes the memory is initialized with the values from `memory`.
+   `memory` is modified in place.
+   `ptr` is the initial pointer position in `memory`.
+   `?randomize` is passed to `shortest-in`."
+  (fn print-char [char memory ptr]
+    ;; for each cell in memory: try move + set + print
+    (var modified-index {})
+    (let [alternatives
+          (fcollect [i 1 (length memory)]
+            (let [p
+                  (..
+                    (bf.ptr (- i ptr))
+                    (bf.set char (. memory i))
+                    ".")]
+              (tset modified-index p i)
+              p))
+
+          shortest-alternative
+          (bf.shortest-in alternatives ?randomize)]
+
+      (tset memory (. modified-index shortest-alternative) char)
+      (values
+        shortest-alternative
+        (. modified-index shortest-alternative))))
+
+  (table.unpack
+    (faccumulate [result ["" ptr]
+                  i 1 (length str)]
+      (let [(code new-ptr)
+            (print-char (string.byte str i i) memory (. result 2))]
+        [(.. (. result 1) code)
+         new-ptr]))))
 
 (λ bf.string! [str move]
   "Store `str` in memory, starting at the current cell.
