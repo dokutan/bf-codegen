@@ -629,6 +629,14 @@ Parameters beginning with `temp` are always pointers to cells."
         (table.concat [...] ""))
       "-")))
 
+(λ bf.do-times-at [temp ...]
+  "Run the body n times, n = value of `temp`."
+  (bf.at temp
+    (bf.loop
+      (bf.at (- temp)
+        (table.concat [...] ""))
+      "-")))
+
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
    The value of the current cell is assumed to be `?initial`, if given."
@@ -669,37 +677,37 @@ Parameters beginning with `temp` are always pointers to cells."
 (λ bf.print2+! [str temp0 ?initial]
   "Print `str` using the current cell and `temp0`, `temp0` must be 0.
    The value of the current cell is assumed to be `?initial`, if given."
-  (var last-current ?initial)
-  (var last-temp 0) ; TODO add as parameter
+  (fn print2+! [swapfn str temp0 ?initial]
+    (var last-current ?initial)
+    (var last-temp 0) ; TODO add as parameter
 
-  (if ?initial
+    (if ?initial
+      (faccumulate [result ""
+                    i 1 (length str)]
+        (let [swapped? (swapfn 0 (% i 2)) ; TODO try both this and: (not= 0 (% i 2))
 
-    (faccumulate [result ""
-                  i 1 (length str)]
-      (let [swapped? (= 0 (% i 2)) ; TODO try both this and: (not= 0 (% i 2))
+              print-char
+              (..
+                ;; TODO: explore alternatives, e.g. zero+inc, no swapping, ...
+                ; (bf.inc2 (- (string.byte str i)
+                ;             (or (string.byte str (- i 1)) ?initial))
+                ;          temp0)
+                ; (bf.set2 (string.byte str i) temp0)
 
-            print-char
-            (..
-              ;; TODO: explore alternatives, e.g. zero+inc, no swapping, ...
-              ; (bf.inc2 (- (string.byte str i)
-              ;             (or (string.byte str (- i 1)) ?initial))
-              ;          temp0)
-              ; (bf.set2 (string.byte str i) temp0)
-
-              (if swapped? ; current cell is temp0, temp cell is -temp0
-                (bf.at temp0
-                  (bf.inc2
-                    (- (string.byte str i) last-temp)
-                    (- temp0)
-                    last-current)
-                  ".")
-                (..
-                  (bf.inc2
-                    (- (string.byte str i) last-current)
-                    temp0
-                    last-temp)
-                  ".")
-                ))
+                (if swapped? ; current cell is temp0, temp cell is -temp0
+                  (bf.at temp0
+                    (bf.inc2
+                      (- (string.byte str i) last-temp)
+                      (- temp0)
+                      last-current)
+                    ".")
+                  (..
+                    (bf.inc2
+                      (- (string.byte str i) last-current)
+                      temp0
+                      last-temp)
+                    ".")
+                  ))
 
               last-temp-value ; value of the cell last used as temp
               (if
@@ -707,20 +715,128 @@ Parameters beginning with `temp` are always pointers to cells."
                 swapped? last-current
                 last-temp)]
 
+          ;; update last-current and last-temp
+          (if swapped?
+            (do
+              (set last-current last-temp-value)
+              (set last-temp (string.byte str i)))
+            (do
+              (set last-temp last-temp-value)
+              (set last-current (string.byte str i))))
+
+          (.. result print-char)))
+
+      ;; else
+      (..
+        (bf.zero)
+        (print2+! swapfn str temp0 0))))
+
+    (bf.shortest
+      (print2+! #(= $1 $2) str temp0 ?initial)
+      (print2+! #(not= $1 $2) str temp0 ?initial)))
+
+(λ bf.print2++! [str temp0 ?initial]
+  "Print `str` using the current cell and `temp0`, `temp0` must be 0.
+   The value of the current cell is assumed to be `?initial`, if given.
+   TODO! Does not work reliably."
+  (var last-current ?initial)
+  (var last-temp 0) ; TODO add as parameter
+
+  (if ?initial
+    (faccumulate [result ""
+                  i 1 (length str)]
+      (let [a1
+            (bf.at temp0
+              (bf.inc2
+                (- (string.byte str i) last-temp)
+                (- temp0)
+                last-current)
+              ".")
+
+            a2
+            (..
+              (bf.inc2
+                (- (string.byte str i) last-current)
+                temp0
+                last-temp)
+              ".")
+
+            a3
+            (bf.at temp0
+              (bf.zero)
+              (bf.inc2
+                (string.byte str i)
+                (- temp0)
+                last-current)
+              ".")
+
+            a4
+            (..
+              (bf.zero)
+              (bf.inc2
+                (string.byte str i)
+                temp0
+                last-temp)
+              ".")
+
+            A1 (bf.optimize (.. result a1))
+            A2 (bf.optimize (.. result a2))
+            A3 (bf.optimize (.. result a3))
+            A4 (bf.optimize (.. result a4))
+
+            shortest-alternative
+            (bf.shortest A1 A2 A3 A4)]
+
         ;; update last-current and last-temp
-        (if swapped?
+        (if
+          ;; setting temp, zeroing current
+          (and (= shortest-alternative A1) (string.find a1 ">"))
           (do
-            (set last-current last-temp-value)
+            (set last-current 0)
             (set last-temp (string.byte str i)))
+
+          ;; setting current, zeroing temp
+          (and (= shortest-alternative A2) (string.find a2 ">"))
           (do
-            (set last-temp last-temp-value)
-            (set last-current (string.byte str i))))
+            (set last-current (string.byte str i))
+            (set last-temp 0))
 
-        (.. result print-char)))
+          ;; setting temp, zeroing current
+          (and (= shortest-alternative A3) (string.find a3 ">"))
+          (do
+            (set last-current 0)
+            (set last-temp (string.byte str i)))
 
+          ;; setting current, zeroing temp
+          (and (= shortest-alternative A4) (string.find a4 ">"))
+          (do
+            (set last-current (string.byte str i))
+            (set last-temp 0))
+
+          ;; setting temp, not changing current
+          (= shortest-alternative A1)
+          (set last-temp (string.byte str i))
+
+          ;; setting current, not changing temp
+          (= shortest-alternative A2)
+          (set last-current (string.byte str i))
+
+          ;; setting temp, not changing current
+          (= shortest-alternative A3)
+          (set last-temp (string.byte str i))
+
+          ;; setting current, not changing temp
+          (= shortest-alternative A4)
+          (set last-current (string.byte str i))
+
+          )
+
+        shortest-alternative))
+
+    ;; else
     (..
       (bf.zero)
-      (bf.print2+! str temp0 0))))
+      (bf.print2++! str temp0 0))))
 
 (fn bf.print3! [str temp0 temp1 ?initial]
   "Print `str` using the current cell, `temp0` and `temp1`, `temp0` and `temp1` must be 0.
@@ -1006,7 +1122,7 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ _generic-case [inc-fn temp0 temp0-init ?temp1 args]
+(λ _generic-case [inc-fn temp0 temp0-init ?temp1 args body-zero]
   "This function is used to implement both `bf.case!` and `bf.case2!`.
    Do not use this directly."
   (fn _case [initial args]
@@ -1027,14 +1143,16 @@ Parameters beginning with `temp` are always pointers to cells."
               (..                ; default case
                 (bf.zero)
                 (bf.at temp0
-                  (bf.if
+                  (bf.loop
                     (if (>= (length args) 1)
                       (. args 1)
-                      ""))))))
+                      "")
+                    (or body-zero ""))))))
           (if body
             (bf.at temp0
-              (bf.if
-                body))
+              (bf.loop
+                body
+                (or body-zero "")))
             "")))))
   (..
     ;; set temp0
@@ -1051,6 +1169,7 @@ Parameters beginning with `temp` are always pointers to cells."
    Do not use this directly."
   (let [result []]
     (var init 1)
+    (var body-zero (bf.zero))
 
     ;; iterate over value+code pairs and fill `result`
     (for [i 1 (length [...]) 2]
@@ -1058,6 +1177,10 @@ Parameters beginning with `temp` are always pointers to cells."
         ;; value is :init : set `temp0-init` of `_generic_case`
         (= :init (. [...] i))
         (set init (. [...] (+ 1 i)))
+
+        ;; value is :zero : set `body-zero` of `_generic_case`
+        (= :zero (. [...] i))
+        (set body-zero (. [...] (+ 1 i)))
 
         ;; value is a table:
         ;; transform '[1 2 3] :foo' into '1 :foo 2 false 3 false'
@@ -1074,7 +1197,7 @@ Parameters beginning with `temp` are always pointers to cells."
           (table.insert result (+ 1 (length result)) (. [...] i))
           (table.insert result (+ 1 (length result)) (. [...] (+ 1 i))))))
 
-    (_generic-case inc-fn temp0 init ?temp1 result)))
+    (_generic-case inc-fn temp0 init ?temp1 result body-zero)))
 
 (λ bf.case! [temp ...]
   "A switch-case-like construct.
