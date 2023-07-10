@@ -1302,4 +1302,27 @@ Parameters beginning with `temp` are always pointers to cells."
 
     optimal-parms))
 
+(λ bf.sample [func n ?logfile]
+  "Call `func` `n` times and return the shortest result.
+   Optionally write the lengths of all results to `?logfile`."
+  (let [logfile (and ?logfile (io.open ?logfile :w))
+        first-result (func)
+
+        _ (when logfile
+            (: logfile :write (.. (length first-result) "\n")))
+
+        shortest-result
+        (faccumulate [shortest-result first-result
+                      i 1 (- n 1)]
+          (let [current-result (func)]
+            (when logfile
+              (: logfile :write (.. (length current-result) "\n")))
+            (if (< (length current-result) (length shortest-result))
+              current-result
+              shortest-result)))]
+
+    (when logfile
+      (io.close logfile))
+    shortest-result))
+
 bf
