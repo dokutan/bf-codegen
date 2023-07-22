@@ -13,7 +13,7 @@
     ;; ^
     (bf.double "-")
     
-    ;; Any function that doesn't rely on 8-bit wrapping cells can be used with f.double:
+    ;; Any function that doesn't rely on 8-bit wrapping cells can be used with bf.double:
     (bf.double
       (bf.zero)
       (bf.inc 10))
