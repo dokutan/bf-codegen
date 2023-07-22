@@ -354,7 +354,8 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.inc2-2 [value1 value2 at2 temp]
   "Increment the current cell by `value1` and the cell at `at2` by `value2`.
-   `temp` must be zero."
+   `temp` must be zero.
+   TODO add option to add i1, i2 after the loop"
 
   ;; load inc2-2-factors lazily to improve performance when it is not needed
   (when (not bf.inc2-2-factors)
@@ -412,10 +413,19 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.inc2 value temp0))))
 
 (λ bf.add! [to]
-  "Destructively add current cell to `to`"
+  "Add current cell to `to`.
+   Sets the current cell to zero."
   (bf.loop
     (bf.at to
       "+")
+    "-"))
+
+(λ bf.multiply-add! [times to]
+  "Add the value of the current cell times `times` to `to`.
+   Sets the current cell to zero."
+  (bf.loop
+    (bf.at to
+      (bf.inc times))
     "-"))
 
 (λ bf.sub! [to]
