@@ -460,7 +460,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.ptr 0 temp1)))
 
 (λ bf.divmod\! []
-  "Current cell divided/module by the next cell to the right.
+  "Current cell divided/modulo by the next cell to the right.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
    - Before: `>n d 1 0 0 0`
    - After:  `>0 d-n%d n%d n/d 0 0`"
@@ -1144,25 +1144,6 @@ Parameters beginning with `temp` are always pointers to cells."
         (string.gsub "^[<>]+" "")
         (string.gsub "^%[%-%]+" "")))))
 
-(λ bf.double [...]
-  "
-   low reserved reserved high
-   ^ptr
-    "
-  (let [code (table.concat [...])]
-    (faccumulate [result ""
-                  i 1 (length code)]
-      (..
-        result
-        (match (string.sub code i i)
-          ">" ">>>>"
-          "<" "<<<<"
-          "+" ">+<+[>-]>[->>+<]<<"
-          "-" ">+<[>-]>[->>-<]<<-"
-          "[" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-[+<"
-          "]" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-]<"
-          _ (string.sub code i i))))))
-
 (λ bf.print-cell\ []
   "Print the value of the current cell as a decimal number.
    Requires 6 cells containing 0 to the right of the current cell."
@@ -1334,5 +1315,61 @@ Parameters beginning with `temp` are always pointers to cells."
     (when logfile
       (io.close logfile))
     shortest-result))
+
+(λ bf.double [...]
+  "Double the precision of the interpreter.
+   Each 16-bit cell is stored using 4 8-bit cells:
+   low reserved reserved high
+   ^ptr
+    "
+  (let [code (table.concat [...])]
+    (faccumulate [result ""
+                  i 1 (length code)]
+      (..
+        result
+        (match (string.sub code i i)
+          ">" ">>>>"
+          "<" "<<<<"
+          "+" ">+<+[>-]>[->>+<]<<"
+          "-" ">+<[>-]>[->>-<]<<-"
+          "[" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-[+<"
+          "]" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-]<"
+          _ (string.sub code i i))))))
+
+(set bf.D {})
+
+(λ bf.D.ptr [distance]
+  "Doubled version `bf.ptr`: move ptr 4 * `distance`."
+  (bf.ptr (* 4 distance)))
+
+(λ bf.D.zero []
+  "Doubled version `bf.zero`."
+  "[-]>>>[-]<<<")
+
+(λ bf.D.mov! [to]
+  "Doubled version `bf.mov`."
+  (bf.mov! (* 4 to))
+  (bf.at 3
+    (bf.mov! (* 4 to))))
+
+(λ bf.D.print-cell\ []
+  "Print the value of the current doubled cell.
+   Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)"
+  (..
+    (bf.D.ptr 1) (bf.D.zero)
+    (bf.D.ptr 1) (bf.D.zero) "+"
+    (bf.D.ptr 1) (bf.D.zero) "+"
+    (bf.D.ptr -1)
+    (bf.double "[>[-<-<<[->+>+<<]>[-<+>]>>]")
+    (bf.inc 10)
+    (bf.D.ptr 1) (bf.D.zero) "+"
+    (bf.D.ptr 1) (bf.D.zero)
+    (bf.D.ptr 1) (bf.D.zero)
+    (bf.D.ptr 1) (bf.D.zero)
+    (bf.double "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>-[-<<+>>]<")
+    (bf.D.zero) (bf.inc 8)
+    (bf.double "[-<++++++>]>>[-<<+>>]<<]<[.")
+    (bf.D.zero)
+    (bf.double "<]<")))
 
 bf

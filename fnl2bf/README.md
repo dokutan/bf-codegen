@@ -16,9 +16,10 @@ Parameters beginning with `temp` are always pointers to cells.
 Returns the shortest argument
 
 ## `bf.shortest-in` (λ)
-```(bf.shortest-in tbl)```
+```(bf.shortest-in tbl ?randomize)```
 
 Returns the shortest element from `tbl`
+If `?randomize` is true and there are two shortest elements, choose one randomly.
 
 ## `bf.loop` (λ)
 ```(bf.loop ...)```
@@ -51,6 +52,7 @@ Add `value` to the current cell, using `temp0`.
 
 Increment the current cell by `value1` and the cell at `at2` by `value2`.
 `temp` must be zero.
+TODO add option to add i1, i2 after the loop
 
 ## `bf.zero` (λ)
 ```(bf.zero)```
@@ -70,7 +72,14 @@ Set current cell to value, using `temp0`. `temp0` must be 0.
 ## `bf.add!` (λ)
 ```(bf.add! to)```
 
-Destructively add current cell to `to`
+Add current cell to `to`.
+Sets the current cell to zero.
+
+## `bf.multiply-add!` (λ)
+```(bf.multiply-add! times to)```
+
+Add the value of the current cell times `times` to `to`.
+Sets the current cell to zero.
 
 ## `bf.sub!` (λ)
 ```(bf.sub! to)```
@@ -87,7 +96,7 @@ current cell <- current cell * cell at `y`.
 ## `bf.divmod\!` (λ)
 ```(bf.divmod\!)```
 
-Current cell divided/module by the next cell to the right.
+Current cell divided/modulo by the next cell to the right.
 Uses 5 cells to the right of the current cell, cells must be initialized as shown:
 - Before: `>n d 1 0 0 0`
 - After:  `>0 d-n%d n%d n/d 0 0`
@@ -165,6 +174,11 @@ Sets the current cell to 0.
 
 Run the body `n` times.
 
+## `bf.do-times-at` (λ)
+```(bf.do-times-at temp ...)```
+
+Run the body n times, n = value of `temp`.
+
 ## `bf.print!` (λ)
 ```(bf.print! str ?initial)```
 
@@ -177,12 +191,33 @@ The value of the current cell is assumed to be `?initial`, if given.
 Print `str` using the current cell and `temp0`, `temp0` must be 0.
 The value of the current cell is assumed to be `?initial`, if given.
 
+## `bf.print2+!` (λ)
+```(bf.print2+! str temp0 ?initial)```
+
+Print `str` using the current cell and `temp0`, `temp0` must be 0.
+The value of the current cell is assumed to be `?initial`, if given.
+
+## `bf.print2++!` (λ)
+```(bf.print2++! str temp0 ?initial)```
+
+Print `str` using the current cell and `temp0`, `temp0` must be 0.
+The value of the current cell is assumed to be `?initial`, if given.
+TODO! Does not work reliably.
+
 ## `bf.print3!` (fn)
 ```(bf.print3! str temp0 temp1 ?initial)```
 
 Print `str` using the current cell, `temp0` and `temp1`, `temp0` and `temp1` must be 0.
 The value of the current cell is assumed to be `?initial`, if given.
 `temp0` can have a non-zero value afterwards.
+
+## `bf.print-from-memory` (λ)
+```(bf.print-from-memory str memory ptr ?randomize)```
+
+Print `str`, assumes the memory is initialized with the values from `memory`.
+`memory` is modified in place.
+`ptr` is the initial pointer position in `memory`.
+`?randomize` is passed to `shortest-in`.
 
 ## `bf.string!` (λ)
 ```(bf.string! str move)```
@@ -238,14 +273,6 @@ Remove useless combinations of brainfuck commands from `code`
 Remove useless combinations of brainfuck commands from `code`.
 More aggressive version of `bf.optimize`.
 
-## `bf.double` (λ)
-```(bf.double ...)```
-
-
-low reserved reserved high
-^ptr
-
-
 ## `bf.print-cell\` (λ)
 ```(bf.print-cell\)```
 
@@ -253,7 +280,7 @@ Print the value of the current cell as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
 
 ## `_generic-case` (λ)
-```(_generic-case inc-fn temp0 temp0-init ?temp1 args)```
+```(_generic-case inc-fn temp0 temp0-init ?temp1 args body-zero)```
 
 This function is used to implement both `bf.case!` and `bf.case2!`.
 Do not use this directly.
@@ -288,4 +315,40 @@ tables, each containing a minimum and maximum value, e.g. `[[1 100] [0 255]]`.
 If `?progress` is true, print the progress to stderr.
 If `?logfile` is a filename, a Julia script producing a plot of the result
 length is generated.
+
+## `bf.sample` (λ)
+```(bf.sample func n ?logfile)```
+
+Call `func` `n` times and return the shortest result.
+Optionally write the lengths of all results to `?logfile`.
+
+## `bf.double` (λ)
+```(bf.double ...)```
+
+Double the precision of the interpreter.
+Each 16-bit cell is stored using 4 8-bit cells:
+low reserved reserved high
+^ptr
+
+
+## `bf.D.ptr` (λ)
+```(bf.D.ptr distance)```
+
+Doubled version `bf.ptr`: move ptr 4 * `distance`.
+
+## `bf.D.zero` (λ)
+```(bf.D.zero)```
+
+Doubled version `bf.zero`.
+
+## `bf.D.mov!` (λ)
+```(bf.D.mov! to)```
+
+Doubled version `bf.mov`.
+
+## `bf.D.print-cell\` (λ)
+```(bf.D.print-cell\)```
+
+Print the value of the current doubled cell.
+Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
 
