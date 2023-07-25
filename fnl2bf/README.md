@@ -122,6 +122,12 @@ Destructively move current cell to `to`
 Copy value of the current cell to `to`, using `temp`.
 `temp` and `to` must be manually set to 0, unless `?init` is true.
 
+## `bf.add` (λ)
+```(bf.add to temp)```
+
+Add the value of the current cell to `to`, using `temp`.
+`temp` must be zero.
+
 ## `bf.swap` (λ)
 ```(bf.swap y temp0)```
 
@@ -143,6 +149,22 @@ current cell <- current cell == cell at `y`. Sets `y` to 0.
 current cell <- current cell < next cell.
 - before: >x y 0 0
 - after: >(x<y) 0 0 0
+
+## `bf.>!` (λ)
+```(bf.>! x y z temp0 temp1 ?init)```
+
+z = x>y
+Modifies x and y. z, temp0 and temp1 must be zero, unless ?init is true.
+
+## `bf.max` (λ)
+```(bf.max x y maximum temp0 temp1 temp2 temp3 temp4)```
+
+
+
+## `bf.min` (λ)
+```(bf.min x y minimum temp0 temp1 temp2 temp3 temp4)```
+
+
 
 ## `bf.if` (λ)
 ```(bf.if ...)```
@@ -279,6 +301,12 @@ More aggressive version of `bf.optimize`.
 Print the value of the current cell as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
 
+## `bf.print-cell-tens\` (λ)
+```(bf.print-cell-tens\)```
+
+Print the value of the current cell modulo 10 as a decimal number.
+Requires 6 cells containing 0 to the right of the current cell.
+
 ## `_generic-case` (λ)
 ```(_generic-case inc-fn temp0 temp0-init ?temp1 args body-zero)```
 
@@ -351,4 +379,21 @@ Doubled version `bf.mov`.
 
 Print the value of the current doubled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
+
+## `bf.triple` (λ)
+```(bf.triple ...)```
+
+Triple the precision of the interpreter.
+Each 24-bit cell is stored using 7 8-bit cells:
+a reserved reserved b reserved reserved c
+^ptr
+
+value = a + 256*b + 65536*c
+
+## `bf.read-list` (fn)
+```(bf.read-list move separator terminator ?no-initial-read)```
+
+Read a list of integers, separated by `separator` and terminated by `terminator`.
+The integers are placed `move` cells apart in memory.
+Set `?no-initial-read` to true, if the current cell contains the first character of the sequence.
 

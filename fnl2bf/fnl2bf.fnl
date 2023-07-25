@@ -529,6 +529,11 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.add! (- temp))
     (bf.ptr (- temp))))
 
+(λ bf.add [to temp]
+  "Add the value of the current cell to `to`, using `temp`.
+   `temp` must be zero."
+  (bf.mov to temp false))
+
 (λ bf.swap [y temp0]
   "Swap the current cell with `y`, using `temp0`. `temp0` must be 0."
   (..
@@ -588,6 +593,67 @@ Parameters beginning with `temp` are always pointers to cells."
         (bf.at 3 (bf.zero)))
       "")
     "[->>+<[->-]>[<<[-]>>->]<<<]>[[-]<+>]<"))
+
+(λ bf.>! [x y z temp0 temp1 ?init]
+  "z = x>y
+   Modifies x and y. z, temp0 and temp1 must be zero, unless ?init is true."
+  (..
+    (if ?init
+      (..
+        (bf.at temp0 (bf.zero))
+        (bf.at temp1 (bf.zero))
+        (bf.at z (bf.zero)))
+      "")
+    (bf.at x
+      (bf.loop
+        (bf.at (- temp0 x) "+")
+        (bf.at (- y x)
+          (bf.loop
+            "-"
+            (bf.at (- temp0 y) (bf.zero))
+            (bf.at (- temp1 y) "+")))
+        (bf.at (- temp0 x)
+          (bf.loop
+            "-"
+            (bf.at (- z temp0) "+")))
+        (bf.at (- temp1 x)
+          (bf.loop
+            "-"
+            (bf.at (- y temp1) "+")))
+        (bf.at (- y x) "-")
+        "-"))))
+
+(λ bf.max [x y maximum temp0 temp1 temp2 temp3 temp4]
+  ""
+  (..
+    (bf.at y (bf.mov (- maximum y) (- temp0 y)))
+    (bf.at x (bf.mov (- temp0 x)   (- temp1 x)))
+    (bf.at y (bf.mov (- temp1 y)   (- temp2 y)))
+    (bf.>! temp0 temp1 temp2 temp3 temp4)
+    (bf.at temp0 (bf.zero))
+    (bf.at temp1 (bf.zero))
+    (bf.at temp2
+      (bf.if
+        (bf.at (- maximum temp2)
+          (bf.zero))
+        (bf.at (- x temp2)
+          (bf.mov (- maximum x) (- temp0 x)))))))
+
+(λ bf.min [x y minimum temp0 temp1 temp2 temp3 temp4]
+  ""
+  (..
+    (bf.at x (bf.mov (- minimum x) (- temp0 x)))
+    (bf.at x (bf.mov (- temp0 x)   (- temp1 x)))
+    (bf.at y (bf.mov (- temp1 y)   (- temp2 y)))
+    (bf.>! temp0 temp1 temp2 temp3 temp4)
+    (bf.at temp0 (bf.zero))
+    (bf.at temp1 (bf.zero))
+    (bf.at temp2
+      (bf.if
+        (bf.at (- minimum temp2)
+          (bf.zero))
+        (bf.at (- y temp2)
+          (bf.mov (- minimum y) (- temp0 y)))))))
 
 (λ bf.if [...]
   "Equivalent to `[...[-]]`. Sets the current cell to 0."
@@ -1152,6 +1218,14 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
+(λ bf.print-cell-tens\ []
+  "Print the value of the current cell modulo 10 as a decimal number.
+   Requires 6 cells containing 0 to the right of the current cell."
+  (..
+    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
+    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
+    "+[-<++++++++>]<.[-]<<[-<+>]<"))
+
 (λ _generic-case [inc-fn temp0 temp0-init ?temp1 args body-zero]
   "This function is used to implement both `bf.case!` and `bf.case2!`.
    Do not use this directly."
@@ -1371,5 +1445,56 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.double "[-<++++++>]>>[-<<+>>]<<]<[.")
     (bf.D.zero)
     (bf.double "<]<")))
+
+(λ bf.triple [...]
+  "Triple the precision of the interpreter.
+   Each 24-bit cell is stored using 7 8-bit cells:
+   a reserved reserved b reserved reserved c
+   ^ptr
+
+   value = a + 256*b + 65536*c"
+  (let [code (table.concat [...])]
+    (faccumulate [result ""
+                  i 1 (length code)]
+      (..
+        result
+        (match (string.sub code i i)
+          ">" ">>>>>>>"
+          "<" "<<<<<<<"
+          "+" ">+<+[>-]>[->>>+<+[>-]>[->>+<]<<<]<<"
+          "-" ">+<[>-]>[->>>+<[>-]>[->>-<]<<-<]<<-"
+          "[" ">>[-]<<[>>+<]>[<]>>[>>+<]>[<]>[-<<<+>>>]>[<<+>]<[>]<[-<<+>>]<<[[-]<<"
+          "]" "[>>+<]>[<]>>[>>+<]>[<]>[-<<<+>>>]>[<<+>]<[>]<[-<<+>>]<<]<<"
+          _ (string.sub code i i))))))
+
+(fn bf.read-list [move separator terminator ?no-initial-read]
+  "Read a list of integers, separated by `separator` and terminated by `terminator`.
+   The integers are placed `move` cells apart in memory.
+   Set `?no-initial-read` to true, if the current cell contains the first character of the sequence."
+  (let [move2 (* 2 move)
+        move3 (* 3 move)
+        terminator (string.byte terminator 1 1)]
+    (..
+      (if ?no-initial-read "" ",")
+      (bf.inc (- terminator))
+      (bf.loop
+        (bf.inc terminator)
+        (bf.mov move move2)
+        (bf.at move
+          (bf.case2! move move2
+            separator
+            (..
+              (bf.at (- move2) (bf.zero))
+              ">")
+
+            ;; digit
+            (..
+              (bf.at (- move3)
+                (bf.multiply-add! 10 move))
+              (bf.at (- move2)
+                (bf.inc2 -48 (- move))
+                (bf.add! (- move))))))
+        ","
+        (bf.inc (- terminator))))))
 
 bf
