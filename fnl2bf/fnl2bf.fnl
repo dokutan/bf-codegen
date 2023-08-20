@@ -352,10 +352,10 @@ Parameters beginning with `temp` are always pointers to cells."
             (bf.ptr (- temp))))
         (bf.inc i1)))))
 
-(λ bf.inc2-2 [value1 value2 at2 temp]
+(λ bf.inc2-2 [value1 value2 at2 temp ?inc-after-loop]
   "Increment the current cell by `value1` and the cell at `at2` by `value2`.
    `temp` must be zero.
-   TODO add option to add i1, i2 after the loop"
+   If ?inc-after-loop is `true`, add i1, i2 after the loop."
 
   ;; load inc2-2-factors lazily to improve performance when it is not needed
   (when (not bf.inc2-2-factors)
@@ -368,20 +368,36 @@ Parameters beginning with `temp` are always pointers to cells."
         [i1 i2 il a1 a2 al]
         (. bf.inc2-2-factors (.. value1 "," value2))]
     (bf.shortest
-      (..
-        (bf.inc i1)
-        (bf.ptr at2)
-        (bf.inc i2)
-        (bf.ptr temp at2)
-        (bf.inc il)
-        (bf.loop
-          (bf.ptr (- temp))
-          (bf.inc a1)
+      (if ?inc-after-loop
+        (..
+          (bf.ptr temp)
+          (bf.inc il)
+          (bf.loop
+            (bf.ptr (- temp))
+            (bf.inc a1)
+            (bf.ptr at2)
+            (bf.inc a2)
+            (bf.ptr temp at2)
+            (bf.inc al))
+          (bf.ptr at2 temp)
+          (bf.inc i2)
+          (bf.ptr 0 at2)
+          (bf.inc i1))
+
+        (..
+          (bf.inc i1)
           (bf.ptr at2)
-          (bf.inc a2)
+          (bf.inc i2)
           (bf.ptr temp at2)
-          (bf.inc al))
-        (bf.ptr (- temp)))
+          (bf.inc il)
+          (bf.loop
+            (bf.ptr (- temp))
+            (bf.inc a1)
+            (bf.ptr at2)
+            (bf.inc a2)
+            (bf.ptr temp at2)
+            (bf.inc al))
+          (bf.ptr (- temp))))
 
       (..
         (bf.inc2 value1 temp)
@@ -1396,7 +1412,7 @@ Parameters beginning with `temp` are always pointers to cells."
    low reserved reserved high
    ^ptr
     "
-  (let [code (table.concat [...])]
+  (let [code (bf.optimize (table.concat [...]))]
     (faccumulate [result ""
                   i 1 (length code)]
       (..
@@ -1453,7 +1469,7 @@ Parameters beginning with `temp` are always pointers to cells."
    ^ptr
 
    value = a + 256*b + 65536*c"
-  (let [code (table.concat [...])]
+  (let [code (bf.optimize (table.concat [...]))]
     (faccumulate [result ""
                   i 1 (length code)]
       (..
