@@ -8,7 +8,13 @@ Things i wrote to write brainfuck code.
 Searches for a short brainfuck program to print a given string.
 
 ### fnl2bf
-A Fennel library for working with Brainfuck code at a higher level. Includes macros for common algorithms.
+A Fennel (or Lua) library for working with Brainfuck code at a higher level. Includes macros for common algorithms.
+
+To use this library with Lua, compile the Fennel version to Lua:
+```
+cd fnl2bf
+fennel -c fnl2bf.fnl > fnl2bf.lua
+```
 
 ### misc
 Things that don't fit in any other directory.
