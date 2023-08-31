@@ -16,6 +16,9 @@ cd fnl2bf
 fennel -c fnl2bf.fnl > fnl2bf.lua
 ```
 
+### constants
+Contains programs that perform a brute force search for the shortest brainfuck program that increments/decrements/initializes one or multiple cells with given values.
+
 ### misc
 Things that don't fit in any other directory.
 
