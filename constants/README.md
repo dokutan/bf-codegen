@@ -13,14 +13,20 @@ Example:
 ->++[<+++>++]
 ```
 
-Output parameters:
+### Output
+Running this program produces the file inc2.csv, this file contains no header and the following columns:
+```
+r,L,i1,il,a1,al
+```
+
+### Output parameters:
+- r: value that gets added to the current cell by the whole program
 - i1: value that gets added to the cell before the loop
 - il: value that gets added to the loop counter before the loop
 - L: initial value of the loop counter
 - a1: value that gets added to the cell during the loop
 - al: value that gets added to the loop counter during the loop
 
-TODO: update and document the output format
 
 ## inc2-2.jl
 Searches for programs that increment/decrement two cells using a loop and a third cell, that must be zero, as a loop counter. 

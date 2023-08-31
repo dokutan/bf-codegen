@@ -49,7 +49,7 @@ for i1 in [-10:10;]
                     r = simulate(i1, L, il, a1, al)
                     global i += 1
 
-                    if r != Nothing
+                    if r != Nothing && r >= 0
                         if haskey(results, [r, L])
                             if fitness([i1, il, a1, al]) < fitness(results[[r, L]])
                                 results[[r, L]] = [i1, il, a1, al]
@@ -66,8 +66,10 @@ for i1 in [-10:10;]
     end
 end
 
-f = open("inc2.factors", "w")
-for r in results
-    write(f, string(r[1]) * " " * string(r[2]) * "\n")
+result_keys = collect(keys(results))
+sort!(result_keys)
+f = open("inc2.csv", "w")
+for r_key in result_keys
+	write(f, join(map(string, r_key), ',') * "," * join(map(string, results[r_key]), ',') * "\n")
 end
 close(f)
