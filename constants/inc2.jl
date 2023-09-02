@@ -42,6 +42,7 @@ function inc2()
     total_iterations = 21 * 256 * 21 * 21 * 20
     println("total:   ", total_iterations)
 
+    max_fitness::Int = 20 # don't simulate solutions that are longer than this
     i::Int = 0
     results = Dict()
     for i1::Int in [-10:10;]
@@ -50,20 +51,26 @@ function inc2()
                 for a1::Int in [-10:10;]
                     for al::Int in [-10:-1; 1:10]
                         has_result::Bool, r::Int = simulate(i1, L, il, a1, al)
+
                         i += 1
-
-                        if has_result && r >= 0
-                            if haskey(results, SA[r, L])
-                                if fitness(SA[i1, il, a1, al]) < fitness(results[SA[r, L]])
-                                    results[SA[r, L]] = SA[i1, il, a1, al]
-                                end
-                            else
-                                results[SA[r, L]] = SA[i1, il, a1, al]
-                            end
-                        end
-
                         if i % 1000 == 0
                             print("\rcurrent: ", i)
+                        end
+
+                        parameter_array = SA[i1, il, a1, al]
+                        if fitness(parameter_array) > max_fitness
+                            continue
+                        end
+                        result_array = SA[r, L]
+
+                        if has_result && r >= 0
+                            if haskey(results, result_array)
+                                if fitness(parameter_array) < fitness(results[result_array])
+                                    results[result_array] = parameter_array
+                                end
+                            else
+                                results[result_array] = parameter_array
+                            end
                         end
                     end
                 end
