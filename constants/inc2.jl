@@ -6,8 +6,10 @@
 #using StatProfilerHTML
 using StaticArrays
 
-function bf_plus(a::Int, b::Int)::Int
-    r = a + b
+const CInt = Int32
+
+function bf_plus(a::CInt, b::CInt)::CInt
+    r::CInt = a + b
     if r < 0
         r = 256 + r
     end
@@ -15,13 +17,14 @@ function bf_plus(a::Int, b::Int)::Int
     return r % 256
 end
 
-function generate_simulation_cache()::Dict{SVector{2, Int}, Int}
-    simulation_cache = Dict{SVector{2, Int}, Int}()
+function generate_simulation_cache()::MMatrix{256, 21, CInt}
+    "Generate an MMatrix describing for how many iterations a brainfuck loop `L[al]` runs."
+    simulation_cache = zeros(MMatrix{256, 21, CInt})
 
-    for L::Int in [0:255;]
-        for al::Int in [-10:10;]
-            l::Int = L
-            l_history = BitSet(l)
+    for L::CInt in [0:255;]
+        for al::CInt in [-10:10;]
+            l::CInt = L
+            l_history::BitSet = BitSet(l)
             iterations::Int = 0
 
             while l != 0
@@ -36,7 +39,7 @@ function generate_simulation_cache()::Dict{SVector{2, Int}, Int}
                 push!(l_history, l)
             end
 
-            simulation_cache[SA[L, al]] = iterations
+            simulation_cache[L+1, al+11] = iterations
         end
     end
 
@@ -44,16 +47,16 @@ function generate_simulation_cache()::Dict{SVector{2, Int}, Int}
 end
 
 function simulate(
-    simulation_cache::Dict{SVector{2, Int}, Int},
-    i1::Int,
-    L::Int,
-    il::Int,
-    a1::Int,
-    al::Int,
-)::Tuple{Bool,Int}
+    simulation_cache::MMatrix{256, 21, CInt},
+    i1::CInt,
+    L::CInt,
+    il::CInt,
+    a1::CInt,
+    al::CInt,
+)::Tuple{Bool,CInt}
 
-    l = bf_plus(L, il)
-    iterations = simulation_cache[SA[l, al]]
+    l::CInt = bf_plus(L, il)
+    iterations::CInt = simulation_cache[l+1, al+11]
 
     if iterations < 0
         return false, 0
@@ -66,7 +69,7 @@ function simulate(
     end
 end
 
-function cost(parms)::Int
+function cost(parms::SVector{4, CInt})::CInt
     "Calculates the cost of the brainfuck program described by `parms`"
     return sum(map(abs, parms))
 end
@@ -80,31 +83,32 @@ function inc2()
 
     max_cost::Int = 20 # don't simulate solutions that are longer than this
     i::Int = 0
-    results = Dict{SVector{2, Int}, SVector{4, Int}}()
-    for i1::Int in [-10:10;]
-        for L::Int in [0:255;]
-            for il::Int in [-10:10;]
-                for a1::Int in [-10:10;]
-                    for al::Int in [-10:-1; 1:10]
+    results = Dict{SVector{2, CInt}, SVector{4, CInt}}()
+    for i1::CInt in [-10:10;]
+        for L::CInt in [0:255;]
+            for il::CInt in [-10:10;]
+                for a1::CInt in [-10:10;]
+                    for al::CInt in [-10:-1; 1:10]
                         has_result::Bool, r::Int =
                             simulate(simulation_cache, i1, L, il, a1, al)
 
                         # update progress
                         i += 1
-                        if i % 1000 == 0
+                        if i % 10000 == 0
                             print("\rcurrent: ", i)
                         end
 
-                        parameter_array = SA[i1, il, a1, al]
-                        if cost(parameter_array) > max_cost
+                        parameter_array = SVector{4, CInt}(i1, il, a1, al)
+                        current_cost::CInt = cost(parameter_array)
+                        if current_cost > max_cost
                             continue
                         end
 
                         # store result
                         if has_result && r >= 0
-                            result_array = SA[r, L]
+                            result_array = SVector{2, CInt}(r, L)
                             if haskey(results, result_array)
-                                if cost(parameter_array) < cost(results[result_array])
+                                if current_cost < cost(results[result_array])
                                     results[result_array] = parameter_array
                                 end
                             else
@@ -119,10 +123,10 @@ function inc2()
     println()
 
     println("writing results to inc2.csv ...")
-    result_keys = collect(keys(results))
+    result_keys::Vector{SVector{2, CInt}} = collect(keys(results))
     sort!(result_keys)
     f = open("inc2.csv", "w")
-    for r_key in result_keys
+    for r_key::SVector{2, CInt} in result_keys
         write(
             f,
             join(map(string, r_key), ',') *
