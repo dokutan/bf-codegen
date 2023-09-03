@@ -3,75 +3,137 @@
 # searches for the optimal parameters i1-3 and a1-3 to increment two cells with one loop:
 # i1 > i2 > il [ << a1 > a2 > al ]
 
-function bf_plus(a, b)
-    r = a + b
+#using StatProfilerHTML
+using StaticArrays
+
+const CInt = Int16
+
+function bf_plus(a::CInt, b::CInt)::CInt
+    r::CInt = a + b
     if r < 0
-        r  = 256 + r
+        r += 256
     end
 
     return r % 256
 end
 
-function simulate(i1, i2, il, a1, a2, al)
-    r1 = i1
-    r2 = i2
+function generate_simulation_cache()::MMatrix{21, 21, CInt}
+    "Generate an MMatrix describing for how many iterations a brainfuck loop `0[al]` runs."
+    simulation_cache = zeros(MMatrix{21, 21, CInt})
 
-    l = il
-    l_history = [al]
-    while l != 0
-        r1 = bf_plus(r1, a1)
-        r2 = bf_plus(r2, a2)
-        l  = bf_plus(l,  al)
+    for il::CInt in [-10:-1; 1:10]
+        for al::CInt in [-10:-1; 1:10]
+            l::CInt = il
+            l_history::BitSet = BitSet(l)
+            iterations::CInt = 0
 
-        if l in l_history
-            return Nothing, Nothing
+            while l != 0
+                l = bf_plus(l, al)
+                iterations += 1
+
+                if l in l_history
+                    iterations = -1
+                    break
+                end
+
+                push!(l_history, l)
+            end
+
+            simulation_cache[il+11, al+11] = iterations
         end
-
-        push!(l_history, l)
     end
 
-    return r1, r2
+    return simulation_cache
 end
 
-function fitness(parms)
+function simulate(simulation_cache::MMatrix{21, 21, CInt}, i1::CInt, i2::CInt, il::CInt, a1::CInt, a2::CInt, al::CInt)::Tuple{Bool,CInt,CInt}
+
+    iterations::CInt = simulation_cache[il+11, al+11]
+
+    if iterations < 0
+        return false, 0, 0
+    else
+        r1 = (i1 + iterations * a1) % 256
+        if r1 < 0
+            r1 += 256
+        end
+
+        r2 = (i2 + iterations * a2) % 256
+        if r2 < 0
+            r2 += 256
+        end
+
+        return true, r1, r2
+    end
+end
+
+function cost(parms::SVector{6,CInt})::CInt
     return sum(map(abs, parms))
 end
 
+function inc2_2()
+    println("generating simulation cache ...")
+    simulation_cache = generate_simulation_cache()
 
-total_iterations = 21 * 21 * 20 * 21 * 21 * 20
-println("total:   ", total_iterations)
+    total_iterations = 21 * 21 * 20 * 21 * 21 * 20
+    println("total:   ", total_iterations)
 
-i = 0
-results = Dict()
-for i1 in [-10:10;]
-    for i2 in [-10:10;]
-        for il in [-10:-1;1:10;]
-            for a1 in [-10:10;]
-                for a2 in [-10:10;]
-                    for al in [-10:-1;1:10;]
-                        r1, r2 = simulate(i1, i2, il, a1, a2, al)
+    max_cost::Int = 40 # don't simulate solutions that are longer than this
+    i::Int = 0
+    results = Dict{SVector{2,CInt},SVector{6,CInt}}()
+    for i1::CInt in [-10:10;]
+        for i2::CInt in [-10:10;]
+            for il::CInt in [-10:-1; 1:10]
+                for a1::CInt in [-10:10;]
+                    for a2::CInt in [-10:10;]
+                        for al::CInt in [-10:-1; 1:10]
+                            has_result::Bool, r1::CInt, r2::CInt = simulate(simulation_cache, i1, i2, il, a1, a2, al)
 
-                        if r1 != Nothing
-                            if haskey(results, [r1, r2])
-                                if fitness([i1, i2, il, a1, a2, al]) < fitness(results[[r1, r2]])
-                                    results[[r1, r2]] = [i1, i2, il, a1, a2, al]
+                            # update progress
+                            i += 1
+                            if i % 10000 == 0
+                                print("\rcurrent: ", i)
+                            end
+
+                            parameter_array = SVector{6,CInt}(i1, i2, il, a1, a2, al)
+                            current_cost::CInt = cost(parameter_array)
+                            if current_cost > max_cost
+                                continue
+                            end
+
+                            if has_result && r1 >= 0 && r2 >= 0
+                                result_array = SVector{2,CInt}(r1, r2)
+                                if haskey(results, result_array)
+                                    if current_cost < cost(results[result_array])
+                                        results[result_array] = parameter_array
+                                    end
+                                else
+                                    results[result_array] = parameter_array
                                 end
-                            else
-                                results[[r1, r2]] = [i1, i2, il, a1, a2, al]
                             end
                         end
-
-                        global i += 1
-                        print("\rcurrent: ", i)
                     end
                 end
             end
         end
     end
+    println()
+
+    println("writing results to inc2-2.csv ...")
+    result_keys = collect(keys(results))
+    sort!(result_keys)
+    f = open("inc2-2.csv", "w")
+    for r_key in result_keys
+        write(
+            f,
+            join(map(string, r_key), ',') *
+            "," *
+            join(map(string, results[r_key]), ',') *
+            "\n",
+        )
+    end
+    close(f)
 end
 
-f = open("inc2-2.factors", "w")
-for r in results
-    write(f, string(r[1]) * " " * string(r[2]) * "\n")
-end
-close(f)
+inc2_2()
+#@profilehtml inc2_2()
