@@ -15,14 +15,14 @@ function bf_plus(a::Int, b::Int)::Int
     return r % 256
 end
 
-function generate_simulation_cache()
-    simulation_cache = Dict()
+function generate_simulation_cache()::Dict{SVector{2, Int}, Int}
+    simulation_cache = Dict{SVector{2, Int}, Int}()
 
     for L::Int in [0:255;]
         for al::Int in [-10:10;]
-            l = L
+            l::Int = L
             l_history = BitSet(l)
-            iterations = 0
+            iterations::Int = 0
 
             while l != 0
                 l = bf_plus(l, al)
@@ -36,7 +36,7 @@ function generate_simulation_cache()
                 push!(l_history, l)
             end
 
-            global simulation_cache[SA[L, al]] = iterations
+            simulation_cache[SA[L, al]] = iterations
         end
     end
 
@@ -44,7 +44,7 @@ function generate_simulation_cache()
 end
 
 function simulate(
-    simulation_cache::Dict,
+    simulation_cache::Dict{SVector{2, Int}, Int},
     i1::Int,
     L::Int,
     il::Int,
@@ -66,7 +66,8 @@ function simulate(
     end
 end
 
-function fitness(parms)
+function cost(parms)::Int
+    "Calculates the cost of the brainfuck program described by `parms`"
     return sum(map(abs, parms))
 end
 
@@ -77,9 +78,9 @@ function inc2()
     total_iterations = 21 * 256 * 21 * 21 * 20
     println("total:   ", total_iterations)
 
-    max_fitness::Int = 20 # don't simulate solutions that are longer than this
+    max_cost::Int = 20 # don't simulate solutions that are longer than this
     i::Int = 0
-    results = Dict()
+    results = Dict{SVector{2, Int}, SVector{4, Int}}()
     for i1::Int in [-10:10;]
         for L::Int in [0:255;]
             for il::Int in [-10:10;]
@@ -88,20 +89,22 @@ function inc2()
                         has_result::Bool, r::Int =
                             simulate(simulation_cache, i1, L, il, a1, al)
 
+                        # update progress
                         i += 1
                         if i % 1000 == 0
                             print("\rcurrent: ", i)
                         end
 
                         parameter_array = SA[i1, il, a1, al]
-                        if fitness(parameter_array) > max_fitness
+                        if cost(parameter_array) > max_cost
                             continue
                         end
-                        result_array = SA[r, L]
 
+                        # store result
                         if has_result && r >= 0
+                            result_array = SA[r, L]
                             if haskey(results, result_array)
-                                if fitness(parameter_array) < fitness(results[result_array])
+                                if cost(parameter_array) < cost(results[result_array])
                                     results[result_array] = parameter_array
                                 end
                             else
