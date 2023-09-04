@@ -95,6 +95,10 @@ function inc2_2()
                                 print("\rcurrent: ", i)
                             end
 
+                            if a2 > a1
+                                continue
+                            end
+
                             parameter_array = SVector{6,CInt}(i1, i2, il, a1, a2, al)
                             current_cost::CInt = cost(parameter_array)
                             if current_cost > max_cost
@@ -103,12 +107,16 @@ function inc2_2()
 
                             if has_result && r1 >= 0 && r2 >= 0
                                 result_array = SVector{2,CInt}(r1, r2)
+                                parameter_array_swapped = SVector{6,CInt}(i2, i1, il, a2, a1, al)
+                                result_array_swapped = SVector{2,CInt}(r2, r1)
                                 if haskey(results, result_array)
                                     if current_cost < cost(results[result_array])
                                         results[result_array] = parameter_array
+                                        results[result_array_swapped] = parameter_array_swapped
                                     end
                                 else
                                     results[result_array] = parameter_array
+                                    results[result_array_swapped] = parameter_array_swapped
                                 end
                             end
                         end
