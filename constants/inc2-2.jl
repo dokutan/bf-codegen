@@ -17,9 +17,9 @@ function bf_plus(a::CInt, b::CInt)::CInt
     return r % 256
 end
 
-function generate_simulation_cache()::MMatrix{21, 21, CInt}
+function generate_simulation_cache()::MMatrix{21,21,CInt}
     "Generate an MMatrix describing for how many iterations a brainfuck loop `0[al]` runs."
-    simulation_cache = zeros(MMatrix{21, 21, CInt})
+    simulation_cache = zeros(MMatrix{21,21,CInt})
 
     for il::CInt in [-10:-1; 1:10]
         for al::CInt in [-10:-1; 1:10]
@@ -46,7 +46,7 @@ function generate_simulation_cache()::MMatrix{21, 21, CInt}
     return simulation_cache
 end
 
-function simulate(simulation_cache::MMatrix{21, 21, CInt}, i1::CInt, i2::CInt, il::CInt, a1::CInt, a2::CInt, al::CInt)::Tuple{Bool,CInt,CInt}
+function simulate(simulation_cache::MMatrix{21,21,CInt}, i1::CInt, i2::CInt, il::CInt, a1::CInt, a2::CInt, al::CInt)::Tuple{Bool,CInt,CInt}
 
     iterations::CInt = simulation_cache[il+11, al+11]
 
@@ -80,7 +80,10 @@ function inc2_2()
 
     max_cost::Int = 40 # don't simulate solutions that are longer than this
     i::Int = 0
-    results = Dict{SVector{2,CInt},SVector{6,CInt}}()
+
+    results = Array{SVector{6,CInt},2}(undef, 256, 256)
+    fill!(results, SVector{6,CInt}(100, 100, 100, 100, 100, 100))
+
     for i1::CInt in [-10:10;]
         for i2::CInt in [-10:10;]
             for il::CInt in [-10:-1; 1:10]
@@ -105,19 +108,10 @@ function inc2_2()
                                 continue
                             end
 
-                            if has_result && r1 >= 0 && r2 >= 0
-                                result_array = SVector{2,CInt}(r1, r2)
+                            if has_result && r1 >= 0 && r2 >= 0 && current_cost < cost(results[r1+1, r2+1])
                                 parameter_array_swapped = SVector{6,CInt}(i2, i1, il, a2, a1, al)
-                                result_array_swapped = SVector{2,CInt}(r2, r1)
-                                if haskey(results, result_array)
-                                    if current_cost < cost(results[result_array])
-                                        results[result_array] = parameter_array
-                                        results[result_array_swapped] = parameter_array_swapped
-                                    end
-                                else
-                                    results[result_array] = parameter_array
-                                    results[result_array_swapped] = parameter_array_swapped
-                                end
+                                results[r1+1, r2+1] = parameter_array
+                                results[r2+1, r1+1] = parameter_array_swapped
                             end
                         end
                     end
@@ -128,17 +122,11 @@ function inc2_2()
     println()
 
     println("writing results to inc2-2.csv ...")
-    result_keys = collect(keys(results))
-    sort!(result_keys)
     f = open("inc2-2.csv", "w")
-    for r_key in result_keys
-        write(
-            f,
-            join(map(string, r_key), ',') *
-            "," *
-            join(map(string, results[r_key]), ',') *
-            "\n",
-        )
+    for r1 in [0:255;]
+        for r2 in [0:255;]
+            write(f, string(r1) * "," * string(r2) * "," * join(map(string, results[r1+1, r2+1]), ',') * "\n")
+        end
     end
     close(f)
 end

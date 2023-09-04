@@ -32,7 +32,7 @@ r,L,i1,il,a1,al
 Searches for programs that increment/decrement two cells using a loop and a third cell, that must be zero, as a loop counter. 
 
 ### Output
-Running this program produces the file inc2.csv, this file contains no header and the following columns:
+Running this program produces the file inc2-2.csv, this file contains no header and the following columns:
 ```
 r1,r2,i1,i2,il,a1,a2,al
 ```
