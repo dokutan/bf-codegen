@@ -17,12 +17,12 @@ function bf_plus(a::CInt, b::CInt)::CInt
     return r % 256
 end
 
-function generate_simulation_cache()::MMatrix{21,21,CInt}
+function generate_simulation_cache()::MMatrix{41,41,CInt}
     "Generate an MMatrix describing for how many iterations a brainfuck loop `0[al]` runs."
-    simulation_cache = zeros(MMatrix{21,21,CInt})
+    simulation_cache = zeros(MMatrix{41,41,CInt})
 
-    for il::CInt in [-10:-1; 1:10]
-        for al::CInt in [-10:-1; 1:10]
+    for il::CInt in [-20:-1; 1:20]
+        for al::CInt in [-20:-1; 1:20]
             l::CInt = il
             l_history::BitSet = BitSet(l)
             iterations::CInt = 0
@@ -39,16 +39,15 @@ function generate_simulation_cache()::MMatrix{21,21,CInt}
                 push!(l_history, l)
             end
 
-            simulation_cache[il+11, al+11] = iterations
+            simulation_cache[il+21, al+21] = iterations
         end
     end
 
     return simulation_cache
 end
 
-function simulate(simulation_cache::MMatrix{21,21,CInt}, i1::CInt, i2::CInt, il::CInt, a1::CInt, a2::CInt, al::CInt)::Tuple{Bool,CInt,CInt}
-
-    iterations::CInt = simulation_cache[il+11, al+11]
+function simulate(simulation_cache::MMatrix{41,41,CInt}, i1::CInt, i2::CInt, il::CInt, a1::CInt, a2::CInt, al::CInt)::Tuple{Bool,CInt,CInt}
+    iterations::CInt = simulation_cache[il+21, al+21]
 
     if iterations < 0
         return false, 0, 0
@@ -75,21 +74,21 @@ function inc2_2()
     println("generating simulation cache ...")
     simulation_cache = generate_simulation_cache()
 
-    total_iterations = 21 * 21 * 20 * 21 * 21 * 20
+    total_iterations = 41 * 41 * 40 * 41 * 41 * 40
     println("total:   ", total_iterations)
 
-    max_cost::Int = 40 # don't simulate solutions that are longer than this
+    max_cost::Int = 30 # don't simulate solutions that are longer than this
     i::Int = 0
 
     results = Array{SVector{6,CInt},2}(undef, 256, 256)
     fill!(results, SVector{6,CInt}(100, 100, 100, 100, 100, 100))
 
-    for i1::CInt in [-10:10;]
-        for i2::CInt in [-10:10;]
-            for il::CInt in [-10:-1; 1:10]
-                for a1::CInt in [-10:10;]
-                    for a2::CInt in [-10:10;]
-                        for al::CInt in [-10:-1; 1:10]
+    for i1::CInt in [-20:20;]
+        for i2::CInt in [-20:20;]
+            for il::CInt in [-20:-1; 1:20]
+                for a1::CInt in [-20:20;]
+                    for a2::CInt in [-20:20;]
+                        for al::CInt in [-20:-1; 1:20]
                             has_result::Bool, r1::CInt, r2::CInt = simulate(simulation_cache, i1, i2, il, a1, a2, al)
 
                             # update progress
