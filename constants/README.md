@@ -5,6 +5,9 @@ All programs require a brainfuck implementation with 8-bit wrapping cells.
 
 See also: https://esolangs.org/wiki/Brainfuck_constants
 
+## csv-to-lua.sh
+Convert inc2.csv to inc2-factors.lua and inc2-2.csv to inc2-2-factors.lua for use with fnl2bf.
+
 ## inc2.jl
 Searches for programs that increment/decrement a single cell using a loop and a second cell with a known arbitrary value as a loop counter.
 
@@ -45,4 +48,26 @@ r1,r2,i1,i2,il,a1,a2,al
 - il: value that gets added to the loop counter before the loop
 - a1: value that gets added to the current cell during the loop
 - a2: value that gets added to the second cell during the loop
+- al: value that gets added to the loop counter during the loop
+
+## inc2-3.jl
+Searches for programs that increment/decrement three cells using a loop and a fourth cell, that must be zero, as a loop counter. 
+
+### Output
+Running this program produces the file inc2-3.csv, this file contains no header and the following columns:
+```
+r1,r2,r3,i1,i2,i3,il,a1,a2,a3,al
+```
+
+### Output parameters:
+- r1: value that gets added to the current cell by the whole program
+- r2: value that gets added to the second cell by the whole program
+- r3: value that gets added to the third cell by the whole program
+- i1: value that gets added to the current cell before the loop
+- i2: value that gets added to the second cell before the loop
+- i3: value that gets added to the third cell before the loop
+- il: value that gets added to the loop counter before the loop
+- a1: value that gets added to the current cell during the loop
+- a2: value that gets added to the second cell during the loop
+- a3: value that gets added to the third cell during the loop
 - al: value that gets added to the loop counter during the loop

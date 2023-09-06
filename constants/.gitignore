@@ -1,2 +1,4 @@
 *.csv
 statprof/
+inc2-factors.lua
+inc2-2-factors.lua
