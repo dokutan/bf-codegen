@@ -1559,7 +1559,7 @@ Parameters beginning with `temp` are always pointers to cells."
           "]" "[>>+<]>[<]>>[>>+<]>[<]>[-<<<+>>>]>[<<+>]<[>]<[-<<+>>]<<]<<"
           _ (string.sub code i i))))))
 
-(fn bf.read-list [move separator terminator ?no-initial-read]
+(λ bf.read-list [move separator terminator ?no-initial-read]
   "Read a list of integers, separated by `separator` and terminated by `terminator`.
    The integers are placed `move` cells apart in memory.
    Set `?no-initial-read` to true, if the current cell contains the first character of the sequence."
@@ -1588,5 +1588,47 @@ Parameters beginning with `temp` are always pointers to cells."
                 (bf.add! (- move))))))
         ","
         (bf.inc (- terminator))))))
+
+(tset bf :array1 {})
+"# Array1 functions
+These functions operate on arrays that use a single cell per value.
+Zero is not a valid value inside the array, because the array is delimited by zeros on both ends."
+
+(λ bf.array1.shiftr []
+  "Shift array right by one cell.
+   - before: `0, array, [0], 0`
+   - after:  `0, [0], array, 0`"
+  "<[[->+<]<]>")
+
+(λ bf.array1.shiftl []
+  "Shift array left by one cell.
+   - before: `0, [0], array, 0`
+   - after:  `0, array, [0], 0`"
+  ">[[-<+>]>]<")
+
+(λ bf.array1.length []
+  "Get the length of an array.
+   - before: `0, array, [0], 0, 0`
+   - after:  `0, array, [0], length, 0`"
+  "<[[->+<]>[>]>+<<[<]<]>>[[-<+>]>]>[-<+>]<<")
+
+(λ bf.array1.reverse []
+  "Reverse an array.
+   - before: `0, array, [0], 0, 0`
+   - after:  `0, array, [0], 0, 0`"
+  "<[[->>[>]>+<<[<]<]>>[>]>[-<+>]<[<]>[[-<+>]>]<<[<]<]>>[[-<+>]>]<")
+
+(λ bf.array1.get []
+  "Get an element of an array, the index is 0 based.
+   - before: `0, 0, array, [0], index, 0`
+   - after:  `0, 0, array, [0], result, 0`"
+  (..
+    ">+[<<[<]>[-<+>]>[>]>-]" ; while index: move first cell of array left
+    "<<[<]<" ; move to cell left of thhe created gap
+    "[>>[>]>+>+<<<[<]<-]" ; move cell two times
+    ">>[>]>>[<<<[<]<+>>[>]>>-]" ; restore cell
+    "<<<[<]" ; go to gap in array
+    (bf.array1.shiftr)
+    ">[>]"))
 
 bf
