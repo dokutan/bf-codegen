@@ -1508,15 +1508,55 @@ Parameters beginning with `temp` are always pointers to cells."
   "Doubled version `bf.ptr`: move ptr 4 * `distance`."
   (bf.ptr (* 4 distance)))
 
+(λ bf.D.at [distance ...]
+  "Move pointer by `distance`, insert body, move back"
+  (bf.at (* 4 distance)
+    (table.concat [...] "")))
+
 (λ bf.D.zero []
   "Doubled version `bf.zero`."
   "[-]>>>[-]<<<")
 
 (λ bf.D.mov! [to]
-  "Doubled version `bf.mov`."
-  (bf.mov! (* 4 to))
-  (bf.at 3
-    (bf.mov! (* 4 to))))
+  "Doubled version `bf.mov!`. TODO optimize"
+  (..
+    (bf.mov! (* 4 to))
+    (bf.at 3
+      (bf.mov! (* 4 to)))))
+
+(λ bf.D.mov [to ?init]
+  "Doubled version `bf.mov`.
+  `to` must be manually set to 0, unless `?init` is true."
+  (..
+    (bf.mov (* 4 to) 1 ?init)
+    (bf.at 3
+      (bf.mov (* 4 to) -1 ?init))))
+
+(λ bf.D.set [value]
+  "Set a doubled cell to `value`, the initial value must be 0."
+  (let [low (% value 256)
+        high (math.tointeger (/ (- value low) 256))]
+    (bf.inc2-2 low high 3 1)))
+
+(λ bf.D.zero?! []
+  "Set a doubled cell to `value`, the initial value must be 0."
+  (..
+    "[[-]>+<]"
+    ">>>[[-]<<+>>]<<<"
+    ">>+<<"
+    ">[[-]>-<]<"
+    ">>[-<<+>>]<<"))
+
+(λ bf.D.divmod\! []
+  "Current cell divided/modulo by the next cell to the right.
+   Uses 5 cells to the right of the current cell, cells must be initialized as shown:
+   - Before: `>n d 1 0 0 0`
+   - After:  `>0 d-n%d n%d n/d 0 0`"
+  (..
+    (bf.double "[->-[>+>>]>[")
+    (bf.D.mov! -1)
+    (bf.double "+>+>>]<<<<<]")
+    (bf.double ">>-<<")))
 
 (λ bf.D.print-cell\ []
   "Print the value of the current doubled cell.
