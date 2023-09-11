@@ -1482,6 +1482,23 @@ Parameters beginning with `temp` are always pointers to cells."
       (io.close logfile))
     shortest-result))
 
+(λ bf.popcount\! []
+  "Population count, count the number of 1s in the binary representation of the current cell.
+   - before: `[x] 0 0 0 0 0 0`
+   - after:  `[0] 0 0 0 result 0 0`"
+  (bf.at 6
+    (bf.inc 8)
+    (bf.loop
+      ;; x = x * 2
+      (bf.at -6 (bf.mov 5 1)) ; copy x
+      (bf.at -1 ; add x to x
+        (bf.loop
+          (bf.at -5 (bf.double "+"))
+          "-"))
+      ;; add carry bit to result
+      (bf.at -3 (bf.add! 1))
+      "-")))
+
 (λ bf.double [...]
   "Double the precision of the interpreter.
    Each 16-bit cell is stored using 4 8-bit cells:
@@ -1577,6 +1594,15 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.double "[-<++++++>]>>[-<<+>>]<<]<[.")
     (bf.D.zero)
     (bf.double "<]<")))
+
+(λ bf.D.popcount\! []
+  "Population count of a doubled cell, count the number of 1s in the binary representation of the current cell.
+   - before: `[low] 0 0 high 0 0 0 0 0 0`
+   - after:  `[0] 0 0 0 result 0 0 0 0 0`"
+  (..
+    (bf.at 3 (bf.popcount\!))
+    (bf.popcount\!)
+    (bf.at 7 (bf.add! -3))))
 
 (λ bf.triple [...]
   "Triple the precision of the interpreter.
