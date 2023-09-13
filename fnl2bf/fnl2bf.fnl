@@ -1015,11 +1015,21 @@ Parameters beginning with `temp` are always pointers to cells."
       (print3 str temp0 temp1 ?initial)
       (print3 str temp1 temp0 ?initial)))
 
-(λ bf.print-from-memory [str memory ptr ?randomize]
+(λ bf.print-from-memory [str memory ptr ?randomize ?zero-delimited]
   "Print `str`, assumes the memory is initialized with the values from `memory`.
    `memory` is modified in place.
    `ptr` is the initial pointer position in `memory`.
-   `?randomize` is passed to `shortest-in`."
+   `?randomize` is passed to `shortest-in`
+   Set `?zero-delimited` to true, if `memory` is delimited by 0 on both ends,
+   and doesn't contain 0. This makes pointer movement more efficient."
+  (fn move-ptr [from to]
+    (if ?zero-delimited
+      (bf.shortest
+        (bf.ptr (- to from))
+        (.. "[<]" (bf.ptr to))
+        (.. "[>]" (bf.ptr (- to (+ 1 (length memory))))))
+      (bf.ptr (- to from))))
+
   (fn print-char [char memory ptr]
     ;; for each cell in memory: try move + set + print
     (var modified-index {})
@@ -1027,7 +1037,7 @@ Parameters beginning with `temp` are always pointers to cells."
           (fcollect [i 1 (length memory)]
             (let [p
                   (..
-                    (bf.ptr (- i ptr))
+                    (move-ptr ptr i)
                     (bf.set char (. memory i))
                     ".")]
               (tset modified-index p i)
