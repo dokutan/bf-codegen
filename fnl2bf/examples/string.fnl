@@ -7,6 +7,7 @@
 ;;                 uses the bf.factors list to construct the loops
 ;; - string-opt3!  uses inc2-2 to set two cells in one loop
 ;; - string-opt4!  uses inc2-4 to set three cells in one loop
+;; - string-opt5!  uses inc2-n to set up to ten cells in one loop
 
 (local test-strings [
     "Hello world!"
@@ -15,6 +16,8 @@
     "A1b2C3"
     "****"
     "*****"
+    "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+    "-j!b(x6k,IOo`AnRM+Q.2/qHa}^#3\"g81Dz%4VTPFpY:Jl|5Ge>'B$tu]&N0K7mSrLf[X9iZCyd~svE){h_<@\\w?*=WcU;"
 ])
 
 (each [_ str (ipairs test-strings)]
@@ -24,4 +27,5 @@
   (print "  string-opt2! " (length (bf.optimize (bf.string-opt2! str 1))))
   (print "  string-opt3! " (length (bf.optimize (bf.string-opt3! str 1))))
   (print "  string-opt4! " (length (bf.optimize (bf.string-opt4! str 1))))
+  (print "  string-opt5! " (length (bf.optimize (bf.string-opt5! str 1))))
   (print))

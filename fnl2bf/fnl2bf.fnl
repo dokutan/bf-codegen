@@ -449,6 +449,66 @@ Parameters beginning with `temp` are always pointers to cells."
         (bf.inc2 value3 temp)
         (bf.ptr 0 at3)))))
 
+(λ bf.inc2-n [value at temp]
+  "Increment multiple cells using a single loop.
+   `value` is a list containing the values that should be added.
+   `at` is a list containing the positions of the modified cells.
+   `temp` is the position of a cell containing 0, used as a loop counter.
+
+   Example: `(bf.inc2-n [123 30 20 10] [0 1 2 3] 4)`"
+
+  ;; load inc2_3_factors lazily to improve performance when it is not needed
+  (when (not bf.inc2-n-factors)
+    (tset bf :inc2-n-factors (require "inc2-n-factors")))
+
+  (fn cost [option]
+    (+
+      (math.abs (. option 1))
+      (math.abs (. option 2))
+      (accumulate [sum 0 _ i1-a1 (ipairs (. option 3))]
+        (+
+          sum
+          (math.abs (. i1-a1 1))
+          (math.abs (. i1-a1 2))))))
+
+  ;; search for all il,al and i1,a1 that can generate all values
+  (var options {})
+  (for [il 0 255]
+    (for [al 0 255]
+      (var possible true)
+      (let [i1-a1
+            (icollect [i r (ipairs value)]
+              (do
+                (when (not (. bf.inc2-n-factors (.. (% r 256) "," il "," al)))
+                  (set possible false))
+                (. bf.inc2-n-factors (.. (% r 256) "," il "," al))))]
+        (when possible
+          (table.insert options [il al i1-a1])))))
+
+  ;; find the shortest option
+  (var shortest-option (. options 1))
+  (each [_ option (ipairs options)]
+    (when (< (cost option) (cost shortest-option))
+      (set shortest-option option)))
+
+  ;; build brainfuck code
+  (..
+    (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; i1
+      (..
+        result
+        (bf.at (. at i)
+          (bf.inc2 (. i1-a1 1) 1))))
+    (bf.at temp (bf.inc (. shortest-option 1))) ; il
+
+    (bf.at temp
+      (bf.loop
+        (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; a1
+        (..
+          result
+          (bf.at (- (. at i) temp)
+            (bf.inc (. i1-a1 2)))))
+        (bf.inc (. shortest-option 2)))))) ; al
+
 (λ bf.zero []
   "Set current cell to 0"
   (bf.loop "-"))
@@ -1199,6 +1259,48 @@ Parameters beginning with `temp` are always pointers to cells."
      (bf.inc2 (string.byte str 1 1) move)
      (bf.ptr move)
      (string-opt4 (string.sub str 2) move))))
+
+(λ bf.string-opt5! [str move]
+  "Optimized version of `bf.string!`.
+   Store `str` in memory, starting at the current cell.
+   All used cells must be initialized as 0. `move` should be ±1."
+
+  (fn inc-n [n i]
+    "`n`: number of bytes to be processed, `i` current string index"
+    (..
+      (bf.inc2-n
+        (fcollect [j 0 (- n 1)]
+          (string.byte str (+ i j)))
+        (fcollect [j 0 (- n 1)]
+          (* j move))
+        (* n move))
+      (bf.ptr (* n move))))
+
+  (fn string-opt5 [str move]
+    (faccumulate [result ""
+                  i 1 (length str) 10]
+      (.. result
+          (if
+            (< (+ i 8) (length str)) (inc-n 10 i)
+            (< (+ i 7) (length str)) (inc-n 9 i)
+            (< (+ i 6) (length str)) (inc-n 8 i)
+            (< (+ i 5) (length str)) (inc-n 7 i)
+            (< (+ i 4) (length str)) (inc-n 6 i)
+            (< (+ i 3) (length str)) (inc-n 5 i)
+            (< (+ i 2) (length str)) (inc-n 4 i)
+            (< (+ i 1) (length str)) (inc-n 3 i)
+
+            (< i (length str)) ; 2 bytes remaining
+            (..
+              (bf.inc2-2 (string.byte str i) (string.byte str (+ 1 i)) move (* 2 move))
+              (bf.ptr (* 2 move)))
+
+            ;; else
+            (..
+              (bf.inc2 (string.byte str i) move)
+              (bf.ptr move))))))
+
+  (string-opt5 str move))
 
 (λ bf.string2! [str move temp0 initial]
   "TODO! remove when bf.string2-opt! works

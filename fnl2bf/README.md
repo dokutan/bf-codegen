@@ -63,6 +63,16 @@ If ?inc-after-loop is `true`, add i1, i2 after the loop.
 
 *no docstring*
 
+## `bf.inc2-n` (λ)
+```(bf.inc2-n value at temp)```
+
+Increment multiple cells using a single loop.
+`value` is a list containing the values that should be added.
+`at` is a list containing the positions of the modified cells.
+`temp` is the position of a cell containing 0, used as a loop counter.
+
+Example: `(bf.inc2-n [123 30 20 10] [0 1 2 3] 4)`
+
 ## `bf.zero` (λ)
 ```(bf.zero)```
 
@@ -243,12 +253,14 @@ The value of the current cell is assumed to be `?initial`, if given.
 `temp0` can have a non-zero value afterwards.
 
 ## `bf.print-from-memory` (λ)
-```(bf.print-from-memory str memory ptr ?randomize)```
+```(bf.print-from-memory str memory ptr ?randomize ?zero-delimited)```
 
 Print `str`, assumes the memory is initialized with the values from `memory`.
 `memory` is modified in place.
 `ptr` is the initial pointer position in `memory`.
-`?randomize` is passed to `shortest-in`.
+`?randomize` is passed to `shortest-in`
+Set `?zero-delimited` to true, if `memory` is delimited by 0 on both ends,
+and doesn't contain 0. This makes pointer movement more efficient.
 
 ## `bf.string!` (λ)
 ```(bf.string! str move)```
@@ -279,6 +291,13 @@ All used cells must be initialized as 0. `move` should be ±1.
 
 ## `bf.string-opt4!` (λ)
 ```(bf.string-opt4! str move)```
+
+Optimized version of `bf.string!`.
+Store `str` in memory, starting at the current cell.
+All used cells must be initialized as 0. `move` should be ±1.
+
+## `bf.string-opt5!` (λ)
+```(bf.string-opt5! str move)```
 
 Optimized version of `bf.string!`.
 Store `str` in memory, starting at the current cell.
@@ -366,6 +385,13 @@ length is generated.
 Call `func` `n` times and return the shortest result.
 Optionally write the lengths of all results to `?logfile`.
 
+## `bf.popcount\!` (λ)
+```(bf.popcount\!)```
+
+Population count, count the number of 1s in the binary representation of the current cell.
+- before: `[x] 0 0 0 0 0 0`
+- after:  `[0] 0 0 0 result 0 0`
+
 ## `bf.double` (λ)
 ```(bf.double ...)```
 
@@ -380,6 +406,11 @@ low reserved reserved high
 
 Doubled version `bf.ptr`: move ptr 4 * `distance`.
 
+## `bf.D.at` (λ)
+```(bf.D.at distance ...)```
+
+Move pointer by `distance`, insert body, move back
+
 ## `bf.D.zero` (λ)
 ```(bf.D.zero)```
 
@@ -388,13 +419,44 @@ Doubled version `bf.zero`.
 ## `bf.D.mov!` (λ)
 ```(bf.D.mov! to)```
 
+Doubled version `bf.mov!`. TODO optimize
+
+## `bf.D.mov` (λ)
+```(bf.D.mov to ?init)```
+
 Doubled version `bf.mov`.
+`to` must be manually set to 0, unless `?init` is true.
+
+## `bf.D.set` (λ)
+```(bf.D.set value)```
+
+Set a doubled cell to `value`, the initial value must be 0.
+
+## `bf.D.zero?!` (λ)
+```(bf.D.zero?!)```
+
+Set a doubled cell to `value`, the initial value must be 0.
+
+## `bf.D.divmod\!` (λ)
+```(bf.D.divmod\!)```
+
+Current cell divided/modulo by the next cell to the right.
+Uses 5 cells to the right of the current cell, cells must be initialized as shown:
+- Before: `>n d 1 0 0 0`
+- After:  `>0 d-n%d n%d n/d 0 0`
 
 ## `bf.D.print-cell\` (λ)
 ```(bf.D.print-cell\)```
 
 Print the value of the current doubled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
+
+## `bf.D.popcount\!` (λ)
+```(bf.D.popcount\!)```
+
+Population count of a doubled cell, count the number of 1s in the binary representation of the current cell.
+- before: `[low] 0 0 high 0 0 0 0 0 0`
+- after:  `[0] 0 0 0 result 0 0 0 0 0`
 
 ## `bf.triple` (λ)
 ```(bf.triple ...)```
@@ -406,10 +468,49 @@ a reserved reserved b reserved reserved c
 
 value = a + 256*b + 65536*c
 
-## `bf.read-list` (fn)
+## `bf.read-list` (λ)
 ```(bf.read-list move separator terminator ?no-initial-read)```
 
 Read a list of integers, separated by `separator` and terminated by `terminator`.
 The integers are placed `move` cells apart in memory.
 Set `?no-initial-read` to true, if the current cell contains the first character of the sequence.
+
+# Array1 functions
+These functions operate on arrays that use a single cell per value.
+Zero is not a valid value inside the array, because the array is delimited by zeros on both ends.
+
+## `bf.array1.shiftr` (λ)
+```(bf.array1.shiftr)```
+
+Shift array right by one cell.
+- before: `0, array, [0], 0`
+- after:  `0, [0], array, 0`
+
+## `bf.array1.shiftl` (λ)
+```(bf.array1.shiftl)```
+
+Shift array left by one cell.
+- before: `0, [0], array, 0`
+- after:  `0, array, [0], 0`
+
+## `bf.array1.length` (λ)
+```(bf.array1.length)```
+
+Get the length of an array.
+- before: `0, array, [0], 0, 0`
+- after:  `0, array, [0], length, 0`
+
+## `bf.array1.reverse` (λ)
+```(bf.array1.reverse)```
+
+Reverse an array.
+- before: `0, array, [0], 0, 0`
+- after:  `0, array, [0], 0, 0`
+
+## `bf.array1.get` (λ)
+```(bf.array1.get)```
+
+Get an element of an array, the index is 0 based.
+- before: `0, 0, array, [0], index, 0`
+- after:  `0, 0, array, [0], result, 0`
 
