@@ -25,12 +25,12 @@ function bf_plus(a::CInt, b::CInt)::CInt
     return r % 256
 end
 
-function generate_simulation_cache()::MMatrix{21,21,CInt}
+function generate_simulation_cache()::MMatrix{41,41,CInt}
     "Generate an MMatrix describing for how many iterations a brainfuck loop `0[al]` runs."
-    simulation_cache = zeros(MMatrix{21,21,CInt})
+    simulation_cache = zeros(MMatrix{41,41,CInt})
 
-    for il::CInt in [-10:-1; 1:10]
-        for al::CInt in [-10:-1; 1:10]
+    for il::CInt in [-20:-1; 1:20]
+        for al::CInt in [-20:-1; 1:20]
             l::CInt = il
             l_history::BitSet = BitSet(l)
             iterations::CInt = 0
@@ -47,16 +47,16 @@ function generate_simulation_cache()::MMatrix{21,21,CInt}
                 push!(l_history, l)
             end
 
-            simulation_cache[il+11, al+11] = iterations
+            simulation_cache[il+21, al+21] = iterations
         end
     end
 
     return simulation_cache
 end
 
-function simulate(simulation_cache::MMatrix{21,21,CInt}, i1::CInt, i2::CInt, i3::CInt, il::CInt, a1::CInt, a2::CInt, a3::CInt, al::CInt)::Tuple{Bool,CInt,CInt,CInt}
+function simulate(simulation_cache::MMatrix{41,41,CInt}, i1::CInt, i2::CInt, i3::CInt, il::CInt, a1::CInt, a2::CInt, a3::CInt, al::CInt)::Tuple{Bool,CInt,CInt,CInt}
 
-    iterations::CInt = simulation_cache[il+11, al+11]
+    iterations::CInt = simulation_cache[il+21, al+21]
 
     if iterations < 0
         return false, 0, 0, 0
@@ -88,7 +88,7 @@ function inc2_3()
     println("generating simulation cache ...")
     simulation_cache = generate_simulation_cache()
 
-    total_iterations = 21 * 21 * 21 * 20 * 21 * 21 * 21 * 20
+    total_iterations = 25 * 25 * 25 * 24 * 25 * 25 * 25 * 24
     println("total:   ", total_iterations)
 
     max_cost::Int = 60 # don't simulate solutions that are longer than this
@@ -97,8 +97,8 @@ function inc2_3()
     results = Array{SVector{8,CInt},3}(undef, 256, 256, 256)
     fill!(results, SVector{8,CInt}(100, 100, 100, 100, 100, 100, 100, 100))
 
-    parameter_range = CInt[-10:10;]
-    parameter_range_no_0 = CInt[-10:-1; 1:10]
+    parameter_range = CInt[-12:12;]
+    parameter_range_no_0 = CInt[-12:-1; 1:12]
 
     for i1::CInt in parameter_range
         for i2::CInt in parameter_range
