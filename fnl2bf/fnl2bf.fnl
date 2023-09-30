@@ -1260,47 +1260,35 @@ Parameters beginning with `temp` are always pointers to cells."
      (bf.ptr move)
      (string-opt4 (string.sub str 2) move))))
 
-(λ bf.string-opt5! [str move]
+(λ bf.string-opt5! [str move ?loop-size]
   "Optimized version of `bf.string!`.
    Store `str` in memory, starting at the current cell.
-   All used cells must be initialized as 0. `move` should be ±1."
+   All used cells must be initialized as 0. `move` should be ±1.
+   ?loop-size is the number cells changed with one loop, the default is 10."
 
-  (fn inc-n [n i]
-    "`n`: number of bytes to be processed, `i` current string index"
-    (..
-      (bf.inc2-n
-        (fcollect [j 0 (- n 1)]
-          (string.byte str (+ i j)))
-        (fcollect [j 0 (- n 1)]
-          (* j move))
-        (* n move))
-      (bf.ptr (* n move))))
+  (let [loop-size (if ?loop-size ?loop-size 10)]
+      (fn inc-n [n i]
+      "`n`: number of bytes to be processed, `i` current string index"
+      (..
+        (bf.inc2-n
+          (fcollect [j 0 (- n 1)]
+            (string.byte str (+ i j)))
+          (fcollect [j 0 (- n 1)]
+            (* j move))
+          (* n move))
+        (bf.ptr (* n move))))
 
-  (fn string-opt5 [str move]
-    (faccumulate [result ""
-                  i 1 (length str) 10]
-      (.. result
-          (if
-            (< (+ i 8) (length str)) (inc-n 10 i)
-            (< (+ i 7) (length str)) (inc-n 9 i)
-            (< (+ i 6) (length str)) (inc-n 8 i)
-            (< (+ i 5) (length str)) (inc-n 7 i)
-            (< (+ i 4) (length str)) (inc-n 6 i)
-            (< (+ i 3) (length str)) (inc-n 5 i)
-            (< (+ i 2) (length str)) (inc-n 4 i)
-            (< (+ i 1) (length str)) (inc-n 3 i)
+    (fn string-opt5 [str]
+      (faccumulate [result ""
+                    i 1 (length str) loop-size]
 
-            (< i (length str)) ; 2 bytes remaining
-            (..
-              (bf.inc2-2 (string.byte str i) (string.byte str (+ 1 i)) move (* 2 move))
-              (bf.ptr (* 2 move)))
 
-            ;; else
-            (..
-              (bf.inc2 (string.byte str i) move)
-              (bf.ptr move))))))
+        (.. result
+            (if (<= (+ (- (length str) i) 1) loop-size)
+              (inc-n (+ (- (length str) i) 1) i)
+              (inc-n loop-size i)))))
 
-  (string-opt5 str move))
+    (string-opt5 str)))
 
 (λ bf.string2! [str move temp0 initial]
   "TODO! remove when bf.string2-opt! works

@@ -6,8 +6,8 @@
 ;; - string-opt2!  builds arbitrarily large loops to set multipe cells in one loop,
 ;;                 uses the bf.factors list to construct the loops
 ;; - string-opt3!  uses inc2-2 to set two cells in one loop
-;; - string-opt4!  uses inc2-4 to set three cells in one loop
-;; - string-opt5!  uses inc2-n to set up to ten cells in one loop
+;; - string-opt4!  uses inc2-3 to set three cells in one loop
+;; - string-opt5!  uses inc2-n to set up to ten (or a specified amount) cells in one loop
 
 (local test-strings [
     "Hello world!"
