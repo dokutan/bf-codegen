@@ -22,6 +22,9 @@ Contains programs that perform a brute force search for the shortest brainfuck p
 ### misc
 Things that don't fit in any other directory.
 
+### notes
+Notes regarding the code in this repo.
+
 ### useful links
 These sites contain additional information tht might be useful for writing (or generating) brainfuck:
 - https://esolangs.org/wiki/Brainfuck_algorithms
