@@ -22,5 +22,14 @@ Contains programs that perform a brute force search for the shortest brainfuck p
 ### misc
 Things that don't fit in any other directory.
 
+### useful links
+These sites contain additional information tht might be useful for writing (or generating) brainfuck:
+- https://esolangs.org/wiki/Brainfuck_algorithms
+- https://esolangs.org/wiki/Brainfuck_constants
+- https://brainfuckhowto.blogspot.com
+- https://www.codingame.com/profile/1aa3b57d313d36f2b421bf8a30a7dfef2532691/playgrounds
+- https://github.com/primo-ppcg/BF-Crunch
+- https://codegolf.stackexchange.com/questions/9178/bitwise-operators-in-brainfuck
+
 ## License
 GNU Affero General Public License v3.0
