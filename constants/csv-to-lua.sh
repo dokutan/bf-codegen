@@ -3,7 +3,7 @@
 
 # for files with 65k lines
 convert1(){
-    sed -E 's/^([^,]+,[^,]+),(.+)/t\["\1"\]={\2}/g' "$1" > "$2" #inc2.csv > inc2-factors.lua
+    sed -E 's/^([^,]+,[^,]+),(.+)/t\["\1"\]={\2}/g' "$1" > "$2"
     cat << EOF | ed "$2"
 0a
 t={}
@@ -35,7 +35,7 @@ EOF
 
 # for inc2-n
 convert2(){
-    sed -E 's/^([^,]+,[^,]+),(.+)/t\["\1"\]={\2}/g' "$1" > "$2" #inc2.csv > inc2-factors.lua
+    sed -E 's/^([^,]+,[^,]+,[^,]+),(.+)/t\["\1"\]={\2}/g' "$1" > "$2"
     cat << EOF | ed "$2"
 0a
 t={}
