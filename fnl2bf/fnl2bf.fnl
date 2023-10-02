@@ -280,14 +280,17 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.shortest-in [tbl ?randomize]
   "Returns the shortest element from `tbl`
-   If `?randomize` is true and there are two shortest elements, choose one randomly."
+   If `?randomize` is true and there are multiple shortest elements, choose one randomly."
   (let [t tbl]
     (table.sort t (λ [a b] (< (length a) (length b))))
-    (if (and ?randomize
-             (= (length (. t 1)) (length (. t 2)))
-             (= 1 (math.random 0 1)))
-      (. t 2)
-      (. t 1))))
+    (if (not ?randomize)
+      (. t 1)
+      (do
+        (var shortest [])
+        (each [_ v (ipairs t)]
+          (when (<= (length v) (length (. t 1)))
+            (table.insert shortest v)))
+        (. shortest (math.random 1 (length shortest)))))))
 
 (λ bf.loop [...]
   "A loop: [...]"
