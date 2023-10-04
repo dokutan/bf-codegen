@@ -1804,6 +1804,18 @@ Zero is not a valid value inside the array, because the array is delimited by ze
     (bf.array1.shiftr)
     ">[>]"))
 
+(λ bf.array1.set []
+  "Set an element of an array to value, the index is 0 based.
+   - before: `0, 0, array, [0], index, value`
+   - after:  `0, 0, array, [0], 0, 0`"
+  (..
+    ">+[<<[<]>[-<+>]>[>]>-]" ; while index: move first cell of array left
+    "<<[<]<" ; move to cell left of the created gap
+    "[-]>>[>]>>[-<<<[<]<+>>[>]>>]" ; move value to current cell
+    "<<<[<]" ; go to gap in array
+    (bf.array1.shiftr)
+    ">[>]"))
+
 (λ bf.array1.copyr [distance]
   "Copy an array `distance` cells to the right.
    - before: `0, 0, array, [0]`
