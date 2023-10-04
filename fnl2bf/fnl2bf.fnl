@@ -1763,17 +1763,21 @@ Parameters beginning with `temp` are always pointers to cells."
 These functions operate on arrays that use a single cell per value.
 Zero is not a valid value inside the array, because the array is delimited by zeros on both ends."
 
-(λ bf.array1.shiftr []
-  "Shift array right by one cell.
+(λ bf.array1.shiftr [?distance]
+  "Shift array right by `?distance` cells (default is one).
    - before: `0, array, [0], 0`
    - after:  `0, [0], array, 0`"
-  "<[[->+<]<]>")
+  (let [?distance (if ?distance ?distance 1)]
+    (assert (>= ?distance 1) "shiftr: distance must be >= 1")
+    (.. "<[[-" (bf.at ?distance "+") "]<]>")))
 
-(λ bf.array1.shiftl []
-  "Shift array left by one cell.
+(λ bf.array1.shiftl [?distance]
+  "Shift array left by `?distance` cells (default is one).
    - before: `0, [0], array, 0`
    - after:  `0, array, [0], 0`"
-  ">[[-<+>]>]<")
+  (let [?distance (if ?distance ?distance 1)]
+    (assert (>= ?distance 1) "shiftl: distance must be >= 1")
+    (.. ">[[-" (bf.at (- ?distance) "+") "]>]<")))
 
 (λ bf.array1.length []
   "Get the length of an array.
@@ -1793,11 +1797,43 @@ Zero is not a valid value inside the array, because the array is delimited by ze
    - after:  `0, 0, array, [0], result, 0`"
   (..
     ">+[<<[<]>[-<+>]>[>]>-]" ; while index: move first cell of array left
-    "<<[<]<" ; move to cell left of thhe created gap
+    "<<[<]<" ; move to cell left of the created gap
     "[>>[>]>+>+<<<[<]<-]" ; move cell two times
     ">>[>]>>[<<<[<]<+>>[>]>>-]" ; restore cell
     "<<<[<]" ; go to gap in array
     (bf.array1.shiftr)
     ">[>]"))
+
+(λ bf.array1.copyr [distance]
+  "Copy an array `distance` cells to the right.
+   - before: `0, 0, array, [0]`
+   - after: `0, 0, array, [0], ..., 0, array, 0`"
+  (assert (>= distance 1) "copyr: distance must be >= 1")
+  (..
+    "<[<]>" ; move to first element
+    (bf.loop
+      ;; copy element to end of copy and to -2
+      "[>]" (bf.ptr distance) "[>]+[<]" (bf.ptr (- distance)) "[<]>-<<+>>"
+      (bf.loop
+        "[>]" (bf.ptr distance) "[>]<+[<]" (bf.ptr (- distance)) "[<]>-<<+>>")
+
+      ">") ; next element
+    "<<<[[->>+<<]<]>>>[>]")) ; shift left copy right by 2
+
+(λ bf.array1.copyl [distance]
+  "Copy an array `distance` cells to the left.
+   - before: `0, array, [0], 0`
+   - after: `0, array, 0, ..., 0, array, [0], 0`"
+  (assert (>= distance 1) "copyl: distance must be >= 1")
+  (..
+    "<" ; move to last element
+    (bf.loop
+      ;; copy element to end of copy and to -2
+      "[<]" (bf.ptr (- distance)) "[<]+[>]" (bf.ptr distance) "[>]<->>+<<"
+      (bf.loop
+        "[<]" (bf.ptr (- distance)) "[<]>+[>]" (bf.ptr distance) "[>]<->>+<<")
+
+      "<") ; next element
+    ">>>[[-<<+>>]>]<<<[>]")) ; shift right copy left by 2
 
 bf
