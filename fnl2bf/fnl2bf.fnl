@@ -1848,4 +1848,38 @@ Zero is not a valid value inside the array, because the array is delimited by ze
       "<") ; next element
     ">>>[[-<<+>>]>]<<<[>]")) ; shift right copy left by 2
 
+(λ bf.array1.strcomparel! [str ?mode]
+  "Compare array with `str`, deletes the array and places the result to the left.
+   If `?mode` is 'not=' the result is the number of characters that are different,
+   else the result is 1 if the array and string are equal, if not then 0.
+   - before: `0, 0, array, [0]`
+   - after: `[result], 0, 0, 0, ...`"
+  (..
+    "<[<]<[-]" (if (= ?mode :not=) "" "+") ">>[>]<" ; set result
+    (faccumulate [r ""
+                  i (length str) 1 -1]
+      (.. r
+          (bf.inc2 (- (str.byte str i i)) 1)
+          ;; if not zero, zero current element and zero or inc result
+          "[[-]<[<]<" (if (= ?mode :not=) "+" "[-]") ">>[>]]"
+          "<")) ; next element
+    "<"))
+
+(λ bf.array1.strcomparer! [str ?mode]
+  "Compare array with `str`, deletes the array and places the result to the right.
+   If `?mode` is 'not=' the result is the number of characters that are different,
+   else the result is 1 if the array and string are equal, if not then 0.
+   - before: `[0], array, 0, 0`
+   - after: `..., 0, 0, 0, [result]`"
+  (..
+    ">[>]>[-]" (if (= ?mode :not=) "" "+") "<<[<]>" ; set result
+    (faccumulate [r ""
+                  i 1 (length str)]
+      (.. r
+          (bf.inc2 (- (str.byte str i i)) -1)
+          ;; if not zero, zero current element and zero or inc result
+          "[[-]>[>]>" (if (= ?mode :not=) "+" "[-]") "<<[<]]"
+          ">")) ; next element
+    ">"))
+
 bf
