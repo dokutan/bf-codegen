@@ -480,7 +480,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (for [al 0 255]
       (var possible true)
       (let [i1-a1
-            (icollect [i r (ipairs value)]
+            (icollect [_ r (ipairs value)]
               (do
                 (when (not (. bf.inc2-n-factors (.. (% r 256) "," il "," al)))
                   (set possible false))
@@ -1573,7 +1573,7 @@ Parameters beginning with `temp` are always pointers to cells."
 
         shortest-result
         (faccumulate [shortest-result first-result
-                      i 1 (- n 1)]
+                      _ 1 (- n 1)]
           (let [current-result (func)]
             (when logfile
               (: logfile :write (.. (length current-result) "\n")))
@@ -1769,7 +1769,11 @@ Zero is not a valid value inside the array, because the array is delimited by ze
    - after:  `0, [0], array, 0`"
   (let [?distance (if ?distance ?distance 1)]
     (assert (>= ?distance 1) "shiftr: distance must be >= 1")
-    (.. "<[[-" (bf.at ?distance "+") "]<]>")))
+    (..
+      "<[[-"
+      (bf.at ?distance "+")
+      "]<]"
+      (bf.ptr ?distance))))
 
 (λ bf.array1.shiftl [?distance]
   "Shift array left by `?distance` cells (default is one).
@@ -1777,7 +1781,11 @@ Zero is not a valid value inside the array, because the array is delimited by ze
    - after:  `0, array, [0], 0`"
   (let [?distance (if ?distance ?distance 1)]
     (assert (>= ?distance 1) "shiftl: distance must be >= 1")
-    (.. ">[[-" (bf.at (- ?distance) "+") "]>]<")))
+    (..
+      ">[[-"
+      (bf.at (- ?distance) "+")
+      "]>]"
+      (bf.ptr (- ?distance)))))
 
 (λ bf.array1.length []
   "Get the length of an array.
@@ -1881,5 +1889,46 @@ Zero is not a valid value inside the array, because the array is delimited by ze
           "[[-]>[>]>" (if (= ?mode :not=) "+" "[-]") "<<[<]]"
           ">")) ; next element
     ">"))
+
+(λ bf.array1.sort []
+  "Sort array in place.
+   - before: 0, 0, array, [0], 0, 0, 0, 0, 0, 0"
+  (..
+    (bf.at 6
+      "+" ; set flag
+      (bf.loop
+        "-"
+        "<<[<]<<<<<<" ; move to second last cell
+        (bf.loop
+          (bf.mov 3 2) ">" (bf.mov 1 3) ">>>" ; copy the last two elements: ... x y -- ... x y y x [0]
+          "+<<[->[->]>[<<[-]>>->>]<<+<<]>>-<<" ; compare x y: ... x y y x [0] -- x y [0] (y<x ? x-y : 0) 0
+          (bf.at 1 (bf.if "<+>") "+")
+          (bf.loop ; if y<x
+            "->-<<<" ; ... x y [1] 1 -- ... [x] y 0 0
+            (bf.mov! 6)
+            ">"
+            (bf.mov! -1)
+            ">>>>>[>]>[-]+<<[<]<<<") ; set flag
+          (bf.at 1 ; else: x>=y
+            (bf.loop
+              (bf.at -2 (bf.mov! 5))
+              "-"))
+          "<<<")
+        ">>>>>>" (bf.array1.shiftl 5) ">>"))))
+
+(λ bf.array1.map [distance & code]
+  "Map `code` over array in place:
+   - before: `0, array, [0], 0
+   - after: `0, array, [0], 0
+  `code` is run in the following environment: `array, 0 * distance, [current element], array`"
+  (..
+    "<"
+    (bf.loop
+      (bf.mov! distance)
+      (bf.at distance
+        (table.concat code))
+      "<")
+    (bf.ptr distance)
+    (bf.array1.shiftl distance)))
 
 bf
