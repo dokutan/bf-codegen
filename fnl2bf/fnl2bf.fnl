@@ -610,6 +610,11 @@ Parameters beginning with `temp` are always pointers to cells."
 
     (bf.divmod\!)))
 
+(λ bf.mod\! []
+  "- before: `0 >n d 0 0 0`
+   - after: `0 >0 d-n%d n%d 0 0`"
+  "[>->+<[>]>[<+>-]<<[<]>-]")
+
 (λ bf.invert [temp ?init]
   "Equivalent to current cell <- (256 - current cell)."
   (..
@@ -1637,6 +1642,18 @@ Parameters beginning with `temp` are always pointers to cells."
   "Doubled version `bf.zero`."
   "[-]>>>[-]<<<")
 
+(λ bf.D.add! [to]
+  "Doubled version of `bf.add!`."
+  (bf.double (bf.add! to)))
+
+(λ bf.D.sub! [to]
+  "Doubled version of `bf.sub!`."
+  (bf.double (bf.sub! to)))
+
+(λ bf.D.multiply-add! [times to]
+  "Doubled version of `bf.multiply-add!`."
+  (bf.double (bf.multiply-add! times to)))
+
 (λ bf.D.mov! [to]
   "Doubled version `bf.mov!`. TODO optimize"
   (..
@@ -1667,16 +1684,37 @@ Parameters beginning with `temp` are always pointers to cells."
     ">[[-]>-<]<"
     ">>[-<<+>>]<<"))
 
-(λ bf.D.divmod\! []
+(λ bf.D.divmod\! [?mod+1]
   "Current cell divided/modulo by the next cell to the right.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
    - Before: `>n d 1 0 0 0`
-   - After:  `>0 d-n%d n%d n/d 0 0`"
+   - After:  `>0 d-n%d n%d n/d 0 0`
+   If `?mod+1` is true, `n%d` is `n%d+1` instead."
   (..
     (bf.double "[->-[>+>>]>[")
     (bf.D.mov! -1)
     (bf.double "+>+>>]<<<<<]")
-    (bf.double ">>-<<")))
+    (if ?mod+1
+      ""
+      (bf.double ">>-<<"))))
+
+(λ bf.D.divmod2\! [?mod+1]
+  "Current cell divided/modulo by the next cell to the right. Optimized for d<256.
+   Uses 5 cells to the right of the current cell, cells must be initialized as shown:
+   - Before: `>n d 1 0 0 0`
+   - After:  `>0 d-n%d n%d n/d 0 0`
+   If `?mod+1` is true, `n%d` is `n%d+1` instead."
+  (..
+    (bf.double "[->")
+    "-"
+    (bf.loop
+      (bf.double">+>>"))
+    (bf.double">[")
+    (bf.D.mov! -1)
+    (bf.double "+>+>>]<<<<<]")
+    (if ?mod+1
+      ""
+      (bf.double ">>-<<"))))
 
 (λ bf.D.print-cell\ []
   "Print the value of the current doubled cell.
@@ -1930,5 +1968,27 @@ Zero is not a valid value inside the array, because the array is delimited by ze
       "<")
     (bf.ptr distance)
     (bf.array1.shiftl distance)))
+
+(λ bf.array1.foldr [& code]
+  "Right fold, places the result in the leftmost element of the array.
+   - before: `0, array, [0]`
+   - after: `[0], result, 0, …, 0`
+  `code` is run in the following environment `array, [a], b, 0, …`, and must produce `array, [f(a,b)], 0, 0, …`"
+  (..
+    "<<"
+    (bf.loop
+      (table.concat code)
+      "<")))
+
+(λ bf.array1.foldl [& code]
+  "Left fold, places the result in the rightmost element of the array.
+   - before: `[0], array, 0`
+   - after: `0, …, 0, result, [0]`
+  `code` is run in the following environment `…, 0, a, [b], array`, and must produce `…, 0, 0, [f(a,b)], array`"
+  (..
+    ">>"
+    (bf.loop
+      (table.concat code)
+      ">")))
 
 bf
