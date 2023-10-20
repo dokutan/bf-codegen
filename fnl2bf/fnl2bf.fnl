@@ -583,6 +583,21 @@ Parameters beginning with `temp` are always pointers to cells."
 
     (bf.ptr 0 temp1)))
 
+(λ bf.square [temp0 temp1]
+  "current cell < current cell ^ 2"
+  (..
+    (bf.add! temp0)
+    (bf.at temp0
+      (bf.loop
+        "-"
+        (bf.loop
+          (bf.at (- temp1 temp0) "+")
+          (bf.at (- 0 temp0) "++")
+          "-")
+        (bf.at (- 0 temp0) "+")
+        (bf.at (- temp1 temp0)
+          (bf.add! (- temp0 temp1)))))))
+
 (λ bf.divmod\! []
   "Current cell divided/modulo by the next cell to the right.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
@@ -1426,6 +1441,32 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
     "+[-<++++++++>]<.[-]<<[-<+>]<"))
 
+(λ bf.digits\ []
+  "Creates a string containing the digits of the currrent cell as a decimal number.
+   - before: `[x], 0, 0, 0, …`
+   - after: `[x], 0, ones, tens, hundreds, [0]`"
+  (..
+    (bf.at 1 (bf.zero))
+    (bf.at 2 (bf.zero) "+")
+    (bf.at 3 (bf.zero) "+")
+    ">>"
+    (bf.loop
+      ">"
+      (bf.loop
+        "-<-"
+        (bf.at -2
+          (bf.add 2 1))
+        ">")
+      ;; prepare division by 10
+      "++++++++++"
+      ">[-]+>[-]>[-]>[-]<<<<<"
+      (bf.divmod\!)
+      ;; move results
+      ">>" (bf.add! -2)
+      (bf.ptr -1) (bf.zero)
+      (bf.at 2
+        (bf.add! -2)))))
+
 (λ _generic-case [inc-fn temp0 temp0-init ?temp1 args body-zero]
   "This function is used to implement both `bf.case!` and `bf.case2!`.
    Do not use this directly."
@@ -1736,6 +1777,40 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.D.zero)
     (bf.double "<]<")))
 
+(λ bf.D.digits\ []
+  "Doubled version of `bf.D.digits\\`
+   - before: `{[x], 0, 0, x}, 0, 0, 0, …`
+   - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`"
+  (..
+    (bf.D.at 1 (bf.D.zero))
+    (bf.D.at 2 (bf.D.zero) "+")
+    (bf.D.at 3 (bf.D.zero) "+")
+    (bf.D.ptr 2)
+    (bf.double "[")
+      (bf.D.ptr 1)
+      (bf.double "[")
+        (bf.double "-<-")
+        (bf.D.at -2
+          (bf.D.mov 2))
+        (bf.D.ptr 1)
+        (bf.double "]")
+      ;; prepare division by 10
+      "++++++++++"
+      (bf.D.ptr 1) (bf.D.zero) "+"
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.D.ptr -5)
+      ;; division
+      (bf.D.divmod\! true)
+      ;; move results
+      (bf.D.ptr 2) "-" (bf.D.add! -2)
+      (bf.D.ptr -1) (bf.D.zero)
+      (bf.at 8 (bf.add! -11))
+      (bf.at 11 (bf.add! -11))
+      "<<<"
+      (bf.double "]")))
+
 (λ bf.D.popcount\! []
   "Population count of a doubled cell, count the number of 1s in the binary representation of the current cell.
    - before: `[low] 0 0 high 0 0 0 0 0 0`
@@ -1962,7 +2037,7 @@ Zero is not a valid value inside the array, because the array is delimited by ze
   (..
     "<"
     (bf.loop
-      (bf.mov! distance)
+      (bf.add! distance)
       (bf.at distance
         (table.concat code))
       "<")
@@ -1990,5 +2065,21 @@ Zero is not a valid value inside the array, because the array is delimited by ze
     (bf.loop
       (table.concat code)
       ">")))
+
+(λ bf.array1.suml []
+  "Sum all elements in the array, the result is placed in the leftmost element.
+   - before: `0, array, [0]`
+   - after: `[0], sum, 0, …, 0`"
+  (bf.array1.foldr
+    (bf.at 1
+      (bf.add! -1))))
+
+(λ bf.array1.sumr []
+  "Sum all elements in the array, the result is placed in the leftmost element.
+   - before: `[0], array, 0`
+   - after: `0, …, 0, sum, [0]`"
+  (bf.array1.foldl
+    (bf.at -1
+      (bf.add! 1))))
 
 bf
