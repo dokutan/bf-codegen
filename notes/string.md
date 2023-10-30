@@ -29,7 +29,7 @@ As the optimal loop size depends on the str, i used the following Fennel program
 
 This gives the following result when plotted, it seems like trying different loop sizes < 15 should guarantee an optimal result:
 
-![](string.svg)
+![](plots/string.svg)
 
 ### Ideas for improvement
 - Try different loop sizes within a single string
@@ -68,4 +68,4 @@ The following program calculates the length of the brainfuck program to store a 
       (length (bf.optimize (bf.string-opt5! (add-to-string str3 i) 1 (length str3)))))))
 ```
 
-![](string2.svg)
+![](plots/string2.svg)
