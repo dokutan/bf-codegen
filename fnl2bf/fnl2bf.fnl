@@ -1717,7 +1717,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.inc2-2 low high 3 1)))
 
 (λ bf.D.zero?! []
-  "Set a doubled cell to `value`, the initial value must be 0."
+  "Check if a doubled cell is zero."
   (..
     "[[-]>+<]"
     ">>>[[-]<<+>>]<<<"

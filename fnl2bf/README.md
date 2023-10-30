@@ -23,7 +23,7 @@ Returns the shortest argument
 ```(bf.shortest-in tbl ?randomize)```
 
 Returns the shortest element from `tbl`
-If `?randomize` is true and there are two shortest elements, choose one randomly.
+If `?randomize` is true and there are multiple shortest elements, choose one randomly.
 
 ## `bf.loop` (λ)
 ```(bf.loop ...)```
@@ -112,6 +112,11 @@ current cell <- current cell * cell at `y`.
 `temp0` and `temp1` must to be 0.
 `y` is not modified.
 
+## `bf.square` (λ)
+```(bf.square temp0 temp1)```
+
+current cell < current cell ^ 2
+
 ## `bf.divmod\!` (λ)
 ```(bf.divmod\!)```
 
@@ -124,6 +129,12 @@ Uses 5 cells to the right of the current cell, cells must be initialized as show
 ```(bf.divmod-by! value)```
 
 Current cell divided/modulo by value. Uses 5 cells to the right of the current cell.
+
+## `bf.mod\!` (λ)
+```(bf.mod\!)```
+
+- before: `0 >n d 0 0 0`
+- after: `0 >0 d-n%d n%d 0 0`
 
 ## `bf.invert` (λ)
 ```(bf.invert temp ?init)```
@@ -343,6 +354,13 @@ Requires 6 cells containing 0 to the right of the current cell.
 Print the value of the current cell modulo 10 as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
 
+## `bf.digits\` (λ)
+```(bf.digits\)```
+
+Creates a string containing the digits of the currrent cell as a decimal number.
+- before: `[x], 0, 0, 0, …`
+- after: `[x], 0, ones, tens, hundreds, [0]`
+
 ## `_generic-case` (λ)
 ```(_generic-case inc-fn temp0 temp0-init ?temp1 args body-zero)```
 
@@ -417,6 +435,21 @@ Move pointer by `distance`, insert body, move back
 
 Doubled version `bf.zero`.
 
+## `bf.D.add!` (λ)
+```(bf.D.add! to)```
+
+Doubled version of `bf.add!`.
+
+## `bf.D.sub!` (λ)
+```(bf.D.sub! to)```
+
+Doubled version of `bf.sub!`.
+
+## `bf.D.multiply-add!` (λ)
+```(bf.D.multiply-add! times to)```
+
+Doubled version of `bf.multiply-add!`.
+
 ## `bf.D.mov!` (λ)
 ```(bf.D.mov! to)```
 
@@ -436,21 +469,38 @@ Set a doubled cell to `value`, the initial value must be 0.
 ## `bf.D.zero?!` (λ)
 ```(bf.D.zero?!)```
 
-Set a doubled cell to `value`, the initial value must be 0.
+Check if a doubled cell is zero.
 
 ## `bf.D.divmod\!` (λ)
-```(bf.D.divmod\!)```
+```(bf.D.divmod\! ?mod+1)```
 
 Current cell divided/modulo by the next cell to the right.
 Uses 5 cells to the right of the current cell, cells must be initialized as shown:
 - Before: `>n d 1 0 0 0`
 - After:  `>0 d-n%d n%d n/d 0 0`
+If `?mod+1` is true, `n%d` is `n%d+1` instead.
+
+## `bf.D.divmod2\!` (λ)
+```(bf.D.divmod2\! ?mod+1)```
+
+Current cell divided/modulo by the next cell to the right. Optimized for d<256.
+Uses 5 cells to the right of the current cell, cells must be initialized as shown:
+- Before: `>n d 1 0 0 0`
+- After:  `>0 d-n%d n%d n/d 0 0`
+If `?mod+1` is true, `n%d` is `n%d+1` instead.
 
 ## `bf.D.print-cell\` (λ)
 ```(bf.D.print-cell\)```
 
 Print the value of the current doubled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
+
+## `bf.D.digits\` (λ)
+```(bf.D.digits\)```
+
+Doubled version of `bf.D.digits\`
+- before: `{[x], 0, 0, x}, 0, 0, 0, …`
+- after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`
 
 ## `bf.D.popcount\!` (λ)
 ```(bf.D.popcount\!)```
@@ -481,16 +531,16 @@ These functions operate on arrays that use a single cell per value.
 Zero is not a valid value inside the array, because the array is delimited by zeros on both ends.
 
 ## `bf.array1.shiftr` (λ)
-```(bf.array1.shiftr)```
+```(bf.array1.shiftr ?distance)```
 
-Shift array right by one cell.
+Shift array right by `?distance` cells (default is one).
 - before: `0, array, [0], 0`
 - after:  `0, [0], array, 0`
 
 ## `bf.array1.shiftl` (λ)
-```(bf.array1.shiftl)```
+```(bf.array1.shiftl ?distance)```
 
-Shift array left by one cell.
+Shift array left by `?distance` cells (default is one).
 - before: `0, [0], array, 0`
 - after:  `0, array, [0], 0`
 
@@ -514,4 +564,87 @@ Reverse an array.
 Get an element of an array, the index is 0 based.
 - before: `0, 0, array, [0], index, 0`
 - after:  `0, 0, array, [0], result, 0`
+
+## `bf.array1.set` (λ)
+```(bf.array1.set)```
+
+Set an element of an array to value, the index is 0 based.
+- before: `0, 0, array, [0], index, value`
+- after:  `0, 0, array, [0], 0, 0`
+
+## `bf.array1.copyr` (λ)
+```(bf.array1.copyr distance)```
+
+Copy an array `distance` cells to the right.
+- before: `0, 0, array, [0]`
+- after: `0, 0, array, [0], ..., 0, array, 0`
+
+## `bf.array1.copyl` (λ)
+```(bf.array1.copyl distance)```
+
+Copy an array `distance` cells to the left.
+- before: `0, array, [0], 0`
+- after: `0, array, 0, ..., 0, array, [0], 0`
+
+## `bf.array1.strcomparel!` (λ)
+```(bf.array1.strcomparel! str ?mode)```
+
+Compare array with `str`, deletes the array and places the result to the left.
+If `?mode` is 'not=' the result is the number of characters that are different,
+else the result is 1 if the array and string are equal, if not then 0.
+- before: `0, 0, array, [0]`
+- after: `[result], 0, 0, 0, ...`
+
+## `bf.array1.strcomparer!` (λ)
+```(bf.array1.strcomparer! str ?mode)```
+
+Compare array with `str`, deletes the array and places the result to the right.
+If `?mode` is 'not=' the result is the number of characters that are different,
+else the result is 1 if the array and string are equal, if not then 0.
+- before: `[0], array, 0, 0`
+- after: `..., 0, 0, 0, [result]`
+
+## `bf.array1.sort` (λ)
+```(bf.array1.sort)```
+
+Sort array in place.
+- before: 0, 0, array, [0], 0, 0, 0, 0, 0, 0
+
+## `bf.array1.map` (λ)
+```(bf.array1.map distance & code)```
+
+Map `code` over array in place:
+- before: `0, array, [0], 0
+- after: `0, array, [0], 0
+`code` is run in the following environment: `array, 0 * distance, [current element], array`
+
+## `bf.array1.foldr` (λ)
+```(bf.array1.foldr & code)```
+
+Right fold, places the result in the leftmost element of the array.
+- before: `0, array, [0]`
+- after: `[0], result, 0, …, 0`
+`code` is run in the following environment `array, [a], b, 0, …`, and must produce `array, [f(a,b)], 0, 0, …`
+
+## `bf.array1.foldl` (λ)
+```(bf.array1.foldl & code)```
+
+Left fold, places the result in the rightmost element of the array.
+- before: `[0], array, 0`
+- after: `0, …, 0, result, [0]`
+`code` is run in the following environment `…, 0, a, [b], array`, and must produce `…, 0, 0, [f(a,b)], array`
+
+## `bf.array1.suml` (λ)
+```(bf.array1.suml)```
+
+Sum all elements in the array, the result is placed in the leftmost element.
+- before: `0, array, [0]`
+- after: `[0], sum, 0, …, 0`
+
+## `bf.array1.sumr` (λ)
+```(bf.array1.sumr)```
+
+Sum all elements in the array, the result is placed in the leftmost element.
+- before: `[0], array, 0`
+- after: `0, …, 0, sum, [0]`
 
