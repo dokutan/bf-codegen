@@ -45,3 +45,8 @@ If more than one shortest option to print a byte exists, and the used option is 
 ```
 
 ![](plots/print-from-memory2.svg)
+
+## Ideas for improvement
+If the used cells are delimited by zero:
+- Use `[>]` or `[<]` for movement
+- Print multiple bytes using a loop, e.g. `[.>]`, `[+.<<]`
