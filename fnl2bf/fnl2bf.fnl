@@ -1098,6 +1098,50 @@ Parameters beginning with `temp` are always pointers to cells."
       (print3 str temp0 temp1 ?initial)
       (print3 str temp1 temp0 ?initial)))
 
+; (λ bf.print-from-memory [str memory ptr ?randomize ?zero-delimited]
+;   "Print `str`, assumes the memory is initialized with the values from `memory`.
+;    `memory` is modified in place.
+;    `ptr` is the initial pointer position in `memory`.
+;    `?randomize` is passed to `shortest-in`
+;    Set `?zero-delimited` to true, if `memory` is delimited by 0 on both ends,
+;    and doesn't contain 0. This makes pointer movement more efficient."
+;   (fn move-ptr [from to]
+;     (if ?zero-delimited
+;       (bf.shortest
+;         (bf.ptr (- to from))
+;         (.. "[<]" (bf.ptr to))
+;         (.. "[>]" (bf.ptr (- to (+ 1 (length memory))))))
+;       (bf.ptr (- to from))))
+
+;   (fn print-char [char memory ptr]
+;     ;; for each cell in memory: try move + set + print
+;     (var modified-index {})
+;     (let [alternatives
+;           (fcollect [i 1 (length memory)]
+;             (let [p
+;                   (..
+;                     (move-ptr ptr i)
+;                     (bf.set char (. memory i))
+;                     ".")]
+;               (tset modified-index p i)
+;               p))
+
+;           shortest-alternative
+;           (bf.shortest-in alternatives ?randomize)]
+
+;       (tset memory (. modified-index shortest-alternative) char)
+;       (values
+;         shortest-alternative
+;         (. modified-index shortest-alternative))))
+
+;   (table.unpack
+;     (faccumulate [result ["" ptr]
+;                   i 1 (length str)]
+;       (let [(code new-ptr)
+;             (print-char (string.byte str i i) memory (. result 2))]
+;         [(.. (. result 1) code)
+;          new-ptr]))))
+
 (λ bf.print-from-memory [str memory ptr ?randomize ?zero-delimited]
   "Print `str`, assumes the memory is initialized with the values from `memory`.
    `memory` is modified in place.
@@ -1113,10 +1157,10 @@ Parameters beginning with `temp` are always pointers to cells."
         (.. "[>]" (bf.ptr (- to (+ 1 (length memory))))))
       (bf.ptr (- to from))))
 
-  (fn print-char [char memory ptr]
-    ;; for each cell in memory: try move + set + print
+  (fn print-1-char [chars memory ptr]
     (var modified-index {})
-    (let [alternatives
+    (let [char (. chars 1)
+          alternatives
           (fcollect [i 1 (length memory)]
             (let [p
                   (..
@@ -1130,17 +1174,70 @@ Parameters beginning with `temp` are always pointers to cells."
           (bf.shortest-in alternatives ?randomize)]
 
       (tset memory (. modified-index shortest-alternative) char)
+      (table.remove chars 1)
+
       (values
         shortest-alternative
         (. modified-index shortest-alternative))))
 
-  (table.unpack
-    (faccumulate [result ["" ptr]
-                  i 1 (length str)]
+  (fn print-chars [chars memory ptr]
+    (let [cost 3]
+      (var start-l nil) ; initial index for ≶±[.>]
+      (var start-r nil) ; initial index for ≶±[.<]
+
+      ;; find start-l
+      (for [i (- (length memory) cost) 2 -1]
+        (when
+          (faccumulate [r true
+                        j i (length memory)]
+            (and r (= (. memory j) (. chars (+ (- j i) 2)))))
+          (set start-l (- i 1))))
+
+      ;; find start-r
+      (for [i cost (- (length memory) 1)]
+        (when
+          (faccumulate [r true
+                        j i 1 -1]
+            (and r (= (. memory j) (. chars (+ (- i j) 2)))))
+          (set start-r (+ i 1))))
+
+      (if
+        start-r
+        (let [code
+              (..
+                (move-ptr ptr start-r)
+                (bf.set (. chars 1) (. memory start-r))
+                "[.<]>")]
+          ;(print start-r)
+          (tset memory start-r (. chars 1))
+          (for [i 1 start-r] (table.remove chars 1))
+          (values code 1))
+
+        start-l
+        (let [code
+              (..
+                (move-ptr ptr start-l)
+                (bf.set (. chars 1) (. memory start-l))
+                "[.>]<")]
+          ;(print start-l)
+          (tset memory start-l (. chars 1))
+          (for [i start-l (length memory)] (table.remove chars 1))
+          (values code (length memory)))
+
+        ;; else
+        (print-1-char chars memory ptr))))
+
+  (let [chars
+        (fcollect [i 1 (length str)]
+          (string.byte str i))]
+    (var ptr ptr)
+    (var result "")
+    (while (> (length chars) 0)
       (let [(code new-ptr)
-            (print-char (string.byte str i i) memory (. result 2))]
-        [(.. (. result 1) code)
-         new-ptr]))))
+            (print-chars chars memory ptr)]
+        (set ptr new-ptr)
+        (set result (.. result code))))
+    (values result ptr)))
 
 (λ bf.string! [str move]
   "Store `str` in memory, starting at the current cell.
