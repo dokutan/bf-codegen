@@ -75,14 +75,23 @@ int load(lua_State* L)
         uint8_t r2 = unsafe_stou_getline(i, line);
         uint8_t r3 = unsafe_stou_getline(i, line);
 
-        inc2_3_factors[r1][r2][r3][0] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][1] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][2] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][3] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][4] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][5] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][6] = unsafe_stoi_getline(i, line);
-        inc2_3_factors[r1][r2][r3][7] = unsafe_stoi_getline(i, line);
+        int8_t i1 = unsafe_stoi_getline(i, line);
+        int8_t i2 = unsafe_stoi_getline(i, line);
+        int8_t i3 = unsafe_stoi_getline(i, line);
+        int8_t il = unsafe_stoi_getline(i, line);
+        int8_t a1 = unsafe_stoi_getline(i, line);
+        int8_t a2 = unsafe_stoi_getline(i, line);
+        int8_t a3 = unsafe_stoi_getline(i, line);
+        int8_t al = unsafe_stoi_getline(i, line);
+
+        inc2_3_factors[r1][r2][r3][0] = i1;
+        inc2_3_factors[r1][r2][r3][1] = i2;
+        inc2_3_factors[r1][r2][r3][2] = i3;
+        inc2_3_factors[r1][r2][r3][3] = il;
+        inc2_3_factors[r1][r2][r3][4] = a1;
+        inc2_3_factors[r1][r2][r3][5] = a2;
+        inc2_3_factors[r1][r2][r3][6] = a3;
+        inc2_3_factors[r1][r2][r3][7] = al;
     }
 
     csv_file.close();
