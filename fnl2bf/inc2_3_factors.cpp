@@ -10,34 +10,40 @@ No validation of the input data is performed and the parsing is not safely imple
 #include <array>
 #include <cstdint>
 #include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
 
-// converts str to an int
-int unsafe_stoi(std::string str)
+// read a uint8_t from in starting at i
+uint8_t unsafe_stou_getline(int& i, const std::string& in)
 {
-    int i = (str[0] == '-') ? 1 : 0, result = 0;
+    uint8_t result = 0;
 
-    while (str[i] != '\0') {
-        result = (result * 10) + (str[i] - '0');
+    do {
+        result = (result * 10) + (in[i] - '0');
         i++;
-    }
+    } while (in[i] != ',');
+    i++;
 
-    return (str[0] == '-') ? -result : result;
+    return result;
 }
 
-// return the substring from in that starts at i and ends at the first occurence of delimiter after i
-// i is incremented by the length of the returned string + 1
-inline std::string unsafe_getline(int& i, const std::string& in, const char delimiter)
+// read an int8_t from in starting at i
+int8_t unsafe_stoi_getline(int& i, const std::string& in)
 {
-    std::string out = "";
-    while (in[i] != delimiter) {
-        out += in[i];
+    int8_t result = 0;
+    bool is_negative = false;
+
+    if (in[i] == '-') {
+        is_negative = true;
         i++;
     }
+
+    do {
+        result = (result * 10) + (in[i] - '0');
+        i++;
+    } while (in[i] != ',');
     i++;
-    return out;
+
+    return is_negative ? -result : result;
 }
 
 extern "C" {
@@ -65,18 +71,18 @@ int load(lua_State* L)
         int i = 0;
         line += ',';
 
-        int r1 = unsafe_stoi(unsafe_getline(i, line, ','));
-        int r2 = unsafe_stoi(unsafe_getline(i, line, ','));
-        int r3 = unsafe_stoi(unsafe_getline(i, line, ','));
+        uint8_t r1 = unsafe_stou_getline(i, line);
+        uint8_t r2 = unsafe_stou_getline(i, line);
+        uint8_t r3 = unsafe_stou_getline(i, line);
 
-        inc2_3_factors[r1][r2][r3][0] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][1] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][2] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][3] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][4] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][5] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][6] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
-        inc2_3_factors[r1][r2][r3][7] = (int8_t)unsafe_stoi(unsafe_getline(i, line, ','));
+        inc2_3_factors[r1][r2][r3][0] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][1] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][2] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][3] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][4] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][5] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][6] = unsafe_stoi_getline(i, line);
+        inc2_3_factors[r1][r2][r3][7] = unsafe_stoi_getline(i, line);
     }
 
     csv_file.close();
