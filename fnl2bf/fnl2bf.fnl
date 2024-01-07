@@ -1938,6 +1938,52 @@ Parameters beginning with `temp` are always pointers to cells."
           "]" "[>>+<]>[<]>>[>>+<]>[<]>[-<<<+>>>]>[<<+>]<[>]<[-<<+>>]<<]<<"
           _ (string.sub code i i))))))
 
+(λ bf.quadruple [...]
+  "Quadruple the precision of the interpreter.
+   Cell layout (little endian):
+   `(0) [a] b c d (0)`
+   The sorrounding zeros are required, but they can overlap between quadrupled cells."
+  (let [code (bf.optimize (table.concat [...]))]
+    (faccumulate [result ""
+                  i 1 (length code)]
+      (..
+        result
+        (match (string.sub code i i)
+          ">" ">>>>>"
+          "<" "<<<<<"
+          "+" "+[<+>>>>>+<<<<-]<[>+<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>+[<<+>>>>>+<<<-]<<[>>+<<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>>+[<<<+>>>>>+<<-]<<<[>>>+<<<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>>>+<<<<]]]>"
+          "-" "[<+>>>>>+<<<<-]<[>+<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>[<<+>>>>>+<<<-]<<[>>+<<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>>[<<<+>>>>>+<<-]<<<[>>>+<<<-]+>>>>>[<<<<<->>>>>[-]]<<<<<[->>>>-<<<<]>>>-<<<]>>-<<]>-"
+          "[" "[>>>>+>>>>>+<<<<<<<<<-]>>>>>>>>>[<<<<<<<<<+>>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<[>>>+>>>>>+<<<<<<<<-]>>>>>>>>[<<<<<<<<+>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<[>>+>>>>>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<[>+>>>>>+<<<<<<-]>>>>>>[<<<<<<+>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<<<[[-]>"
+          "]" "[>>>>+>>>>>+<<<<<<<<<-]>>>>>>>>>[<<<<<<<<<+>>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<[>>>+>>>>>+<<<<<<<<-]>>>>>>>>[<<<<<<<<+>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<[>>+>>>>>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<[>+>>>>>+<<<<<<-]>>>>>>[<<<<<<+>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<<<]>"
+          _ (string.sub code i i))))))
+
+(set bf.Q {})
+
+(λ bf.Q.ptr [distance]
+  "Quadrupled version `bf.ptr`: move ptr 5 * `distance`."
+  (bf.ptr (* 5 distance)))
+
+(λ bf.Q.at [distance ...]
+  "Move pointer by `distance` * 5, insert body, move back"
+  (bf.at (* 5 distance)
+    (table.concat [...] "")))
+
+(λ bf.Q.zero []
+  "Quadrupled version `bf.zero`."
+  "[-]>[-]>[-]>[-]<<<")
+
+(λ bf.Q.mov [to ?init]
+  "Quadrupled version `bf.mov`.
+  `to` must be manually set to 0, unless `?init` is true."
+  (..
+    (bf.mov (* 5 to) 4 ?init)
+    (bf.at 1
+      (bf.mov (* 5 to) 3 ?init))
+    (bf.at 2
+      (bf.mov (* 5 to) 2 ?init))
+    (bf.at 3
+      (bf.mov (* 5 to) 1 ?init))))
+
 (λ bf.read-list [move separator terminator ?no-initial-read]
   "Read a list of integers, separated by `separator` and terminated by `terminator`.
    The integers are placed `move` cells apart in memory.
