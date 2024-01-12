@@ -1538,10 +1538,11 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
     "+[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ bf.digits\ []
+(λ bf.digits\ [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
    - before: `[x], 0, 0, 0, …`
-   - after: `[x], 0, ones, tens, hundreds, [0]`"
+   - after: `[x], 0, ones, tens, hundreds, [0]`
+   If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10)."
   (..
     (bf.at 1 (bf.zero))
     (bf.at 2 (bf.zero) "+")
@@ -1559,7 +1560,7 @@ Parameters beginning with `temp` are always pointers to cells."
       ">[-]+>[-]>[-]>[-]<<<<<"
       (bf.divmod\!)
       ;; move results
-      ">>" (bf.add! -2)
+      ">>" (if ?+1 "+" "") (bf.add! -2)
       (bf.ptr -1) (bf.zero)
       (bf.at 2
         (bf.add! -2)))))
@@ -1874,10 +1875,11 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.D.zero)
     (bf.double "<]<")))
 
-(λ bf.D.digits\ []
+(λ bf.D.digits\ [?+1]
   "Doubled version of `bf.D.digits\\`
    - before: `{[x], 0, 0, x}, 0, 0, 0, …`
-   - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`"
+   - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`
+   If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10)."
   (..
     (bf.D.at 1 (bf.D.zero))
     (bf.D.at 2 (bf.D.zero) "+")
@@ -1901,7 +1903,7 @@ Parameters beginning with `temp` are always pointers to cells."
       ;; division
       (bf.D.divmod\! true)
       ;; move results
-      (bf.D.ptr 2) "-" (bf.D.add! -2)
+      (bf.D.ptr 2) (if ?+1 "" "-") (bf.D.add! -2)
       (bf.D.ptr -1) (bf.D.zero)
       (bf.at 8 (bf.add! -11))
       (bf.at 11 (bf.add! -11))
