@@ -355,11 +355,12 @@ Print the value of the current cell modulo 10 as a decimal number.
 Requires 6 cells containing 0 to the right of the current cell.
 
 ## `bf.digits\` (λ)
-```(bf.digits\)```
+```(bf.digits\ ?+1)```
 
 Creates a string containing the digits of the currrent cell as a decimal number.
 - before: `[x], 0, 0, 0, …`
 - after: `[x], 0, ones, tens, hundreds, [0]`
+If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10).
 
 ## `_generic-case` (λ)
 ```(_generic-case inc-fn temp0 temp0-init ?temp1 args body-zero)```
@@ -496,11 +497,12 @@ Print the value of the current doubled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
 
 ## `bf.D.digits\` (λ)
-```(bf.D.digits\)```
+```(bf.D.digits\ ?+1)```
 
 Doubled version of `bf.D.digits\`
 - before: `{[x], 0, 0, x}, 0, 0, 0, …`
 - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`
+If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10).
 
 ## `bf.D.popcount\!` (λ)
 ```(bf.D.popcount\!)```
@@ -518,6 +520,35 @@ a reserved reserved b reserved reserved c
 ^ptr
 
 value = a + 256*b + 65536*c
+
+## `bf.quadruple` (λ)
+```(bf.quadruple ...)```
+
+Quadruple the precision of the interpreter.
+Cell layout (little endian):
+`(0) [a] b c d (0)`
+The sorrounding zeros are required, but they can overlap between quadrupled cells.
+
+## `bf.Q.ptr` (λ)
+```(bf.Q.ptr distance)```
+
+Quadrupled version `bf.ptr`: move ptr 5 * `distance`.
+
+## `bf.Q.at` (λ)
+```(bf.Q.at distance ...)```
+
+Move pointer by `distance` * 5, insert body, move back
+
+## `bf.Q.zero` (λ)
+```(bf.Q.zero)```
+
+Quadrupled version `bf.zero`.
+
+## `bf.Q.mov` (λ)
+```(bf.Q.mov to ?init)```
+
+Quadrupled version `bf.mov`.
+`to` must be manually set to 0, unless `?init` is true.
 
 ## `bf.read-list` (λ)
 ```(bf.read-list move separator terminator ?no-initial-read)```
