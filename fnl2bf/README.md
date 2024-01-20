@@ -511,6 +511,13 @@ Population count of a doubled cell, count the number of 1s in the binary represe
 - before: `[low] 0 0 high 0 0 0 0 0 0`
 - after:  `[0] 0 0 0 result 0 0 0 0 0`
 
+## `bf.D.read-int` (λ)
+```(bf.D.read-int delimiter temp0 temp1 Dtemp2 Dtemp3)```
+
+Read an integer delimited by `delimiter`.
+Dtemp2 and Dtemp3 must be undoubled pointers to doubled cells.
+All temp cells must be initialized with 0, the result is placed in Dtemp3.
+
 ## `bf.triple` (λ)
 ```(bf.triple ...)```
 
@@ -549,6 +556,12 @@ Quadrupled version `bf.zero`.
 
 Quadrupled version `bf.mov`.
 `to` must be manually set to 0, unless `?init` is true.
+
+## `bf.read-int` (λ)
+```(bf.read-int delimiter temp0 temp1 temp2 temp3)```
+
+Read an integer delimited by `delimiter`.
+All temp cells must be initialized with 0, the result is placed in temp3.
 
 ## `bf.read-list` (λ)
 ```(bf.read-list move separator terminator ?no-initial-read)```

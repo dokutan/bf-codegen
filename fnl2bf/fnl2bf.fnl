@@ -1919,6 +1919,31 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.popcount\!)
     (bf.at 7 (bf.add! -3))))
 
+(λ bf.D.read-int [delimiter temp0 temp1 Dtemp2 Dtemp3]
+  "Read an integer delimited by `delimiter`.
+   Dtemp2 and Dtemp3 must be undoubled pointers to doubled cells.
+   All temp cells must be initialized with 0, the result is placed in Dtemp3."
+  (..
+    "+"
+    (bf.loop
+      ","
+      (bf.mov temp0 temp1) ; copy read char to temp0
+      (bf.at temp0
+        (bf.case! (- temp1 temp0)
+          delimiter ; delimiter: zero read char
+          (bf.at (- 0 temp1) (bf.zero))
+
+          ;; else: digit
+          (..
+            (bf.at (- Dtemp3 temp1)                         ; Dtemp2 = Dtemp3 × 10; Dtemp3 = 0
+              (bf.double "[-") (bf.at (- Dtemp2 Dtemp3) (bf.double (bf.inc 10))) (bf.double "]"))
+            (bf.at (- 0 temp1)
+              (bf.inc2 -48 Dtemp3)
+              (bf.loop "-" (bf.at Dtemp2 (bf.double "+")))) ; Dtemp2 += read char - 48
+            (bf.at (- Dtemp2 temp1)                         ; Dtemp3 = Dtemp2; Dtemp2 = 0
+              (bf.double "[-") (bf.at (- Dtemp3 Dtemp2) (bf.double "+")) (bf.double "]"))
+            (bf.at (- 0 temp1) "+")))))))                   ; set temp1 to 1 to continue the loop
+
 (λ bf.triple [...]
   "Triple the precision of the interpreter.
    Each 24-bit cell is stored using 7 8-bit cells:
@@ -1985,6 +2010,30 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.mov (* 5 to) 2 ?init))
     (bf.at 3
       (bf.mov (* 5 to) 1 ?init))))
+
+(λ bf.read-int [delimiter temp0 temp1 temp2 temp3]
+  "Read an integer delimited by `delimiter`.
+   All temp cells must be initialized with 0, the result is placed in temp3."
+  (..
+    "+"
+    (bf.loop
+      ","
+      (bf.mov temp0 temp1) ; copy read char to temp0
+      (bf.at temp0
+        (bf.case! (- temp1 temp0)
+          delimiter ; delimiter: zero read char
+          (bf.at (- 0 temp1) (bf.zero))
+
+          ;; else: digit
+          (..
+            (bf.at (- temp3 temp1)
+              (bf.multiply-add! 10 (- temp2 temp3))) ; temp2 = temp3 × 10; temp3 = 0
+            (bf.at (- 0 temp1)
+              (bf.inc2 -48 temp3)
+              (bf.add! temp2))                       ; temp2 += read char - 48
+            (bf.at (- temp2 temp1)
+              (bf.add! (- temp3 temp2)))             ; temp3 = temp2; temp2 = 0
+            (bf.at (- 0 temp1) "+")))))))            ; set temp1 to 1 to continue the loop
 
 (λ bf.read-list [move separator terminator ?no-initial-read]
   "Read a list of integers, separated by `separator` and terminated by `terminator`.
