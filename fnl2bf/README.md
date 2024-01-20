@@ -231,6 +231,20 @@ Run the body `n` times.
 
 Run the body n times, n = value of `temp`.
 
+# Print functions
+
+## `bf.print-cell\` (λ)
+```(bf.print-cell\)```
+
+Print the value of the current cell as a decimal number.
+Requires 6 cells containing 0 to the right of the current cell.
+
+## `bf.print-cell-tens\` (λ)
+```(bf.print-cell-tens\)```
+
+Print the value of the current cell modulo 10 as a decimal number.
+Requires 6 cells containing 0 to the right of the current cell.
+
 ## `bf.print!` (λ)
 ```(bf.print! str ?initial)```
 
@@ -272,6 +286,8 @@ Print `str`, assumes the memory is initialized with the values from `memory`.
 `?randomize` is passed to `shortest-in`
 Set `?zero-delimited` to true, if `memory` is delimited by 0 on both ends,
 and doesn't contain 0. This makes pointer movement more efficient.
+
+# String constructors
 
 ## `bf.string!` (λ)
 ```(bf.string! str move)```
@@ -342,18 +358,6 @@ Remove useless combinations of brainfuck commands from `code`
 Remove useless combinations of brainfuck commands from `code`.
 More aggressive version of `bf.optimize`.
 
-## `bf.print-cell\` (λ)
-```(bf.print-cell\)```
-
-Print the value of the current cell as a decimal number.
-Requires 6 cells containing 0 to the right of the current cell.
-
-## `bf.print-cell-tens\` (λ)
-```(bf.print-cell-tens\)```
-
-Print the value of the current cell modulo 10 as a decimal number.
-Requires 6 cells containing 0 to the right of the current cell.
-
 ## `bf.digits\` (λ)
 ```(bf.digits\ ?+1)```
 
@@ -411,6 +415,8 @@ Optionally write the lengths of all results to `?logfile`.
 Population count, count the number of 1s in the binary representation of the current cell.
 - before: `[x] 0 0 0 0 0 0`
 - after:  `[0] 0 0 0 result 0 0`
+
+# Double precision functions (16-bit)
 
 ## `bf.double` (λ)
 ```(bf.double ...)```
@@ -518,6 +524,8 @@ Read an integer delimited by `delimiter`.
 Dtemp2 and Dtemp3 must be undoubled pointers to doubled cells.
 All temp cells must be initialized with 0, the result is placed in Dtemp3.
 
+# Triple precision functions (24-bit)
+
 ## `bf.triple` (λ)
 ```(bf.triple ...)```
 
@@ -527,6 +535,8 @@ a reserved reserved b reserved reserved c
 ^ptr
 
 value = a + 256*b + 65536*c
+
+# Quadruple precision functions (32-bit)
 
 ## `bf.quadruple` (λ)
 ```(bf.quadruple ...)```

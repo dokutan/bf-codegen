@@ -862,6 +862,24 @@ Parameters beginning with `temp` are always pointers to cells."
         (table.concat [...] ""))
       "-")))
 
+"# Print functions"
+
+(λ bf.print-cell\ []
+  "Print the value of the current cell as a decimal number.
+   Requires 6 cells containing 0 to the right of the current cell."
+  (..
+    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
+    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
+    "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
+
+(λ bf.print-cell-tens\ []
+  "Print the value of the current cell modulo 10 as a decimal number.
+   Requires 6 cells containing 0 to the right of the current cell."
+  (..
+    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
+    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
+    "+[-<++++++++>]<.[-]<<[-<+>]<"))
+
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
    The value of the current cell is assumed to be `?initial`, if given."
@@ -1239,6 +1257,8 @@ Parameters beginning with `temp` are always pointers to cells."
         (set result (.. result code))))
     (values result ptr)))
 
+"# String constructors"
+
 (λ bf.string! [str move]
   "Store `str` in memory, starting at the current cell.
    All used cells must be initialized as 0. `move` should be ±1."
@@ -1522,21 +1542,7 @@ Parameters beginning with `temp` are always pointers to cells."
         (string.gsub "^[<>]+" "")
         (string.gsub "^%[%-%]+" "")))))
 
-(λ bf.print-cell\ []
-  "Print the value of the current cell as a decimal number.
-   Requires 6 cells containing 0 to the right of the current cell."
-  (..
-    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
-    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
-    "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ bf.print-cell-tens\ []
-  "Print the value of the current cell modulo 10 as a decimal number.
-   Requires 6 cells containing 0 to the right of the current cell."
-  (..
-    ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
-    ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
-    "+[-<++++++++>]<.[-]<<[-<+>]<"))
 
 (λ bf.digits\ [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
@@ -1746,6 +1752,9 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.at -3 (bf.add! 1))
       "-")))
 
+"# Double precision functions (16-bit)"
+(set bf.D {})
+
 (λ bf.double [...]
   "Double the precision of the interpreter.
    Each 16-bit cell is stored using 4 8-bit cells:
@@ -1765,8 +1774,6 @@ Parameters beginning with `temp` are always pointers to cells."
           "[" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-[+<"
           "]" ">+<[>-]>[->+>[<-]<[<]>[-<+>]]<-]<"
           _ (string.sub code i i))))))
-
-(set bf.D {})
 
 (λ bf.D.ptr [distance]
   "Doubled version `bf.ptr`: move ptr 4 * `distance`."
@@ -1944,6 +1951,8 @@ Parameters beginning with `temp` are always pointers to cells."
               (bf.double "[-") (bf.at (- Dtemp3 Dtemp2) (bf.double "+")) (bf.double "]"))
             (bf.at (- 0 temp1) "+")))))))                   ; set temp1 to 1 to continue the loop
 
+"# Triple precision functions (24-bit)"
+
 (λ bf.triple [...]
   "Triple the precision of the interpreter.
    Each 24-bit cell is stored using 7 8-bit cells:
@@ -1965,6 +1974,9 @@ Parameters beginning with `temp` are always pointers to cells."
           "]" "[>>+<]>[<]>>[>>+<]>[<]>[-<<<+>>>]>[<<+>]<[>]<[-<<+>>]<<]<<"
           _ (string.sub code i i))))))
 
+"# Quadruple precision functions (32-bit)"
+(set bf.Q {})
+
 (λ bf.quadruple [...]
   "Quadruple the precision of the interpreter.
    Cell layout (little endian):
@@ -1983,8 +1995,6 @@ Parameters beginning with `temp` are always pointers to cells."
           "[" "[>>>>+>>>>>+<<<<<<<<<-]>>>>>>>>>[<<<<<<<<<+>>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<[>>>+>>>>>+<<<<<<<<-]>>>>>>>>[<<<<<<<<+>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<[>>+>>>>>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<[>+>>>>>+<<<<<<-]>>>>>>[<<<<<<+>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<<<[[-]>"
           "]" "[>>>>+>>>>>+<<<<<<<<<-]>>>>>>>>>[<<<<<<<<<+>>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<[>>>+>>>>>+<<<<<<<<-]>>>>>>>>[<<<<<<<<+>>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<[>>+>>>>>+<<<<<<<-]>>>>>>>[<<<<<<<+>>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<[>+>>>>>+<<<<<<-]>>>>>>[<<<<<<+>>>>>>-]<<<<<[[-]<<<<<+>>>>>]<<<<<]>"
           _ (string.sub code i i))))))
-
-(set bf.Q {})
 
 (λ bf.Q.ptr [distance]
   "Quadrupled version `bf.ptr`: move ptr 5 * `distance`."
