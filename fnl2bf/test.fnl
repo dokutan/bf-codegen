@@ -1,0 +1,99 @@
+(local bf (require :fnl2bf))
+
+(lambda test [testid code before after]
+  "Assert that the brainfuck code `code` turns the memory from `before` into `after`."
+  (let [luacode
+        (faccumulate [luacode "ptr = 1\n"
+                      i 1 (length code)]
+          (..
+            luacode
+            (match (string.sub code i i)
+              "[" "while data[ptr] ~= 0 do\n"
+              "]" "end\n"
+              "<" "ptr = ptr-1\n"
+              ">" "ptr = ptr+1\n"
+              "+" "data[ptr] = (data[ptr]+1) % 256\n"
+              "-" "data[ptr] = (data[ptr]-1) % 256\n"
+              _   "")))
+
+        data
+        (faccumulate [data (tostring (. before 1))
+                      i 2  (length before)]
+          (.. data "," (. before i)))
+
+        luacode
+        (..
+          "data = {" data "}\n"
+          luacode
+          "return data")
+
+        data
+        ((load luacode))]
+
+    (for [i 1 (length after)]
+      (when (= :number (type (. after i)))
+        (assert
+          (= (. data i) (. after i))
+          (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))))))
+
+(for [i 1 255]
+  (test
+    (.. "inc2 " i)
+    (bf.inc2 i 1)
+    [0 0]
+    [i 0]))
+
+(for [i 1 255 10]
+  (for [j 1 255 10]
+    (test
+      (.. "inc2-2 " i " " j)
+      (bf.inc2-2 i j 1 2)
+      [0 0 0]
+      [i j 0])))
+
+(test "=! 0 0" (bf.=! 1) [0 0] [1 0])
+(test "=! 5 5" (bf.=! 1) [5 5] [1 0])
+(test "=! 5 4" (bf.=! 1) [5 4] [0 0])
+
+(test "not=! 0 0" (bf.not=! 1) [0 0] [0 0])
+(test "not=! 5 5" (bf.not=! 1) [5 5] [0 0])
+(test "not=! 5 4" (bf.not=! 1) [5 4] [1 0])
+
+(test "<\\! 0 0" (bf.<\!) [0 0 0 0] [0 0 0 0])
+(test "<\\! 5 5" (bf.<\!) [5 5 0 0] [0 0 0 0])
+(test "<\\! 5 4" (bf.<\!) [5 4 0 0] [0 0 0 0])
+(test "<\\! 4 5" (bf.<\!) [4 5 0 0] [1 0 0 0])
+(test "<\\! 3 5" (bf.<\!) [3 5 0 0] [1 0 0 0])
+
+(test "swap" (bf.swap 1 2) [3 5 0] [5 3 0])
+
+(test "mul!" (bf.mul! 1 2 3) [5 7 0 0] [35 7 0 0])
+
+(for [i 1 15]
+  (test (.. "square " i) (bf.square 1 2) [i 0 0] [(* i i) 0 0]))
+
+(test "multiply-add!" (bf.multiply-add! 15 1) [3 5] [0 50])
+
+(test "D.popcount\\!" (bf.popcount\!) [0   0 0 0 0 0 0] [0 0 0 0 0 0 0])
+(test "D.popcount\\!" (bf.popcount\!) [200 0 0 0 0 0 0] [0 0 0 0 3 0 0])
+(test "D.popcount\\!" (bf.popcount\!) [123 0 0 0 0 0 0] [0 0 0 0 6 0 0])
+(test "D.popcount\\!" (bf.popcount\!) [255 0 0 0 0 0 0] [0 0 0 0 8 0 0])
+
+(test "D.set 1234" (bf.D.set 1234) [0 0 0 0] [(% 1234 256) 0 0 (// 1234 256)])
+
+(test "D.zero?! 0" (bf.D.zero?!) [0 0 0 0] [1 0 0 0])
+(test "D.zero?! 1" (bf.D.zero?!) [3 0 0 0] [0 0 0 0])
+(test "D.zero?! 2" (bf.D.zero?!) [0 0 0 3] [0 0 0 0])
+(test "D.zero?! 3" (bf.D.zero?!) [3 0 0 3] [0 0 0 0])
+
+(test
+  "D.digits\\"
+  (bf.D.digits\)
+  [(% 12345 256) 0 0 (// 12345 256) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  [(% 12345 256) 0 0 (// 12345 256) 0 0 0 0 5 4 3 2 1 0])
+
+(test
+  "D.digits\\ ?+1"
+  (bf.D.digits\ true)
+  [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 1 5 4 3 2 0])
