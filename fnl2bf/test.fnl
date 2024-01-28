@@ -51,6 +51,10 @@
       [0 0 0]
       [i j 0])))
 
+(test "zero? 0" (bf.zero? 1 2) [0 0 0] [0 0 1])
+(test "zero? 1" (bf.zero? 1 2) [1 0 0] [1 0 0])
+(test "zero? 9" (bf.zero? 1 2) [9 0 0] [9 0 0])
+
 (test "=! 0 0" (bf.=! 1) [0 0] [1 0])
 (test "=! 5 5" (bf.=! 1) [5 5] [1 0])
 (test "=! 5 4" (bf.=! 1) [5 4] [0 0])
@@ -97,3 +101,23 @@
   (bf.D.digits\ true)
   [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 1 5 4 3 2 0])
+
+(test "shiftl\\! 1" (bf.shiftl\!) [1 0] [0 2])
+(test "shiftl\\! 2" (bf.shiftl\!) [2 0] [0 4])
+(test "shiftl\\! 128" (bf.shiftl\!) [128 0] [0 0])
+
+(test "rotatel\\! 1" (bf.rotatel\!) [1 0 0 0 0] [2 0 0 0 0])
+(test "rotatel\\! 2" (bf.rotatel\!) [2 0 0 0 0] [4 0 0 0 0])
+(test "rotatel\\! 128" (bf.rotatel\!) [128 0 0 0 0] [1 0 0 0 0])
+
+(test "rotatel\\! 1 by 2" (bf.rotatel\! 2) [1 0 0 0 0 0] [4 0 0 0 0 0])
+(test "rotatel\\! 2 by 2" (bf.rotatel\! 2) [2 0 0 0 0 0] [8 0 0 0 0 0])
+(test "rotatel\\! 128 by 2" (bf.rotatel\! 2) [128 0 0 0 0 0] [2 0 0 0 0 0])
+
+(test "rotater\\! 1" (bf.rotater\!) [1 0 0 0 0 0] [128 0 0 0 0 0])
+(test "rotater\\! 2" (bf.rotater\!) [2 0 0 0 0 0] [1 0 0 0 0 0])
+(test "rotater\\! 128" (bf.rotater\!) [128 0 0 0 0 0] [64 0 0 0 0 0])
+
+(test "rotater\\! 1 by 2" (bf.rotater\! 2) [1 0 0 0 0 0] [64 0 0 0 0 0])
+(test "rotater\\! 2 by 2" (bf.rotater\! 2) [2 0 0 0 0 0] [128 0 0 0 0 0])
+(test "rotater\\! 128 by 2" (bf.rotater\! 2) [128 0 0 0 0 0] [32 0 0 0 0 0])

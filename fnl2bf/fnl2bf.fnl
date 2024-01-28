@@ -799,6 +799,17 @@ Parameters beginning with `temp` are always pointers to cells."
         (bf.at (- y temp2)
           (bf.mov (- minimum y) (- temp0 y)))))))
 
+(λ bf.zero? [temp0 temp1]
+  "Set temp1 to 1 if current cell == 0, else to 0.
+   The current cell is not modified.
+   `temp0` and `temp1` must be initialised with 0."
+  (..
+    (bf.mov temp0 temp1)
+    (bf.at temp1 "+")
+    (bf.at temp0
+      (bf.if
+        (bf.at (- temp1 temp0) "-")))))
+
 (λ bf.if [...]
   "Equivalent to `[...[-]]`. Sets the current cell to 0."
   (bf.loop
@@ -807,7 +818,8 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.if= [value temp0 temp1 ...]
   "If current cell == `value`, then ...
-   The body is run at `temp0` and should not change the ptr."
+   The body is run at `temp0` and should not change the ptr.
+   `temp0` and `temp1` must be 0."
   (..
     (bf.mov temp0 temp1)
     (bf.at temp1
@@ -1734,6 +1746,56 @@ Parameters beginning with `temp` are always pointers to cells."
     (when logfile
       (io.close logfile))
     shortest-result))
+
+"# Bitwise operators"
+
+(λ bf.bnot\! []
+  "bitwise not
+   - before: `[x] 0`
+   - after:  `[0] result`"
+  "+[->-<]")
+
+(λ bf.shiftl\! []
+  "Shift current cell left by one.
+   - before: `[x] 0`
+   - after:  `[0] result`"
+  "[->++<]")
+
+(λ bf.rotatel\! [?distance]
+  "Rotate current cell left by `?distance` bits, the default is 1.
+   If ??distance is nil or 1:
+   - before: `[x] 0 0 0 0`
+   - after:  `[result] 0 0 0 0`
+   else:
+   - before: `[x] 0 0 0 0 0`
+   - after:  `[result] 0 0 0 0 0`"
+  (if (or (= nil ?distance) (= 1 ?distance))
+    (..
+      (bf.add! 4) ;; [0] 0 0 0 x
+      (bf.at 4
+        (bf.loop
+          (bf.at -4 (bf.double "++"))
+          "-"))   ;; [x<<1] 0 0 carry 0
+      (bf.at 3 (bf.add! -3)))
+    (..
+      (bf.at 5
+        (bf.inc ?distance)
+        (bf.loop
+          (bf.at -5 (bf.rotatel\!))
+          "-")))))
+
+(λ bf.rotater\! [?distance]
+  "Rotate current cell right by `?distance` bits, the default is 1.
+   - before: `[x] 0 0 0 0 0`
+   - after:  `[result] 0 0 0 0 0`"
+  (if (= nil ?distance)
+    (bf.rotater\! 1)
+    (..
+      (bf.at 5
+        (bf.inc (- 8 ?distance))
+        (bf.loop
+          (bf.at -5 (bf.rotatel\!))
+          "-")))))
 
 (λ bf.popcount\! []
   "Population count, count the number of 1s in the binary representation of the current cell.
