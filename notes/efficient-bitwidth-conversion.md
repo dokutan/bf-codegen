@@ -1,6 +1,12 @@
 # Efficient bitwidth conversions
 
-The following examples use the 1→2 No Copy conversion from https://esolangs.org/wiki/Brainfuck_bitwidth_conversions, other conversions can use the same principles but would obviously need changes to the code. 
+The following examples use the 1→2 No Copy conversion from https://esolangs.org/wiki/Brainfuck_bitwidth_conversions, other conversions can use the same principles but would obviously need changes to the code.
+
+This conversion uses the following layout for a 16-bit cell:
+```
+low_byte   0   0   high_byte
+  ^ptr
+```
 
 
 ## Zero a cell
@@ -8,6 +14,9 @@ Zero each part individually:
 ```bf
 [-]>>>[-]<<<
 ```
+
+## Initialize a cell with n
+Set n%256 and n/256 separately, refer to e.g. https://esolangs.org/wiki/Brainfuck_constants.
 
 ## Moving a cell
 Move each part individually.
