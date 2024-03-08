@@ -69,3 +69,5 @@ The following program calculates the length of the brainfuck program to store a 
 ```
 
 ![](plots/string2.svg)
+
+This data suggests that initializing the string cells with the median of the string bytes is optimal, however further testing showed that this is not always the case. In some cases where the mean and median are similar, using the mean resulted in a shorter program.
