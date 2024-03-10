@@ -466,8 +466,8 @@ Parameters beginning with `temp` are always pointers to cells."
 
   (fn cost [option]
     (+
-      (math.abs (. option 1))
-      (math.abs (. option 2))
+      (math.abs (. option 1)) ; il
+      (math.abs (. option 2)) ; al
       (accumulate [sum 0 _ i1-a1 (ipairs (. option 3))]
         (+
           sum
@@ -495,22 +495,36 @@ Parameters beginning with `temp` are always pointers to cells."
       (set shortest-option option)))
 
   ;; build brainfuck code
-  (..
-    (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; i1
+  (local result-loop
+    (bf.optimize
       (..
-        result
-        (bf.at (. at i)
-          (bf.inc2 (. i1-a1 1) 1))))
-    (bf.at temp (bf.inc (. shortest-option 1))) ; il
+        (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; i1
+          (..
+            result
+            (bf.at (. at i)
+              (bf.inc2 (. i1-a1 1) 1))))
+        (bf.at temp (bf.inc (. shortest-option 1))) ; il
 
-    (bf.at temp
-      (bf.loop
-        (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; a1
+        (bf.at temp
+          (bf.loop
+            (accumulate [result "" i i1-a1 (ipairs (. shortest-option 3))] ; a1
+            (..
+              result
+              (bf.at (- (. at i) temp)
+                (bf.inc (. i1-a1 2)))))
+            (bf.inc (. shortest-option 2))))))) ; al
+
+  ;; build the equivalent code without a loop
+  (local result-no-loop
+    (bf.optimize
+      (faccumulate [result "" i 1 (length at)]
         (..
           result
-          (bf.at (- (. at i) temp)
-            (bf.inc (. i1-a1 2)))))
-        (bf.inc (. shortest-option 2)))))) ; al
+          (bf.at (. at i) (bf.inc (. value i)))))))
+
+  (bf.shortest
+    result-loop
+    result-no-loop))
 
 (λ bf.zero []
   "Set current cell to 0"
@@ -1891,6 +1905,10 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>+<<"
     ">[[-]>-<]<"
     ">>[-<<+>>]<<"))
+
+(λ bf.D.+3 []
+  "Increment a doubled cell by 3."
+  "+++[>+>+<<-]>>[<<+>>-]+<[-[-[[-]>-<]]]>[>+<-]<<")
 
 (λ bf.D.divmod\! [?mod+1]
   "Current cell divided/modulo by the next cell to the right.
