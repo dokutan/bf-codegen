@@ -12,6 +12,8 @@ vs
 ->--------->-->+[<<<+>-->-->+++++++]-->+>++[<<->->+++++++] (up to 3 characters per loop)
 ```
 
+In some cases, if most of the characters in the substring are close to 0, it is shorter to avoid a loop and set each character individually by repeated `+` or `-`.
+
 ### Benchmarking
 As the optimal loop size depends on the str, i used the following Fennel program to experiment with different loop sizes:
 ```fennel
