@@ -1429,7 +1429,7 @@ Parameters beginning with `temp` are always pointers to cells."
 (λ bf.string-opt5! [str move ?loop-size]
   "Optimized version of `bf.string!`.
    Store `str` in memory, starting at the current cell.
-   All used cells must be initialized as 0. `move` should be ±1.
+   All used cells (length of str + 1) must be initialized as 0. `move` should be ±1.
    ?loop-size is the number cells changed with one loop, the default is 10."
 
   (let [loop-size (if ?loop-size ?loop-size 10)]
@@ -1455,6 +1455,44 @@ Parameters beginning with `temp` are always pointers to cells."
               (inc-n loop-size i)))))
 
     (string-opt5 str)))
+
+(λ bf.string-opt6! [str move ?loop-size ?initial-value]
+  "Optimized version of `bf.string!`.
+   Store `str` in memory, starting at the current cell.
+   All used cells (length of str + 1) must be initialized as `?initial-value` (default 0).
+   `move` should be ±1.
+   ?loop-size is the number cells changed with one loop, the default is 10."
+
+  (local initial-value (or ?initial-value 0))
+
+  (let [loop-size (if ?loop-size ?loop-size 10)]
+      (fn inc-n [n i]
+      "`n`: number of bytes to be processed, `i` current string index"
+      (..
+        (->
+          (bf.inc2-n
+            (fcollect [j 0 (- n 1)]
+              (% (- (string.byte str (+ i j))
+                    initial-value)
+                256))
+            (fcollect [j 0 (- n 1)]
+              (* j move))
+            (* n move))
+          (string.gsub "%[" (.. (bf.inc (- initial-value)) "["))
+          (string.gsub "%]" (.. "]" (bf.inc initial-value))))
+        (bf.ptr (* n move))))
+
+    (fn string-opt6 [str]
+      (faccumulate [result ""
+                    i 1 (length str) loop-size]
+        (.. result
+            (if (<= (+ (- (length str) i) 1) loop-size)
+              (inc-n (+ (- (length str) i) 1) i)
+              (inc-n loop-size i)))))
+
+    (..
+      (string-opt6 str)
+      (bf.zero))))
 
 (λ bf.string2! [str move temp0 initial]
   "TODO! remove when bf.string2-opt! works
