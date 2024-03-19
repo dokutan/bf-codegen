@@ -86,9 +86,13 @@ r,il,al,i1,a1
 ### Output parameters:
 - r: value that gets added to the current cell by the whole program
 - il: value that gets added to the loop counter before the loop
-- a1: value that gets added to the current cell during the loop
-- i1: value that gets added to the current cell before the loop
 - al: value that gets added to the loop counter during the loop
+- i1: value that gets added to the current cell before the loop
+- a1: value that gets added to the current cell during the loop
+
+```
+-20 ≤ (il, al, i1, a1) ≤ 20
+```
 
 ## inc2-n-build-bf.jl
 Uses `inc2-n.csv` to generate brainfuck programs that initialize/add to multiple cells.

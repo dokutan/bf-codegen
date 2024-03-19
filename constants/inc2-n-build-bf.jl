@@ -30,8 +30,8 @@ function get_parameters(results)
 
     parameters = Dict()
 
-    for il in [-10:10;]
-        for al in [-10:-1; 1:10]
+    for il in [-20:20;]
+        for al in [-20:-1; 1:20]
             all_i1_a1 = []
             possible = true
             for r in results
