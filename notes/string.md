@@ -47,7 +47,9 @@ It is possible set a large number of cells to the same value using a simple loop
 ```
 The idea is to prepare all cells of the string like this, and then only add the difference to the final value for each cell.
 
-## Benchmarking
+The alternative to a loop is setting each cell individually, either by incrementing/decrementing or by zeroing the cell and adding the final value. Depending on the initial value, the string, and the loop size, it may be shorter to do this for some parts instead of using a loop.
+
+### Benchmarking
 The following program calculates the length of the brainfuck program to store a string, without the initialization part, for each initial value form 0 to 255.
 ```fennel
 (local bf (require :fnl2bf))

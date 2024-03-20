@@ -1531,19 +1531,29 @@ Parameters beginning with `temp` are always pointers to cells."
 
     (fn inc-n [n i]
       "`n`: number of bytes to be processed, `i` current string index"
-      (..
-        (->
-          (bf.inc2-n
-            (fcollect [j 0 (- n 1)]
-              (% (- (string.byte str (+ i j))
-                    initial-value)
-                256))
-            (fcollect [j 0 (- n 1)]
-              (* j move))
-            (* n move))
-          (string.gsub "%[" (.. (bf.inc (- initial-value)) "["))
-          (string.gsub "%]" (.. "]" (bf.inc initial-value))))
-        (bf.ptr (* n move))))
+      (bf.shortest
+        ;; try set each cell individually
+        ;; TODO move this to a set-n function
+        (faccumulate [r "" j 0 (- n 1)]
+          (.. r
+              (bf.set (string.byte str (+ i j)) ?initial-value)
+              (bf.ptr move)))
+
+        ;; try to use inc2-n
+        (bf.optimize
+          (..
+            (->
+              (bf.inc2-n
+                (fcollect [j 0 (- n 1)]
+                  (% (- (string.byte str (+ i j))
+                        initial-value)
+                    256))
+                (fcollect [j 0 (- n 1)]
+                  (* j move))
+                (* n move))
+              (string.gsub "%[" (.. (bf.inc (- initial-value)) "["))
+              (string.gsub "%]" (.. "]" (bf.inc initial-value))))
+            (bf.ptr (* n move))))))
 
     (fn string-opt6 [str]
       (faccumulate [result ""
