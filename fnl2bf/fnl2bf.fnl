@@ -1623,8 +1623,25 @@ Parameters beginning with `temp` are always pointers to cells."
             (bf.inc initial)
             (bf.ptr move)))))))
 
-(λ bf.optimize [code ?steps]
+(λ _optimize-cpp [code ?_]
   "Remove useless combinations of brainfuck commands from `code`"
+  (local optimize (. (require :optimize) :optimize))
+
+  (-> code ; TODO improve this
+    (optimize)
+    (string.gsub "(>>[%+%-]+%[<<[%+%-]+>>[%+%-]+%]<<)([%+%-]+)" "%2%1")
+    (string.gsub "(>[%+%-]+%[<[%+%-]+>[%+%-]+%]<)([%+%-]+)" "%2%1")
+    (string.gsub "(<[%+%-]+%[>[%+%-]+<[%+%-]+%]>)([%+%-]+)" "%2%1")
+    (string.gsub "(<<[%+%-]+%[>>[%+%-]+<<[%+%-]+%]>>)([%+%-]+)" "%2%1")
+    (optimize)
+    (string.gsub "([%+%-]+)(>>[%+%-]+%[<<[%+%-]+>>[%+%-]+%]<<)" "%2%1")
+    (string.gsub "([%+%-]+)(>[%+%-]+%[<[%+%-]+>[%+%-]+%]<)" "%2%1")
+    (string.gsub "([%+%-]+)(<[%+%-]+%[>[%+%-]+<[%+%-]+%]>)" "%2%1")
+    (string.gsub "([%+%-]+)(<<[%+%-]+%[>>[%+%-]+<<[%+%-]+%]>>)" "%2%1")
+    (optimize)))
+
+(λ _optimize-fennel [code ?steps]
+  "Remove useless combinations of brainfuck commands from `code`."
   (fn optimize [code ?steps]
     (var last-length 0)
     (faccumulate [result code
@@ -1653,6 +1670,14 @@ Parameters beginning with `temp` are always pointers to cells."
     (string.gsub "([%+%-]+)(<[%+%-]+%[>[%+%-]+<[%+%-]+%]>)" "%2%1")
     (string.gsub "([%+%-]+)(<<[%+%-]+%[>>[%+%-]+<<[%+%-]+%]>>)" "%2%1")
     (optimize ?steps)))
+
+(λ bf.optimize [code ?steps]
+  "Remove useless combinations of brainfuck commands from `code`.
+   This function replaces itself with _optimize-cpp or _optimize-fennel."
+  (if (pcall #(require :optimize)) ; is the optimize c++ module available ?
+    (tset bf :optimize _optimize-cpp)
+    (tset bf :optimize _optimize-fennel))
+  (bf.optimize code ?steps))
 
 (λ bf.optimize2 [code ?steps]
   "Remove useless combinations of brainfuck commands from `code`.
