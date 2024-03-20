@@ -1235,17 +1235,46 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.ptr (- to from))))
 
   (fn print-1-char [chars memory ptr]
-    (var modified-index {})
-    (let [char (. chars 1)
+    (var modified-index {}) ; alternative → new ptr == modified cell
+    (let [char
+          (. chars 1)
+
+          alternatives []
+
+          ;; try a few common alternatives to avoid a full search
+          _
+          (do
+            (when (= (. memory ptr) char)
+              (tset modified-index "." ptr)
+              (table.insert alternatives "."))
+
+            (when (= (. memory ptr) (- char 1))
+              (tset modified-index "+." ptr)
+              (table.insert alternatives "+."))
+
+            (when (= (. memory ptr) (+ char 1))
+              (tset modified-index "-." ptr)
+              (table.insert alternatives "-."))
+
+            (when (= (. memory (- ptr 1)) char)
+              (tset modified-index "<." (- ptr 1))
+              (table.insert alternatives "<."))
+
+            (when (= (. memory (+ ptr 1)) char)
+              (tset modified-index ">." (+ ptr 1))
+              (table.insert alternatives ">.")))
+
           alternatives
-          (fcollect [i 1 (length memory)]
-            (let [p
-                  (..
-                    (move-ptr ptr i)
-                    (bf.set char (. memory i))
-                    ".")]
-              (tset modified-index p i)
-              p))
+          (if (not= 0 (length alternatives))
+            alternatives
+            (fcollect [i 1 (length memory)]
+              (let [p
+                    (..
+                      (move-ptr ptr i)
+                      (bf.set char (. memory i))
+                      ".")]
+                (tset modified-index p i)
+                p)))
 
           shortest-alternative
           (bf.shortest-in alternatives ?randomize)]
