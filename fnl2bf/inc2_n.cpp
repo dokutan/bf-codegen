@@ -51,11 +51,11 @@ int8_t unsafe_stoi_getline(int& i, const std::string& in)
 }
 
 // calculate the cost of a solution
-int cost(int8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1)
+int cost(uint8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1)
 {
     int cost = 0;
 
-    cost += il < 0 ? -il : il;
+    cost += il > 127 ? 256-il : il;
     cost += al < 0 ? -al : al;
 
     for(const std::array<int8_t, 2>& i1_a1 : all_i1_a1){
@@ -77,6 +77,7 @@ void bf_ptr(std::stringstream& s, int distance){
 
 // generate bf code to increment/decrement the cell at ptr by amount
 void bf_inc(std::stringstream& s, int amount){
+    amount = amount>127 ? amount-256 : amount;
     if(amount < 0){
         for(int i=0; i>amount; i--) s << '-';
     }else{
@@ -85,7 +86,7 @@ void bf_inc(std::stringstream& s, int amount){
 }
 
 // generate the resulting brainfuck code
-std::string build_bf(int8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1, std::vector<int>& positions, int loop_position){
+std::string build_bf(uint8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1, std::vector<int>& positions, int loop_position){
     std::stringstream s;
     int ptr = 0;
 
@@ -93,7 +94,7 @@ std::string build_bf(int8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& a
     for(size_t i = 0; i<positions.size(); i++){
         bf_ptr(s, positions[i] - ptr);
         ptr = positions[i];
-        bf_inc(s, all_i1_a1[i][0]);
+        bf_inc(s, all_i1_a1.at(i)[0]);
     }
 
     // il: start of loop
@@ -126,7 +127,7 @@ extern "C" {
 #include <lua.h>
 
 bool is_loaded = false;
-std::array<std::vector<std::array<int8_t, 4>>, 256> inc2_n_factors; // <<<il,al,i1,a1>>, r>
+std::array<std::array<std::vector<std::array<int8_t, 3>>, 256>, 256> inc2_n_factors; // <<<al,i1,a1>, il>, r>
 
 // load inc2-n.csv into inc2_n_factors
 int load(lua_State* L)
@@ -147,13 +148,13 @@ int load(lua_State* L)
         line += ',';
 
         uint8_t r = unsafe_stou_getline(i, line);
+        uint8_t il = unsafe_stou_getline(i, line);
 
-        int8_t il = unsafe_stoi_getline(i, line);
         int8_t al = unsafe_stoi_getline(i, line);
         int8_t i1 = unsafe_stoi_getline(i, line);
         int8_t a1 = unsafe_stoi_getline(i, line);
 
-        inc2_n_factors[r].push_back(std::array<int8_t, 4>{il, al, i1, a1});
+        inc2_n_factors[r][il].push_back(std::array<int8_t, 3>{al, i1, a1});
     }
 
     csv_file.close();
@@ -192,14 +193,14 @@ int inc2_n(lua_State* L)
     }
 
     // search all possible parameters to find the optimal parameters
-    int8_t best_il = 0, best_al = 0;
+    uint8_t best_il = 0;
+    int8_t best_al = 0;
     std::vector<std::array<int8_t, 2>> best_all_i1_a1;
     int best_cost = std::numeric_limits<int>::max();
 
-    // TODO il and al should start at -20, this decreases the length in some cases but increases it in others. why?
-    for(int8_t il=0; il<=20; il++){
-        for(int8_t al=0; al<=20; al++){
-            if(il == 0 && al==0) continue;
+    for(uint8_t il=1; il>0; il++){
+        for(int8_t al=-20; al<=20; al++){
+            if(il>20 && il<235) continue;
 
             bool possible = true;
             std::vector<std::array<int8_t, 2>> all_i1_a1;
@@ -207,9 +208,9 @@ int inc2_n(lua_State* L)
             for(uint8_t value : values){
                 bool this_value_possible = false;
 
-                for(std::array<int8_t, 4>& this_r_il_al_i1_a1 : inc2_n_factors[value]){
-                    if(this_r_il_al_i1_a1[0] == il && this_r_il_al_i1_a1[1] == al){
-                        all_i1_a1.push_back(std::array<int8_t, 2>{this_r_il_al_i1_a1[2], this_r_il_al_i1_a1[3]});
+                for(std::array<int8_t, 3>& this_r_al_i1_a1 : inc2_n_factors[value][il]){
+                    if(this_r_al_i1_a1[0] == al){
+                        all_i1_a1.push_back(std::array<int8_t, 2>{this_r_al_i1_a1[1], this_r_al_i1_a1[2]});
                         this_value_possible = true;
                         break;
                     }
@@ -229,6 +230,12 @@ int inc2_n(lua_State* L)
                 best_all_i1_a1 = all_i1_a1;
             }
         }
+    }
+
+
+
+    if(best_all_i1_a1.size() == 0){
+        return luaL_error(L, "failed to find a bf program");
     }
 
     // build and return bf code
