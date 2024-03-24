@@ -74,7 +74,7 @@ r1,r2,r3,i1,i2,i3,il,a1,a2,a3,al
 
 ## inc2-n.jl
 Searches for the optimal parameters i1,a1 for all possible il,al to increment a cell with one loop: `i1 > il [ < a1 > al ]`.
-Similar to inc2.jl, without the initial value of the loop counter L, the loop counter must always be initialized as 0 instead.
+Similar to inc2.jl, without the initial value of the loop counter L, the loop counter must either be initialized as 0, or an il chosen to make use the initial value.
 Intended to make building programs that increment multiple cells easier.
 
 ### Output
@@ -85,13 +85,14 @@ r,il,al,i1,a1
 
 ### Output parameters:
 - r: value that gets added to the current cell by the whole program
-- il: value that gets added to the loop counter before the loop
+- il: initial value of the loop counter before the loop
 - al: value that gets added to the loop counter during the loop
 - i1: value that gets added to the current cell before the loop
 - a1: value that gets added to the current cell during the loop
 
 ```
--20 ≤ (il, al, i1, a1) ≤ 20
+0 ≤ (r, il) ≤ 255
+-20 ≤ (al, i1, a1) ≤ 20
 ```
 
 ## inc2-n-build-bf.jl
