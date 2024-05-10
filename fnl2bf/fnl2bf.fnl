@@ -1527,6 +1527,8 @@ Parameters beginning with `temp` are always pointers to cells."
 
   (local initial-value (or ?initial-value 0))
 
+  ;; TODO using multiple loop sizes in a single string can reduce the code size:
+  ;; (let [loop-size (if ?loop-size (+ ?loop-size (math.random -5 5)) 10)]
   (let [loop-size (if ?loop-size ?loop-size 10)]
 
     (fn inc-n [n i]
@@ -1704,6 +1706,27 @@ Parameters beginning with `temp` are always pointers to cells."
         (string.gsub "^[<>]+" "")
         (string.gsub "^%[%-%]+" "")))))
 
+(λ bf.mirror [& code]
+  "Swap `<` and `>`."
+  (let [code (table.concat code)
+        code (string.gsub code "." {:< :> :> :<})]
+    code))
+
+(λ bf.comment [str]
+  "Make `str` safe to include in brainfuck code as a comment."
+  (let [str (string.gsub
+              str
+              "."
+              {">" "＞"
+               "<" "＜"
+               "[" "［"
+               "]" "］"
+               "," "，"
+               "." "．"
+               "+" "＋"
+               "-" "－"
+               "#" "＃"})]
+    str))
 
 
 (λ bf.digits\ [?+1]
@@ -1906,9 +1929,9 @@ Parameters beginning with `temp` are always pointers to cells."
   "+[->-<]")
 
 (λ bf.shiftl\! []
-  "Shift current cell left by one.
+  "Bit shift current cell left by one = multiply by 2.
    - before: `[x] 0`
-   - after:  `[0] result`"
+   - after:  `[0] x>>1`"
   "[->++<]")
 
 (λ bf.rotatel\! [?distance]
