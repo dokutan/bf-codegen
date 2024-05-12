@@ -939,6 +939,43 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
     "+[-<++++++++>]<.[-]<<[-<+>]<"))
 
+(λ bf.print-cell-tens\! []
+  "Print the value of the current cell.
+   Requires 5 zeroed cells to the right and handles values >99 incorrectly.
+   Sets the current cell to 0."
+  (..
+    (bf.at 1 (bf.inc 10))
+    (bf.at 2 (bf.inc 1))
+    (bf.divmod\!)
+    ;; print tens
+    (bf.at 3
+      (bf.mov 1 2)
+      (bf.if
+        (bf.at 1
+          (bf.inc2 48 1)
+          "."
+          (bf.zero))))
+    ;; print ones
+    (bf.at 2
+      (bf.inc2 48 1)
+      "."
+      (bf.zero))
+    (bf.at 1 (bf.zero))))
+
+(λ bf.print-cell-tens-padded\! []
+  "Print the value of the current cell padded with 0 to two digits.
+   Requires 5 zeroed cells to the right and handles values >99 incorrectly.
+   Sets the current cell to 0."
+  (..
+    (bf.at 1 (bf.inc 10))
+    (bf.at 2 (bf.inc 1))
+    (bf.divmod\!)
+    (bf.at 2
+      (bf.inc2-2 48 48 1 2))
+    (bf.at 3 "." (bf.zero))
+    (bf.at 2 "." (bf.zero))
+    (bf.at 1 (bf.zero))))
+
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
    The value of the current cell is assumed to be `?initial`, if given."
@@ -2518,7 +2555,7 @@ Zero is not a valid value inside the array, because the array is delimited by ze
       (bf.add! -1))))
 
 (λ bf.array1.sumr []
-  "Sum all elements in the array, the result is placed in the leftmost element.
+  "Sum all elements in the array, the result is placed in the rightmost element.
    - before: `[0], array, 0`
    - after: `0, …, 0, sum, [0]`"
   (bf.array1.foldl
