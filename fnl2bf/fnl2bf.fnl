@@ -1765,6 +1765,9 @@ Parameters beginning with `temp` are always pointers to cells."
                "#" "＃"})]
     str))
 
+(λ bf.commentln [str]
+  ""
+  (.. "\n" (bf.comment str) "\n"))
 
 (λ bf.digits\ [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
