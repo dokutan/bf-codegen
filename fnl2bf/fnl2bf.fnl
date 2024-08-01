@@ -2138,8 +2138,8 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.double "[->")
     "-"
     (bf.loop
-      (bf.double">+>>"))
-    (bf.double">[")
+      (bf.double ">+>>"))
+    (bf.double ">[")
     (bf.D.mov! -1)
     (bf.double "+>+>>]<<<<<]")
     (if ?mod+1
