@@ -25,6 +25,9 @@ Things that don't fit in any other directory.
 ### notes
 Notes regarding the code in this repo.
 
+### profiler
+A brainfuck interpreter/profiler that generates an html report and optimizes programs by removing instructions that are never executed.
+
 ### useful links
 These sites contain additional information tht might be useful for writing (or generating) brainfuck:
 - https://brainfuck.org
@@ -35,6 +38,7 @@ These sites contain additional information tht might be useful for writing (or g
 - https://github.com/primo-ppcg/BF-Crunch
 - https://codegolf.stackexchange.com/questions/9178/bitwise-operators-in-brainfuck
 - https://github.com/bf-enterprise-solutions
+- http://calmerthanyouare.org/2015/01/07/optimizing-brainfuck.html
 
 ## License
 GNU Affero General Public License v3.0
