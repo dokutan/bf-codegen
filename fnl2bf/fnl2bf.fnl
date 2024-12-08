@@ -304,11 +304,21 @@ Parameters beginning with `temp` are always pointers to cells."
   (.. "[" (table.concat [...] "") "]"))
 
 (λ bf.at [distance ...]
-  "Move pointer by `distance`, insert body, move back"
-  (..
-    (bf.ptr distance)
-    (table.concat [...] "")
-    (bf.ptr (- distance))))
+  "If `distance` is a number: Move pointer by `distance`, insert body, move back.
+   `distance` can also be a table: `(bf.at [1 … 2 … 3 …])`"
+  (case (type distance)
+    :number
+    (..
+      (bf.ptr distance)
+      (table.concat [...] "")
+      (bf.ptr (- distance)))
+
+    :table
+    (faccumulate [result ""
+                  i 1 (length distance) 2]
+      (..
+        result
+        (bf.at (. distance i) (. distance (+ 1 i)))))))
 
 (λ bf.ptr [distance ?from]
   "Move pointer by `distance`. If `?from` is not nil, assume the ptr starts at `?from`"
@@ -928,7 +938,7 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.print-cell\ []
   "Print the value of the current cell as a decimal number.
-   Requires 6 cells containing 0 to the right of the current cell."
+   Requires 9 cells containing 0 to the right of the current cell."
   (..
     ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
@@ -936,7 +946,7 @@ Parameters beginning with `temp` are always pointers to cells."
 
 (λ bf.print-cell-tens\ []
   "Print the value of the current cell modulo 10 as a decimal number.
-   Requires 6 cells containing 0 to the right of the current cell."
+   Requires 9 cells containing 0 to the right of the current cell."
   (..
     ">>++++++++++<<[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]>>[-]>>>++++++++++<[->-[>+"
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
