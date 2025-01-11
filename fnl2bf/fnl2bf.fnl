@@ -2315,6 +2315,26 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.at 3
       (bf.mov (* 5 to) 1 ?init))))
 
+(λ bf.Q.print-cell\ []
+  "Print the value of the current quadrupled cell.
+   Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)"
+  (..
+    (bf.Q.ptr 1) (bf.Q.zero)
+    (bf.Q.ptr 1) (bf.Q.zero) "+"
+    (bf.Q.ptr 1) (bf.Q.zero) "+"
+    (bf.Q.ptr -1)
+    (bf.quadruple "[>[-<-<<[->+>+<<]>[-<+>]>>]")
+    (bf.inc 10)
+    (bf.Q.ptr 1) (bf.Q.zero) "+"
+    (bf.Q.ptr 1) (bf.Q.zero)
+    (bf.Q.ptr 1) (bf.Q.zero)
+    (bf.Q.ptr 1) (bf.Q.zero)
+    (bf.quadruple "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>-[-<<+>>]<")
+    (bf.Q.zero) (bf.inc 8)
+    (bf.quadruple "[-<++++++>]>>[-<<+>>]<<]<[.")
+    (bf.Q.zero)
+    (bf.quadruple "<]<")))
+
 (λ bf.read-int [delimiter temp0 temp1 temp2 temp3]
   "Read an integer delimited by `delimiter`.
    All temp cells must be initialized with 0, the result is placed in temp3."
