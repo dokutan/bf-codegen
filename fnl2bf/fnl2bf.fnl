@@ -1809,7 +1809,7 @@ Parameters beginning with `temp` are always pointers to cells."
   "Make `str` safe to include in brainfuck code as a comment."
   (..
     "\n"
-    (table.concat [...] "\n")
+    (bf.comment (table.concat [...] "\n"))
     "\n"))
 
 (λ bf.format [...]
