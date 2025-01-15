@@ -1833,10 +1833,10 @@ Parameters beginning with `temp` are always pointers to cells."
           (if (> (length line) max-length)
             ;; split long lines
             (table.concat
-              (icollect [part (string.gmatch
+              (icollect [part (string.gmatch ; TODO use a better way to split a line
                                 (. lines i)
                                 (string.rep
-                                  "."
+                                  ".?"
                                   (- max-length
                                      (* (length indent-str)
                                         (. indents i)))))]
