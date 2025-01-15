@@ -989,6 +989,33 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.at 2 "." (bf.zero))
     (bf.at 1 (bf.zero))))
 
+
+(λ bf.print-cell-negative\ []
+  "Print the value of the current cell in the range -128..127."
+  (..
+    (bf.mov 3 4 true) ; copy value
+    (bf.at 1 "+") ; else flag
+
+    ;; if number > 127: negative number
+    (bf.at 2
+      (bf.set2 127 2)
+      (bf.<\! true)
+      (bf.if
+        (bf.print2! "-" 1)
+        (bf.at -1 "-")
+        (bf.at -2
+          (bf.invert 1)
+          (bf.at [1 (bf.zero) 2 (bf.zero)])
+          (bf.print-cell\)
+          (bf.invert 1))))
+
+    ;; else: positive number
+    (bf.at 1
+      (bf.if
+        (bf.at -1
+        (bf.at [1 (bf.zero) 2 (bf.zero)])
+        (bf.print-cell\))))))
+
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
    The value of the current cell is assumed to be `?initial`, if given."
