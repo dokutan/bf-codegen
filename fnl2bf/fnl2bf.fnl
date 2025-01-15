@@ -1790,7 +1790,7 @@ Parameters beginning with `temp` are always pointers to cells."
     code))
 
 (λ bf.comment [...]
-  "Make `str` safe to include in brainfuck code as a comment."
+  "Make `str` safe to include in brainfuck code as an inline comment."
   (let [str (string.gsub
               (table.concat [...] " ")
               "."
@@ -1806,11 +1806,46 @@ Parameters beginning with `temp` are always pointers to cells."
     str))
 
 (λ bf.commentln [...]
-  ""
+  "Make `str` safe to include in brainfuck code as a comment."
   (..
     "\n"
     (table.concat [...] "\n")
     "\n"))
+
+(λ bf.format [...]
+  "A simple brainfuck formatter."
+  (let [trim         #(pick-values 1 (-> $ (string.gsub "^%s*" "") (string.gsub "%s*$" "")))
+        count-parens #(let [(_ opening) ($:gsub "%[" "[") (_ closing) ($:gsub "%]" "]")] (- opening closing))
+        code         (.. (trim (table.concat [...] "\n")) "\n")
+        lines        (icollect [line (string.gmatch code "[^\n]*\n")] (trim line))
+        indents      []
+        indent-str   "  "
+        max-length   120]
+    ;; calculate the indentation of each line
+    (accumulate [sum 0 _ line (ipairs lines)]
+      (do
+        (table.insert indents sum)
+        (+ sum (count-parens line))))
+    ;; indent and join all lines
+    (table.concat
+      (fcollect [i 1 (length lines)]
+        (let [line (.. (string.rep indent-str (. indents i)) (. lines i))]
+          (if (> (length line) max-length)
+            ;; split long lines
+            (table.concat
+              (icollect [part (string.gmatch
+                                (. lines i)
+                                (string.rep
+                                  "."
+                                  (- max-length
+                                     (* (length indent-str)
+                                        (. indents i)))))]
+                (.. (string.rep indent-str (. indents i)) part))
+              "\n")
+            line)))
+      "\n")))
+
+
 
 (λ bf.digits\ [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
