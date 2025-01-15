@@ -1762,10 +1762,10 @@ Parameters beginning with `temp` are always pointers to cells."
         code (string.gsub code "." {:< :> :> :<})]
     code))
 
-(λ bf.comment [str]
+(λ bf.comment [...]
   "Make `str` safe to include in brainfuck code as a comment."
   (let [str (string.gsub
-              str
+              (table.concat [...] " ")
               "."
               {">" "＞"
                "<" "＜"
@@ -1778,9 +1778,12 @@ Parameters beginning with `temp` are always pointers to cells."
                "#" "＃"})]
     str))
 
-(λ bf.commentln [str]
+(λ bf.commentln [...]
   ""
-  (.. "\n" (bf.comment str) "\n"))
+  (..
+    "\n"
+    (table.concat [...] "\n")
+    "\n"))
 
 (λ bf.digits\ [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
