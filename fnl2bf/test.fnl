@@ -2,7 +2,7 @@
 
 (var tests-passed 0)
 
-(lambda test [testid code before after]
+(lambda test [testid code before after ?output]
   "Assert that the brainfuck code `code` turns the memory from `before` into `after`."
   (let [luacode
         (faccumulate [luacode "ptr = 1\n"
@@ -16,6 +16,7 @@
               ">" "ptr = ptr+1\n"
               "+" "data[ptr] = (data[ptr]+1) % 256\n"
               "-" "data[ptr] = (data[ptr]-1) % 256\n"
+              "." "output = output .. string.char(data[ptr])"
               _   "")))
 
         data
@@ -26,10 +27,11 @@
         luacode
         (..
           "data = {" data "}\n"
+          "output = ''\n"
           luacode
-          "return data")
+          "return data,output")
 
-        data
+        (data output)
         ((load luacode))]
 
     (for [i 1 (length after)]
@@ -37,6 +39,10 @@
         (assert
           (= (. data i) (. after i))
           (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))))
+
+    (assert
+      (= output (or ?output ""))
+      (.. "test '" testid "' failed (output was '" output "', expected '" (or ?output "") "')"))
 
     (set tests-passed (+ 1 tests-passed))))
 
@@ -130,5 +136,21 @@
 (test "array1.suml" (.. ">>>>>" (bf.array1.suml)) [0 1 2 3 4 0] [0 10 0 0 0 0])
 
 (test "array1.map" (.. ">>>>>" (bf.array1.map 1 "+++")) [0 1 2 3 4 0 0] [0 4 5 6 7 0 0])
+
+(test "print-cell\\ 0" (bf.print-cell\) [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] "0")
+(test "print-cell\\ 10" (bf.print-cell\) [10 0 0 0 0 0 0 0 0 0] [10 0 0 0 0 0 0 0 0 0] "10")
+(test "print-cell\\ 255" (bf.print-cell\) [255 0 0 0 0 0 0 0 0 0] [255 0 0 0 0 0 0 0 0 0] "255")
+
+(test "D.print-cell\\ 255"
+  (bf.D.print-cell\)
+  [255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  [255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  "255")
+
+(test "D.print-cell\\ 65535"
+  (bf.D.print-cell\)
+  [255 0 0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  [255 0 0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+  "65535")
 
 (print (.. "all " tests-passed " tests passed"))
