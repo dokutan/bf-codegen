@@ -2243,10 +2243,11 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.D.ptr 1) (bf.D.zero)
     (bf.D.ptr 1) (bf.D.zero)
     (bf.double "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>-[-<<+>>]<")
-    (bf.D.zero) (bf.inc 8)
-    (bf.double "[-<++++++>]>>[-<<+>>]<<]<[.")
-    (bf.D.zero)
-    (bf.double "<]<")))
+    ;; add 48 to a digit to convert it to ASCII
+    "[-]++++++++[-<<<<++++++>>>>]"
+    (bf.double ">>[-<<+>>]<<]<")
+    ;; print all digits
+    "[.[-]<<<<]<<<<"))
 
 (λ bf.D.digits\ [?+1]
   "Doubled version of `bf.D.digits\\`
@@ -2409,10 +2410,10 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.Q.ptr 1) (bf.Q.zero)
     (bf.Q.ptr 1) (bf.Q.zero)
     (bf.quadruple "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>-[-<<+>>]<")
-    (bf.Q.zero) (bf.inc 8)
-    (bf.quadruple "[-<++++++>]>>[-<<+>>]<<]<[.")
-    (bf.Q.zero)
-    (bf.quadruple "<]<")))
+    "[-]++++++++[-<<<<<++++++>>>>>]" ; add 48 to a digit to convert it to ASCII
+    (bf.quadruple ">>[-<<+>>]<<]<")
+    ;; print all digits
+    "[.[-]<<<<<]<<<<<"))
 
 (λ bf.read-int [delimiter temp0 temp1 temp2 temp3]
   "Read an integer delimited by `delimiter`.
