@@ -1,5 +1,7 @@
 (local bf (require :fnl2bf))
 
+(var tests-passed 0)
+
 (lambda test [testid code before after]
   "Assert that the brainfuck code `code` turns the memory from `before` into `after`."
   (let [luacode
@@ -34,7 +36,9 @@
       (when (= :number (type (. after i)))
         (assert
           (= (. data i) (. after i))
-          (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))))))
+          (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))))
+
+    (set tests-passed (+ 1 tests-passed))))
 
 (for [i 1 255]
   (test
@@ -121,3 +125,10 @@
 (test "rotater\\! 1 by 2" (bf.rotater\! 2) [1 0 0 0 0 0] [64 0 0 0 0 0])
 (test "rotater\\! 2 by 2" (bf.rotater\! 2) [2 0 0 0 0 0] [128 0 0 0 0 0])
 (test "rotater\\! 128 by 2" (bf.rotater\! 2) [128 0 0 0 0 0] [32 0 0 0 0 0])
+
+(test "array1.sumr" (bf.array1.sumr) [0 1 2 3 4 0] [0 0 0 0 10 0])
+(test "array1.suml" (.. ">>>>>" (bf.array1.suml)) [0 1 2 3 4 0] [0 10 0 0 0 0])
+
+(test "array1.map" (.. ">>>>>" (bf.array1.map 1 "+++")) [0 1 2 3 4 0 0] [0 4 5 6 7 0 0])
+
+(print (.. "all " tests-passed " tests passed"))
