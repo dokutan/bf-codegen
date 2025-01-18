@@ -2263,7 +2263,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.D.ptr 1) (bf.D.zero) "+"
     (bf.D.ptr 1) (bf.D.zero) "+"
     (bf.D.ptr -1)
-    (bf.loop
+    (bf.D.loop ; using a normal loop here works for some numbers
       (bf.D.ptr 1)
       (bf.loop
         "-<<<<-<<<<<<<<"
@@ -2451,7 +2451,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.Q.ptr 1) (bf.Q.zero) "+"
     (bf.Q.ptr 1) (bf.Q.zero) "+"
     (bf.Q.ptr -1)
-    (bf.loop
+    (bf.Q.loop ; using a normal loop here works for some numbers
       (bf.Q.ptr 1)
       (bf.loop
         "-<<<<<-<<<<<<<<<<"
