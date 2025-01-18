@@ -1783,6 +1783,33 @@ Parameters beginning with `temp` are always pointers to cells."
         (string.gsub "^[<>]+" "")
         (string.gsub "^%[%-%]+" "")))))
 
+(λ bf.pgo [code]
+  "Profile guided optimization: run code and remove all instructions that are not executed.
+   `,` is assumed to never change a cell."
+  (fn generate-profile [code]
+    (let [luacode
+          (faccumulate [luacode "ptr = 1\ndata={}\nprofile={}\n"
+                        i 1 (length code)]
+            (..
+              luacode
+              (->
+                (match (string.sub code i i)
+                  "[" "while (data[ptr] or 0) ~= 0 do\n%s\n"
+                  "]" "%s\nend\n"
+                  "<" "ptr = ptr - 1\n%s\n"
+                  ">" "ptr = ptr + 1\n%s\n"
+                  "+" "data[ptr] = ((data[ptr] or 0) + 1) %% 256\n%s\n"
+                  "-" "data[ptr] = ((data[ptr] or 0) - 1) %% 256\n%s\n"
+                  _   "%s\n")
+                (string.format (.. "profile[" i "] = true")))))]
+      ((load (.. luacode "\nreturn profile")))))
+  (let [profile (generate-profile code)]
+    (faccumulate [optimized-code ""
+                  i 1 (length code)]
+      (if (. profile i)
+        (.. optimized-code (string.sub code i i))
+        optimized-code))))
+
 (λ bf.mirror [& code]
   "Swap `<` and `>`."
   (let [code (table.concat code)
