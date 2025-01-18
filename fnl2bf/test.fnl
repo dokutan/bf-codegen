@@ -4,7 +4,10 @@
 
 (lambda test [testid code before after ?output]
   "Assert that the brainfuck code `code` turns the memory from `before` into `after`."
-  (let [luacode
+  (let [code
+        (-> code (string.gsub "0" "") (string.gsub "%[%-%]" "0"))
+
+        luacode
         (faccumulate [luacode "ptr = 1\n"
                       i 1 (length code)]
           (..
@@ -17,6 +20,7 @@
               "+" "data[ptr] = (data[ptr]+1) % 256\n"
               "-" "data[ptr] = (data[ptr]-1) % 256\n"
               "." "output = output .. string.char(data[ptr])"
+              "0" "data[ptr] = 0\n"
               _   "")))
 
         data
@@ -170,5 +174,12 @@
   [0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "255")
+
+;; this is slow:
+;; (test "Q.print-cell\\ 65535"
+;;   (.. ">" (bf.Q.print-cell\))
+;;   [0 255 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+;;   [0 255 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+;;   "65535")
 
 (print (.. "all " tests-passed " tests passed"))

@@ -703,6 +703,11 @@ Quadrupled version `bf.zero`.
 Quadrupled version `bf.mov`.
 `to` must be manually set to 0, unless `?init` is true.
 
+## `bf.Q.mov!` (λ)
+```(bf.Q.mov! to)```
+
+Quadrupled version `bf.mov!`.
+
 ## `bf.Q.print-cell\` (λ)
 ```(bf.Q.print-cell\)```
 

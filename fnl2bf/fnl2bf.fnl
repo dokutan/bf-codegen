@@ -2236,17 +2236,30 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.D.ptr 1) (bf.D.zero) "+"
     (bf.D.ptr 1) (bf.D.zero) "+"
     (bf.D.ptr -1)
-    (bf.double "[>[-<-<<[->+>+<<]>[-<+>]>>]")
-    (bf.inc 10)
-    (bf.D.ptr 1) (bf.D.zero) "+"
-    (bf.D.ptr 1) (bf.D.zero)
-    (bf.D.ptr 1) (bf.D.zero)
-    (bf.D.ptr 1) (bf.D.zero)
-    (bf.double "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>")
-    "-[-<<<<<<<<+>>>>>>>>]<<<<"
-    ;; add 48 to a digit to convert it to ASCII
-    "[-]++++++++[-<<<<++++++>>>>]"
-    (bf.double ">>[-<<+>>]<<]<")
+    (bf.loop
+      (bf.D.ptr 1)
+      (bf.loop
+        "-<<<<-<<<<<<<<"
+        (bf.D.mov 2)
+        (bf.D.ptr 3))
+      (bf.inc 10)
+      (bf.D.ptr 1) (bf.D.zero) "+"
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.D.ptr 1) (bf.D.zero)
+      (bf.double "<<<<<[->")
+      "-[>>>>+>>>>>>>>]"
+      (bf.D.ptr 1)
+      (bf.loop
+        "[-<<<<+>>>>]+"
+        (bf.double ">+>>"))
+      (bf.double "<<<<<]>>")
+      "-[-<<<<<<<<+>>>>>>>>]<<<<"
+      ;; add 48 to a digit to convert it to ASCII
+      "[-]++++++++[-<<<<++++++>>>>]"
+      (bf.D.at 2
+        (bf.D.mov! -2)))
+    (bf.D.ptr -1)
     ;; print all digits
     "[.[-]<<<<]<<<<"))
 
@@ -2396,6 +2409,13 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.at 3
       (bf.mov (* 5 to) 1 ?init))))
 
+(λ bf.Q.mov! [to]
+  "Quadrupled version `bf.mov!`."
+  (bf.at [0 (bf.mov! (* 5 to))
+          1 (bf.mov! (* 5 to))
+          2 (bf.mov! (* 5 to))
+          3 (bf.mov! (* 5 to))]))
+
 (λ bf.Q.print-cell\ []
   "Print the value of the current quadrupled cell.
    Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)"
@@ -2404,17 +2424,30 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.Q.ptr 1) (bf.Q.zero) "+"
     (bf.Q.ptr 1) (bf.Q.zero) "+"
     (bf.Q.ptr -1)
-    (bf.quadruple "[>[-<-<<[->+>+<<]>[-<+>]>>]")
-    (bf.inc 10)
-    (bf.Q.ptr 1) (bf.Q.zero) "+"
-    (bf.Q.ptr 1) (bf.Q.zero)
-    (bf.Q.ptr 1) (bf.Q.zero)
-    (bf.Q.ptr 1) (bf.Q.zero)
-    (bf.quadruple "<<<<<[->-[>+>>]>[[-<+>]+>+>>]<<<<<]>>")
-    "-[-<<<<<<<<<<+>>>>>>>>>>]<<<<<"
-    ;; add 48 to a digit to convert it to ASCII
-    "[-]++++++++[-<<<<<++++++>>>>>]"
-    (bf.quadruple ">>[-<<+>>]<<]<")
+    (bf.loop
+      (bf.Q.ptr 1)
+      (bf.loop
+        "-<<<<<-<<<<<<<<<<"
+        (bf.Q.mov 2)
+        (bf.Q.ptr 3))
+      (bf.inc 10)
+      (bf.Q.ptr 1) (bf.Q.zero) "+"
+      (bf.Q.ptr 1) (bf.Q.zero)
+      (bf.Q.ptr 1) (bf.Q.zero)
+      (bf.Q.ptr 1) (bf.Q.zero)
+      (bf.quadruple "<<<<<[->")
+      "-[>>>>>+>>>>>>>>>>]"
+      (bf.Q.ptr 1)
+      (bf.loop
+        "[-<<<<<+>>>>>]+"
+        (bf.quadruple ">+>>"))
+      (bf.quadruple "<<<<<]>>")
+      "-[-<<<<<<<<<<+>>>>>>>>>>]<<<<<"
+      ;; add 48 to a digit to convert it to ASCII
+      "[-]++++++++[-<<<<<++++++>>>>>]"
+      (bf.Q.at 2
+        (bf.Q.mov! -2)))
+    (bf.Q.ptr -1)
     ;; print all digits
     "[.[-]<<<<<]<<<<<"))
 
