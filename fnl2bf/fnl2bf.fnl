@@ -2505,7 +2505,7 @@ Parameters beginning with `temp` are always pointers to cells."
         ","
         (bf.inc (- terminator))))))
 
-(tset bf :array1 {})
+(set bf.array1 {})
 "# Array1 functions
 These functions operate on arrays that use a single cell per value.
 Zero is not a valid value inside the array, because the array is delimited by zeros on both ends."
@@ -2715,5 +2715,40 @@ Zero is not a valid value inside the array, because the array is delimited by ze
   (bf.array1.foldl
     (bf.at -1
       (bf.add! 1))))
+
+
+(set bf.arrayN {})
+"# ArrayN functions
+These functions operate on arrays where each value is `N` cells large and can contain zero.
+Each value occupies N+1 cells: `…, 0, 0, 1, value*N, 1, value*N, 1, value*N, 0, 0, …`"
+
+(λ bf.arrayN.shiftr [N ?distance]
+  "Shift array right by `?distance` cells (default is one).
+   - before: `0, array, [0], 0`
+   - after:  `0, [0], array, 0`"
+  (let [?distance (if ?distance ?distance 1)]
+    (assert (>= ?distance 1) "shiftr: distance must be >= 1")
+    (..
+      (bf.ptr (- (+ 1 N)))
+      (bf.loop
+        (bf.at N
+          (string.rep
+            (.. (bf.add! ?distance) "<")
+            (+ 1 N))))
+      (bf.ptr ?distance))))
+
+(λ bf.arrayN.shiftl [N ?distance]
+  "Shift array left by `?distance` cells (default is one).
+   - before: `0, [0], array, 0`
+   - after:  `0, array, [0], 0`"
+  (let [?distance (if ?distance ?distance 1)]
+    (assert (>= ?distance 1) "shiftl: distance must be >= 1")
+    (..
+      ">"
+      (bf.loop
+        (string.rep
+          (.. (bf.add! (- ?distance)) ">")
+          (+ 1 N)))
+      (bf.ptr (- (+ 1 N))))))
 
 bf

@@ -182,4 +182,14 @@
 ;;   [0 255 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
 ;;   "65535")
 
+(test "bf.arrayN.shiftr"
+  (.. (bf.ptr 12) (bf.arrayN.shiftr 2 3))
+  [0 0 0 1 0 0 1 2 2 1 3 3 0 0 0 0]
+  [0 0 0 0 0 0 1 0 0 1 2 2 1 3 3 0])
+
+(test "bf.arrayN.shiftl"
+  (.. (bf.ptr 5) (bf.arrayN.shiftl 2 3))
+  [0 0 0 0 0 0 1 0 0 1 2 2 1 3 3 0]
+  [0 0 0 1 0 0 1 2 2 1 3 3 0 0 0 0])
+
 (print (.. "all " tests-passed " tests passed"))
