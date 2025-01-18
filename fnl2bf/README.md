@@ -287,6 +287,11 @@ Print the value of the current cell padded with 0 to two digits.
 Requires 5 zeroed cells to the right and handles values >99 incorrectly.
 Sets the current cell to 0.
 
+## `bf.print-cell-negative\` (λ)
+```(bf.print-cell-negative\)```
+
+Print the value of the current cell in the range -128..127.
+
 ## `bf.print!` (λ)
 ```(bf.print! str ?initial)```
 
@@ -426,14 +431,19 @@ More aggressive version of `bf.optimize`.
 Swap `<` and `>`.
 
 ## `bf.comment` (λ)
-```(bf.comment str)```
+```(bf.comment ...)```
+
+Make `str` safe to include in brainfuck code as an inline comment.
+
+## `bf.commentln` (λ)
+```(bf.commentln ...)```
 
 Make `str` safe to include in brainfuck code as a comment.
 
-## `bf.commentln` (λ)
-```(bf.commentln str)```
+## `bf.format` (λ)
+```(bf.format ...)```
 
-
+A simple brainfuck formatter.
 
 ## `bf.digits\` (λ)
 ```(bf.digits\ ?+1)```
@@ -537,6 +547,11 @@ Each 16-bit cell is stored using 4 8-bit cells:
 low reserved reserved high
 ^ptr
 
+
+## `bf.D.loop` (λ)
+```(bf.D.loop ...)```
+
+A doubled loop: [...]
 
 ## `bf.D.ptr` (λ)
 ```(bf.D.ptr distance)```
@@ -662,6 +677,11 @@ Cell layout (little endian):
 `(0) [a] b c d (0)`
 The sorrounding zeros are required, but they can overlap between quadrupled cells.
 
+## `bf.Q.loop` (λ)
+```(bf.Q.loop ...)```
+
+A quadrupled loop: [...]
+
 ## `bf.Q.ptr` (λ)
 ```(bf.Q.ptr distance)```
 
@@ -682,6 +702,12 @@ Quadrupled version `bf.zero`.
 
 Quadrupled version `bf.mov`.
 `to` must be manually set to 0, unless `?init` is true.
+
+## `bf.Q.print-cell\` (λ)
+```(bf.Q.print-cell\)```
+
+Print the value of the current quadrupled cell.
+Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
 
 ## `bf.read-int` (λ)
 ```(bf.read-int delimiter temp0 temp1 temp2 temp3)```
