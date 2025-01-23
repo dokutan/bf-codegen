@@ -204,4 +204,19 @@
   [0 0 0 0 0 0 1 0 0 1 2 2 1 3 3 0]
   [0 0 0 1 0 0 1 2 2 1 3 3 0 0 0 0])
 
+(test "bf.arrayN.split"
+  (.. (bf.ptr 12) (bf.arrayN.split 2))
+  [0 0 0 1 0 0 1 2 2 1 3 3 0 1]
+  [1 0 0 1 2 2 0 0 0 1 3 3 0 0])
+
+(test "bf.arrayN.split mirrored"
+  (.. (bf.ptr 1) (bf.mirror (bf.arrayN.split 2)))
+  [1 0 3 3 1 2 2 1 0 0 1 0 0 0]
+  [0 0 3 3 1 0 0 0 2 2 1 0 0 1])
+
+(test "bf.arrayN.get"
+  (.. (bf.ptr 15) (bf.arrayN.get 2))
+  [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 1 0 0]
+  [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 0 8 9])
+
 (print (.. "all " tests-passed " tests passed"))

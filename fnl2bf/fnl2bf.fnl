@@ -2778,4 +2778,60 @@ Each value occupies N+1 cells: `…, 0, 0, 1, value*N, 1, value*N, 1, value*N, 0
           (+ 1 N)))
       (bf.ptr (- (+ 1 N))))))
 
+(λ bf.arrayN.split [N]
+  "Split an array by inserting N+1 zeroed cells, the index is 0 based.
+   - before: `0, 0, array, [0], index, 0`
+   - after:  `array, 0*(N+1), array, [0], 0`"
+  (..
+    ">+"
+    (bf.loop ; while index: move first cell of array left
+      (bf.ptr (- (+ 2 N))) ; move to last element
+      (bf.loop (bf.ptr (- (+ 1 N))))
+      (bf.ptr (+ 1 N))     ; move to first element
+      (string.rep          ; shift first element left
+        (.. (bf.mov! (- (+ 1 N)) false) ">")
+        (+ 1 N))
+      (bf.loop (bf.ptr (+ 1 N))) ; move to index
+      ">-")
+    "<"))
+
+(λ bf.arrayN.get [N]
+  "Get an element of an array, the index is 0 based.
+   - before: `0, 0, array, [0], index, 0`
+   - after:  `0, 0, array, [0], 0*(N-1), result*N, 0`"
+  (..
+    (bf.arrayN.split N)
+    ;; move to gap
+    (bf.ptr (- (+ 1 N)))
+    (bf.loop
+      (bf.ptr (- (+ 1 N))))
+    ;; copy all cells of the value
+    (faccumulate [r "" i 1 N]
+      (..
+        r
+        ;; copy cell inside the gap
+        (bf.at (- i)
+          (bf.mov (+ 1 i) 1))
+        ;; move cell outside the gap
+        (bf.at 1
+          (bf.loop
+            "-"
+            (bf.ptr N)
+            (bf.loop (bf.ptr (+ 1 N)))
+            (bf.at (- (* 2 N) i) "+")
+            (bf.ptr (- (+ 1 N)))
+            (bf.loop (bf.ptr (- (+ 1 N))))
+            ">"))
+        ;; shift cell right
+        (bf.at (- i)
+          (bf.mov! (+ 1 N) false))))
+    ;; shift value start right
+    (bf.ptr (- N))
+    "<" (bf.mov! (+ 1 N) false)
+    ;; merge array parts
+    (bf.arrayN.shiftr N (+ 1 N))
+    (bf.ptr (+ 1 N))
+    (bf.loop
+      (bf.ptr (+ 1 N)))))
+
 bf
