@@ -2834,4 +2834,42 @@ Each value occupies N+1 cells: `…, 0, 0, 1, value*N, 1, value*N, 1, value*N, 0
     (bf.loop
       (bf.ptr (+ 1 N)))))
 
+(λ bf.arrayN.set [N]
+  "Get an element of an array, the index is 0 based.
+   - before: `0, 0, array, [0], index, value*N`
+   - after:  `0, 0, array, [0], 0, 0, …`"
+  (..
+    (bf.arrayN.split N)
+    ;; move to gap
+    (bf.ptr (- (+ 1 N)))
+    (bf.loop
+      (bf.ptr (- (+ 1 N))))
+    ;; clear old value
+    (string.rep "<[-]" N) "<"
+    (bf.ptr (* 2 (+ 1 N)))
+    (bf.loop
+      (bf.ptr (+ 1 N)))
+    ;; copy all cells of the value
+    (faccumulate [r "" i 1 N]
+      (..
+        r
+        (bf.at (+ 1 i)
+          (bf.loop
+            "-"
+            (bf.ptr (- (+ 2 i N)))
+            (bf.loop (bf.ptr (- (+ 1 N))))
+            (bf.at (- (+ 1 (- N i))) "+")
+            (bf.ptr (+ 1 N))
+            (bf.loop (bf.ptr (+ 1 N)))
+            (bf.ptr (+ 1 i))))))
+    ;; move to gap
+    (bf.ptr (- (+ 1 N)))
+    (bf.loop
+      (bf.ptr (- (+ 1 N))))
+    ;; merge array parts
+    (bf.arrayN.shiftr N (+ 1 N))
+    (bf.ptr (+ 1 N))
+    (bf.loop
+      (bf.ptr (+ 1 N)))))
+
 bf

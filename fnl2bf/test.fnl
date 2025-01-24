@@ -223,15 +223,25 @@
   [1 0 3 3 1 2 2 1 0 0 1 0 0 0]
   [0 0 3 3 1 0 0 0 2 2 1 0 0 1])
 
-(test "bf.arrayN.get"
+(test "bf.arrayN.get 2"
   (.. (bf.ptr 15) (bf.arrayN.get 2))
   [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 1 0 0]
   [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 0 8 9])
 
-(test "bf.arrayN.get"
-  (.. (bf.ptr 26) (bf.arrayN.get 3))
-  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 1 0 0 0 0 0 0 0 0]
-  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 0 0 7 8 9 0 0 0 0])
+(test "bf.arrayN.get 3"
+  (.. (bf.ptr 20) (bf.arrayN.get 3))
+  [0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 1 0 0 0 0 0 0 0 0]
+  [0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 0 0 7 8 9 0 0 0 0])
+
+(test "bf.arrayN.set 2"
+  (.. (bf.ptr 15) (bf.arrayN.set 2))
+  [0 0 0 0 0 0 1 0 0 1 2 2 1 3 3 0 1 8 9]
+  [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 0 0 0])
+
+(test "bf.arrayN.set 3"
+  (.. (bf.ptr 20) (bf.arrayN.set 3))
+  [0 0 0 0 0 0 0 0 1 0 0 0 1 2 2 2 1 3 3 3 0 1 7 8 9 0 0 0 0 0]
+  [0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 0 0 0 0 0 0 0 0 0])
 
 (print (.. tests-passed "/" (+ tests-passed tests-failed) " tests passed"))
 
