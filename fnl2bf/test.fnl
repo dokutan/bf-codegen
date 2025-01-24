@@ -1,9 +1,11 @@
 (local bf (require :fnl2bf))
 
 (var tests-passed 0)
+(var tests-failed 0)
 
 (lambda test [testid code before after ?output]
   "Assert that the brainfuck code `code` turns the memory from `before` into `after`."
+  (var test-result :success)
   (let [code
         (-> code (string.gsub "0" "") (string.gsub "%[%-%]" "0"))
 
@@ -38,17 +40,24 @@
         (data output)
         ((load luacode))]
 
+    (var show-after? false)
     (for [i 1 (length after)]
       (when (= :number (type (. after i)))
-        (assert
-          (= (. data i) (. after i))
-          (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))))
+        (when (not= (. data i) (. after i))
+          (print (.. "test '" testid "' failed at " i " (got " (. data i) ", expected " (. after i) ")"))
+          (set test-result :failure)
+          (set show-after? true))))
+    (when show-after?
+      (print (.. "expected: [" (table.concat after " ") "]"))
+      (print (.. "received: [" (table.concat data " ") "]")))
 
-    (assert
-      (= output (or ?output ""))
-      (.. "test '" testid "' failed (output was '" output "', expected '" (or ?output "") "')"))
+    (when (not= output (or ?output ""))
+      (print (.. "test '" testid "' failed (output was '" output "', expected '" (or ?output "") "')"))
+      (set test-result :failure))
 
-    (set tests-passed (+ 1 tests-passed))))
+    (case test-result
+      :success (set tests-passed (+ 1 tests-passed))
+      :failure (set tests-failed (+ 1 tests-failed)))))
 
 (for [i 1 255]
   (test
@@ -219,4 +228,12 @@
   [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 1 0 0]
   [0 0 0 0 0 0 1 0 0 1 8 9 1 3 3 0 0 8 9])
 
-(print (.. "all " tests-passed " tests passed"))
+(test "bf.arrayN.get"
+  (.. (bf.ptr 26) (bf.arrayN.get 3))
+  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 1 0 0 0 0 0 0 0 0]
+  [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 7 8 9 1 3 3 3 0 0 0 7 8 9 0 0 0 0])
+
+(print (.. tests-passed "/" (+ tests-passed tests-failed) " tests passed"))
+
+(if (not= 0 tests-failed)
+  (os.exit 1))
