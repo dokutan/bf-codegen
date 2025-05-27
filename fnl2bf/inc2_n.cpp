@@ -31,7 +31,7 @@ uint8_t unsafe_stou_getline(int& i, const std::string& in)
 }
 
 // read an int8_t from in starting at i
-int8_t unsafe_stoi_getline(int& i, const std::string& in)
+template<char delimiter> int8_t unsafe_stoi_getline(int& i, const std::string& in)
 {
     int8_t result = 0;
     bool is_negative = false;
@@ -44,14 +44,14 @@ int8_t unsafe_stoi_getline(int& i, const std::string& in)
     do {
         result = (result * 10) + (in[i] - '0');
         i++;
-    } while (in[i] != ',');
+    } while (in[i] != delimiter);
     i++;
 
     return is_negative ? -result : result;
 }
 
 // calculate the cost of a solution
-int cost(uint8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1)
+int cost(uint8_t il, int8_t al, const std::vector<std::array<int8_t, 2>>& all_i1_a1)
 {
     int cost = 0;
 
@@ -86,7 +86,7 @@ void bf_inc(std::stringstream& s, int amount){
 }
 
 // generate the resulting brainfuck code
-std::string build_bf(uint8_t il, int8_t al, std::vector<std::array<int8_t, 2>>& all_i1_a1, std::vector<int>& positions, int loop_position){
+std::string build_bf(uint8_t il, int8_t al, const std::vector<std::array<int8_t, 2>>& all_i1_a1, const std::vector<int>& positions, int loop_position){
     std::stringstream s;
     int ptr = 0;
 
@@ -137,27 +137,28 @@ int load(lua_State* L)
     }
 
     std::ifstream csv_file(INC2_N_CSV_PATH);
-    std::string line;
+    std::ostringstream s;
+    int i = 0;
 
     if (csv_file.fail()) {
         return luaL_error(L, "failed to open " INC2_N_CSV_PATH);
     }
 
-    while (std::getline(csv_file, line)) {
-        int i = 0;
-        line += ',';
+    s << csv_file.rdbuf();
+    csv_file.close();
 
-        uint8_t r = unsafe_stou_getline(i, line);
-        uint8_t il = unsafe_stou_getline(i, line);
+    std::string csv = s.str() + "\0";
+    while (csv[i] != '\0') {
+        uint8_t r = unsafe_stou_getline(i, csv);
+        uint8_t il = unsafe_stou_getline(i, csv);
 
-        int8_t al = unsafe_stoi_getline(i, line);
-        int8_t i1 = unsafe_stoi_getline(i, line);
-        int8_t a1 = unsafe_stoi_getline(i, line);
+        int8_t al = unsafe_stoi_getline<','>(i, csv);
+        int8_t i1 = unsafe_stoi_getline<','>(i, csv);
+        int8_t a1 = unsafe_stoi_getline<'\n'>(i, csv);
 
         inc2_n_factors[r][il].push_back(std::array<int8_t, 3>{al, i1, a1});
     }
 
-    csv_file.close();
     is_loaded = true;
     return 0;
 }
