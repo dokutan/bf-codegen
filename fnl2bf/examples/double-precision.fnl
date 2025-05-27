@@ -28,8 +28,8 @@
       "<"
       (bf.mul! 1 2 3))
     
-    ;; bf.print-cell\ only works for 8-bit cells, use bf.D.print-cell\ instead:
-    (bf.D.print-cell\)
+    ;; bf.print-cell° only works for 8-bit cells, use bf.D.print-cell° instead:
+    (bf.D.print-cell°)
 
     ;; shorter than (bf.double (bf.zero))
     (bf.D.zero)

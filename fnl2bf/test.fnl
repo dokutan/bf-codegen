@@ -86,11 +86,11 @@
 (test "not=! 5 5" (bf.not=! 1) [5 5] [0 0])
 (test "not=! 5 4" (bf.not=! 1) [5 4] [1 0])
 
-(test "<\\! 0 0" (bf.<\!) [0 0 0 0] [0 0 0 0])
-(test "<\\! 5 5" (bf.<\!) [5 5 0 0] [0 0 0 0])
-(test "<\\! 5 4" (bf.<\!) [5 4 0 0] [0 0 0 0])
-(test "<\\! 4 5" (bf.<\!) [4 5 0 0] [1 0 0 0])
-(test "<\\! 3 5" (bf.<\!) [3 5 0 0] [1 0 0 0])
+(test "<°! 0 0" (bf.<°!) [0 0 0 0] [0 0 0 0])
+(test "<°! 5 5" (bf.<°!) [5 5 0 0] [0 0 0 0])
+(test "<°! 5 4" (bf.<°!) [5 4 0 0] [0 0 0 0])
+(test "<°! 4 5" (bf.<°!) [4 5 0 0] [1 0 0 0])
+(test "<°! 3 5" (bf.<°!) [3 5 0 0] [1 0 0 0])
 
 (test "swap" (bf.swap 1 2) [3 5 0] [5 3 0])
 
@@ -101,10 +101,10 @@
 
 (test "multiply-add!" (bf.multiply-add! 15 1) [3 5] [0 50])
 
-(test "D.popcount\\!" (bf.popcount\!) [0   0 0 0 0 0 0] [0 0 0 0 0 0 0])
-(test "D.popcount\\!" (bf.popcount\!) [200 0 0 0 0 0 0] [0 0 0 0 3 0 0])
-(test "D.popcount\\!" (bf.popcount\!) [123 0 0 0 0 0 0] [0 0 0 0 6 0 0])
-(test "D.popcount\\!" (bf.popcount\!) [255 0 0 0 0 0 0] [0 0 0 0 8 0 0])
+(test "D.popcount°!" (bf.popcount°!) [0   0 0 0 0 0 0] [0 0 0 0 0 0 0])
+(test "D.popcount°!" (bf.popcount°!) [200 0 0 0 0 0 0] [0 0 0 0 3 0 0])
+(test "D.popcount°!" (bf.popcount°!) [123 0 0 0 0 0 0] [0 0 0 0 6 0 0])
+(test "D.popcount°!" (bf.popcount°!) [255 0 0 0 0 0 0] [0 0 0 0 8 0 0])
 
 (test "D.set 1234" (bf.D.set 1234) [0 0 0 0] [(% 1234 256) 0 0 (// 1234 256)])
 
@@ -114,91 +114,91 @@
 (test "D.zero?! 3" (bf.D.zero?!) [3 0 0 3] [0 0 0 0])
 
 (test
-  "D.digits\\"
-  (bf.D.digits\)
+  "D.digits°"
+  (bf.D.digits°)
   [(% 12345 256) 0 0 (// 12345 256) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [(% 12345 256) 0 0 (// 12345 256) 0 0 0 0 5 4 3 2 1 0])
 
 (test
-  "D.digits\\ ?+1"
-  (bf.D.digits\ true)
+  "D.digits° ?+1"
+  (bf.D.digits° true)
   [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [(% 12340 256) 0 0 (// 12340 256) 0 0 0 0 1 5 4 3 2 0])
 
-(test "shiftl\\! 1" (bf.shiftl\!) [1 0] [0 2])
-(test "shiftl\\! 2" (bf.shiftl\!) [2 0] [0 4])
-(test "shiftl\\! 128" (bf.shiftl\!) [128 0] [0 0])
+(test "shiftl°! 1" (bf.shiftl°!) [1 0] [0 2])
+(test "shiftl°! 2" (bf.shiftl°!) [2 0] [0 4])
+(test "shiftl°! 128" (bf.shiftl°!) [128 0] [0 0])
 
-(test "rotatel\\! 1" (bf.rotatel\!) [1 0 0 0 0] [2 0 0 0 0])
-(test "rotatel\\! 2" (bf.rotatel\!) [2 0 0 0 0] [4 0 0 0 0])
-(test "rotatel\\! 128" (bf.rotatel\!) [128 0 0 0 0] [1 0 0 0 0])
+(test "rotatel°! 1" (bf.rotatel°!) [1 0 0 0 0] [2 0 0 0 0])
+(test "rotatel°! 2" (bf.rotatel°!) [2 0 0 0 0] [4 0 0 0 0])
+(test "rotatel°! 128" (bf.rotatel°!) [128 0 0 0 0] [1 0 0 0 0])
 
-(test "rotatel\\! 1 by 2" (bf.rotatel\! 2) [1 0 0 0 0 0] [4 0 0 0 0 0])
-(test "rotatel\\! 2 by 2" (bf.rotatel\! 2) [2 0 0 0 0 0] [8 0 0 0 0 0])
-(test "rotatel\\! 128 by 2" (bf.rotatel\! 2) [128 0 0 0 0 0] [2 0 0 0 0 0])
+(test "rotatel°! 1 by 2" (bf.rotatel°! 2) [1 0 0 0 0 0] [4 0 0 0 0 0])
+(test "rotatel°! 2 by 2" (bf.rotatel°! 2) [2 0 0 0 0 0] [8 0 0 0 0 0])
+(test "rotatel°! 128 by 2" (bf.rotatel°! 2) [128 0 0 0 0 0] [2 0 0 0 0 0])
 
-(test "rotater\\! 1" (bf.rotater\!) [1 0 0 0 0 0] [128 0 0 0 0 0])
-(test "rotater\\! 2" (bf.rotater\!) [2 0 0 0 0 0] [1 0 0 0 0 0])
-(test "rotater\\! 128" (bf.rotater\!) [128 0 0 0 0 0] [64 0 0 0 0 0])
+(test "rotater°! 1" (bf.rotater°!) [1 0 0 0 0 0] [128 0 0 0 0 0])
+(test "rotater°! 2" (bf.rotater°!) [2 0 0 0 0 0] [1 0 0 0 0 0])
+(test "rotater°! 128" (bf.rotater°!) [128 0 0 0 0 0] [64 0 0 0 0 0])
 
-(test "rotater\\! 1 by 2" (bf.rotater\! 2) [1 0 0 0 0 0] [64 0 0 0 0 0])
-(test "rotater\\! 2 by 2" (bf.rotater\! 2) [2 0 0 0 0 0] [128 0 0 0 0 0])
-(test "rotater\\! 128 by 2" (bf.rotater\! 2) [128 0 0 0 0 0] [32 0 0 0 0 0])
+(test "rotater°! 1 by 2" (bf.rotater°! 2) [1 0 0 0 0 0] [64 0 0 0 0 0])
+(test "rotater°! 2 by 2" (bf.rotater°! 2) [2 0 0 0 0 0] [128 0 0 0 0 0])
+(test "rotater°! 128 by 2" (bf.rotater°! 2) [128 0 0 0 0 0] [32 0 0 0 0 0])
 
 (test "array1.sumr" (bf.array1.sumr) [0 1 2 3 4 0] [0 0 0 0 10 0])
 (test "array1.suml" (.. ">>>>>" (bf.array1.suml)) [0 1 2 3 4 0] [0 10 0 0 0 0])
 
 (test "array1.map" (.. ">>>>>" (bf.array1.map 1 "+++")) [0 1 2 3 4 0 0] [0 4 5 6 7 0 0])
 
-(test "print-cell\\ 0" (bf.print-cell\) [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] "0")
-(test "print-cell\\ 10" (bf.print-cell\) [10 0 0 0 0 0 0 0 0 0] [10 0 0 0 0 0 0 0 0 0] "10")
-(test "print-cell\\ 255" (bf.print-cell\) [255 0 0 0 0 0 0 0 0 0] [255 0 0 0 0 0 0 0 0 0] "255")
+(test "print-cell° 0" (bf.print-cell°) [0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0] "0")
+(test "print-cell° 10" (bf.print-cell°) [10 0 0 0 0 0 0 0 0 0] [10 0 0 0 0 0 0 0 0 0] "10")
+(test "print-cell° 255" (bf.print-cell°) [255 0 0 0 0 0 0 0 0 0] [255 0 0 0 0 0 0 0 0 0] "255")
 
-(test "D.print-cell\\ 0"
-  (bf.D.print-cell\)
+(test "D.print-cell° 0"
+  (bf.D.print-cell°)
   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "0")
 
-(test "D.print-cell\\ 255"
-  (bf.D.print-cell\)
+(test "D.print-cell° 255"
+  (bf.D.print-cell°)
   [255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "255")
 
-(test "D.print-cell\\ 7682"
-  (bf.D.print-cell\)
+(test "D.print-cell° 7682"
+  (bf.D.print-cell°)
   [2 0 0 30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [2 0 0 30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "7682")
 
-(test "D.print-cell\\ 65535"
-  (bf.D.print-cell\)
+(test "D.print-cell° 65535"
+  (bf.D.print-cell°)
   [255 0 0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [255 0 0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "65535")
 
-(test "Q.print-cell\\ 0"
-  (.. ">" (bf.Q.print-cell\))
+(test "Q.print-cell° 0"
+  (.. ">" (bf.Q.print-cell°))
   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "0")
 
-(test "Q.print-cell\\ 255"
-  (.. ">" (bf.Q.print-cell\))
+(test "Q.print-cell° 255"
+  (.. ">" (bf.Q.print-cell°))
   [0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [0 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "255")
 
-(test "Q.print-cell\\ 7682"
-  (.. ">" (bf.Q.print-cell\))
+(test "Q.print-cell° 7682"
+  (.. ">" (bf.Q.print-cell°))
   [0 2 30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   [0 2 30 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
   "7682")
 
 ;; this is slow:
-;; (test "Q.print-cell\\ 65535"
-;;   (.. ">" (bf.Q.print-cell\))
+;; (test "Q.print-cell° 65535"
+;;   (.. ">" (bf.Q.print-cell°))
 ;;   [0 255 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
 ;;   [0 255 255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
 ;;   "65535")

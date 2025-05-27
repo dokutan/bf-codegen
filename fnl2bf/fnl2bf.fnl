@@ -658,7 +658,7 @@ Parameters beginning with `temp` are always pointers to cells."
         (bf.at (- temp1 temp0)
           (bf.add! (- temp0 temp1)))))))
 
-(λ bf.divmod\! []
+(λ bf.divmod°! []
   "Current cell divided/modulo by the next cell to the right.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
    - Before: `>n d 1 0 0 0`
@@ -683,9 +683,9 @@ Parameters beginning with `temp` are always pointers to cells."
         (bf.at 2 (bf.set 1))
         (bf.at 1 (bf.set value))))
 
-    (bf.divmod\!)))
+    (bf.divmod°!)))
 
-(λ bf.mod\! []
+(λ bf.mod°! []
   "- before: `0 >n d 0 0 0`
    - after: `0 >0 d-n%d n%d 0 0`"
   "[>->+<[>]>[<+>-]<<[<]>-]")
@@ -786,7 +786,7 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.at (- y)
         "-")))))
 
-(λ bf.<\! [?init]
+(λ bf.<°! [?init]
   "current cell <- current cell < next cell.
   - before: >x y 0 0
   - after: >(x<y) 0 0 0"
@@ -936,7 +936,7 @@ Parameters beginning with `temp` are always pointers to cells."
 
 "# Print functions"
 
-(λ bf.print-cell\ []
+(λ bf.print-cell° []
   "Print the value of the current cell as a decimal number.
    Requires 9 cells containing 0 to the right of the current cell."
   (..
@@ -944,7 +944,7 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[>++++++[-<++++++++>]<.<<+>+>[-]]<[<[->-<]++"
     "++++[->++++++++<]>.[-]]<<++++++[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ bf.print-cell-tens\ []
+(λ bf.print-cell-tens° []
   "Print the value of the current cell modulo 10 as a decimal number.
    Requires 9 cells containing 0 to the right of the current cell."
   (..
@@ -952,14 +952,14 @@ Parameters beginning with `temp` are always pointers to cells."
     ">>]>[+[-<+>]>+>>]<<<<<]>[-]>>[-]<[<[->-<]++++++[->++++++++<]>.[-]]<<+++++"
     "+[-<++++++++>]<.[-]<<[-<+>]<"))
 
-(λ bf.print-cell-tens\! []
+(λ bf.print-cell-tens°! []
   "Print the value of the current cell.
    Requires 5 zeroed cells to the right and handles values >99 incorrectly.
    Sets the current cell to 0."
   (..
     (bf.at 1 (bf.inc 10))
     (bf.at 2 (bf.inc 1))
-    (bf.divmod\!)
+    (bf.divmod°!)
     ;; print tens
     (bf.at 3
       (bf.mov 1 2)
@@ -975,14 +975,14 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.zero))
     (bf.at 1 (bf.zero))))
 
-(λ bf.print-cell-tens-padded\! []
+(λ bf.print-cell-tens-padded°! []
   "Print the value of the current cell padded with 0 to two digits.
    Requires 5 zeroed cells to the right and handles values >99 incorrectly.
    Sets the current cell to 0."
   (..
     (bf.at 1 (bf.inc 10))
     (bf.at 2 (bf.inc 1))
-    (bf.divmod\!)
+    (bf.divmod°!)
     (bf.at 2
       (bf.inc2-2 48 48 1 2))
     (bf.at 3 "." (bf.zero))
@@ -990,7 +990,7 @@ Parameters beginning with `temp` are always pointers to cells."
     (bf.at 1 (bf.zero))))
 
 
-(λ bf.print-cell-negative\ []
+(λ bf.print-cell-negative° []
   "Print the value of the current cell in the range -128..127."
   (..
     (bf.mov 3 4 true) ; copy value
@@ -999,14 +999,14 @@ Parameters beginning with `temp` are always pointers to cells."
     ;; if number > 127: negative number
     (bf.at 2
       (bf.set2 127 2)
-      (bf.<\! true)
+      (bf.<°! true)
       (bf.if
         (bf.print2! "-" 1)
         (bf.at -1 "-")
         (bf.at -2
           (bf.invert 1)
           (bf.at [1 (bf.zero) 2 (bf.zero)])
-          (bf.print-cell\)
+          (bf.print-cell°)
           (bf.invert 1))))
 
     ;; else: positive number
@@ -1014,7 +1014,7 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.if
         (bf.at -1
         (bf.at [1 (bf.zero) 2 (bf.zero)])
-        (bf.print-cell\))))))
+        (bf.print-cell°))))))
 
 (λ bf.print! [str ?initial]
   "Print `str` using the current cell.
@@ -1874,7 +1874,7 @@ Parameters beginning with `temp` are always pointers to cells."
 
 
 
-(λ bf.digits\ [?+1]
+(λ bf.digits° [?+1]
   "Creates a string containing the digits of the currrent cell as a decimal number.
    - before: `[x], 0, 0, 0, …`
    - after: `[x], 0, ones, tens, hundreds, [0]`
@@ -1894,7 +1894,7 @@ Parameters beginning with `temp` are always pointers to cells."
       ;; prepare division by 10
       "++++++++++"
       ">[-]+>[-]>[-]>[-]<<<<<"
-      (bf.divmod\!)
+      (bf.divmod°!)
       ;; move results
       ">>" (if ?+1 "+" "") (bf.add! -2)
       (bf.ptr -1) (bf.zero)
@@ -2069,19 +2069,19 @@ Parameters beginning with `temp` are always pointers to cells."
 
 "# Bitwise operators"
 
-(λ bf.bnot\! []
+(λ bf.bnot°! []
   "bitwise not
    - before: `[x] 0`
    - after:  `[0] result`"
   "+[->-<]")
 
-(λ bf.shiftl\! []
+(λ bf.shiftl°! []
   "Bit shift current cell left by one = multiply by 2.
    - before: `[x] 0`
    - after:  `[0] x>>1`"
   "[->++<]")
 
-(λ bf.rotatel\! [?distance]
+(λ bf.rotatel°! [?distance]
   "Rotate current cell left by `?distance` bits, the default is 1.
    If ??distance is nil or 1:
    - before: `[x] 0 0 0 0`
@@ -2101,23 +2101,23 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.at 5
         (bf.inc ?distance)
         (bf.loop
-          (bf.at -5 (bf.rotatel\!))
+          (bf.at -5 (bf.rotatel°!))
           "-")))))
 
-(λ bf.rotater\! [?distance]
+(λ bf.rotater°! [?distance]
   "Rotate current cell right by `?distance` bits, the default is 1.
    - before: `[x] 0 0 0 0 0`
    - after:  `[result] 0 0 0 0 0`"
   (if (= nil ?distance)
-    (bf.rotater\! 1)
+    (bf.rotater°! 1)
     (..
       (bf.at 5
         (bf.inc (- 8 ?distance))
         (bf.loop
-          (bf.at -5 (bf.rotatel\!))
+          (bf.at -5 (bf.rotatel°!))
           "-")))))
 
-(λ bf.popcount\! []
+(λ bf.popcount°! []
   "Population count, count the number of 1s in the binary representation of the current cell.
    - before: `[x] 0 0 0 0 0 0`
    - after:  `[0] 0 0 0 result 0 0`"
@@ -2223,7 +2223,7 @@ Parameters beginning with `temp` are always pointers to cells."
   "Increment a doubled cell by 3."
   "+++[>+>+<<-]>>[<<+>>-]+<[-[-[[-]>-<]]]>[>+<-]<<")
 
-(λ bf.D.divmod\! [?mod+1]
+(λ bf.D.divmod°! [?mod+1]
   "Current cell divided/modulo by the next cell to the right.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
    - Before: `>n d 1 0 0 0`
@@ -2237,7 +2237,7 @@ Parameters beginning with `temp` are always pointers to cells."
       ""
       (bf.double ">>-<<"))))
 
-(λ bf.D.divmod2\! [?mod+1]
+(λ bf.D.divmod2°! [?mod+1]
   "Current cell divided/modulo by the next cell to the right. Optimized for d<256.
    Uses 5 cells to the right of the current cell, cells must be initialized as shown:
    - Before: `>n d 1 0 0 0`
@@ -2255,7 +2255,7 @@ Parameters beginning with `temp` are always pointers to cells."
       ""
       (bf.double ">>-<<"))))
 
-(λ bf.D.print-cell\ []
+(λ bf.D.print-cell° []
   "Print the value of the current doubled cell.
    Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)"
   (..
@@ -2290,8 +2290,8 @@ Parameters beginning with `temp` are always pointers to cells."
     ;; print all digits
     "[.[-]<<<<]<<<<"))
 
-(λ bf.D.digits\ [?+1]
-  "Doubled version of `bf.D.digits\\`
+(λ bf.D.digits° [?+1]
+  "Doubled version of `bf.D.digits°`
    - before: `{[x], 0, 0, x}, 0, 0, 0, …`
    - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`
    If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10)."
@@ -2316,7 +2316,7 @@ Parameters beginning with `temp` are always pointers to cells."
       (bf.D.ptr 1) (bf.D.zero)
       (bf.D.ptr -5)
       ;; division
-      (bf.D.divmod\! true)
+      (bf.D.divmod°! true)
       ;; move results
       (bf.D.ptr 2) (if ?+1 "" "-") (bf.D.add! -2)
       (bf.D.ptr -1) (bf.D.zero)
@@ -2325,13 +2325,13 @@ Parameters beginning with `temp` are always pointers to cells."
       "<<<"
       (bf.double "]")))
 
-(λ bf.D.popcount\! []
+(λ bf.D.popcount°! []
   "Population count of a doubled cell, count the number of 1s in the binary representation of the current cell.
    - before: `[low] 0 0 high 0 0 0 0 0 0`
    - after:  `[0] 0 0 0 result 0 0 0 0 0`"
   (..
-    (bf.at 3 (bf.popcount\!))
-    (bf.popcount\!)
+    (bf.at 3 (bf.popcount°!))
+    (bf.popcount°!)
     (bf.at 7 (bf.add! -3))))
 
 (λ bf.D.read-int [delimiter temp0 temp1 Dtemp2 Dtemp3]
@@ -2443,7 +2443,7 @@ Parameters beginning with `temp` are always pointers to cells."
           2 (bf.mov! (* 5 to))
           3 (bf.mov! (* 5 to))]))
 
-(λ bf.Q.print-cell\ []
+(λ bf.Q.print-cell° []
   "Print the value of the current quadrupled cell.
    Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)"
   (..
