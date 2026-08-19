@@ -137,8 +137,8 @@ current cell <- current cell * cell at `y`.
 
 current cell < current cell ^ 2
 
-## `bf.divmod\!` (λ)
-```(bf.divmod\!)```
+## `bf.divmod°!` (λ)
+```(bf.divmod°!)```
 
 Current cell divided/modulo by the next cell to the right.
 Uses 5 cells to the right of the current cell, cells must be initialized as shown:
@@ -150,8 +150,8 @@ Uses 5 cells to the right of the current cell, cells must be initialized as show
 
 Current cell divided/modulo by value. Uses 5 cells to the right of the current cell.
 
-## `bf.mod\!` (λ)
-```(bf.mod\!)```
+## `bf.mod°!` (λ)
+```(bf.mod°!)```
 
 - before: `0 >n d 0 0 0`
 - after: `0 >0 d-n%d n%d 0 0`
@@ -193,8 +193,8 @@ current cell <- current cell != cell at `y`. Sets `y` to 0.
 
 current cell <- current cell == cell at `y`. Sets `y` to 0.
 
-## `bf.<\!` (λ)
-```(bf.<\! ?init)```
+## `bf.<°!` (λ)
+```(bf.<°! ?init)```
 
 current cell <- current cell < next cell.
 - before: >x y 0 0
@@ -261,34 +261,34 @@ Run the body n times, n = value of `temp`.
 
 # Print functions
 
-## `bf.print-cell\` (λ)
-```(bf.print-cell\)```
+## `bf.print-cell°` (λ)
+```(bf.print-cell°)```
 
 Print the value of the current cell as a decimal number.
 Requires 9 cells containing 0 to the right of the current cell.
 
-## `bf.print-cell-tens\` (λ)
-```(bf.print-cell-tens\)```
+## `bf.print-cell-tens°` (λ)
+```(bf.print-cell-tens°)```
 
 Print the value of the current cell modulo 10 as a decimal number.
 Requires 9 cells containing 0 to the right of the current cell.
 
-## `bf.print-cell-tens\!` (λ)
-```(bf.print-cell-tens\!)```
+## `bf.print-cell-tens°!` (λ)
+```(bf.print-cell-tens°!)```
 
 Print the value of the current cell.
 Requires 5 zeroed cells to the right and handles values >99 incorrectly.
 Sets the current cell to 0.
 
-## `bf.print-cell-tens-padded\!` (λ)
-```(bf.print-cell-tens-padded\!)```
+## `bf.print-cell-tens-padded°!` (λ)
+```(bf.print-cell-tens-padded°!)```
 
 Print the value of the current cell padded with 0 to two digits.
 Requires 5 zeroed cells to the right and handles values >99 incorrectly.
 Sets the current cell to 0.
 
-## `bf.print-cell-negative\` (λ)
-```(bf.print-cell-negative\)```
+## `bf.print-cell-negative°` (λ)
+```(bf.print-cell-negative°)```
 
 Print the value of the current cell in the range -128..127.
 
@@ -425,6 +425,12 @@ This function replaces itself with _optimize-cpp or _optimize-fennel.
 Remove useless combinations of brainfuck commands from `code`.
 More aggressive version of `bf.optimize`.
 
+## `bf.pgo` (λ)
+```(bf.pgo code)```
+
+Profile guided optimization: run code and remove all instructions that are not executed.
+`,` is assumed to never change a cell.
+
 ## `bf.mirror` (λ)
 ```(bf.mirror & code)```
 
@@ -445,8 +451,8 @@ Make `str` safe to include in brainfuck code as a comment.
 
 A simple brainfuck formatter.
 
-## `bf.digits\` (λ)
-```(bf.digits\ ?+1)```
+## `bf.digits°` (λ)
+```(bf.digits° ?+1)```
 
 Creates a string containing the digits of the currrent cell as a decimal number.
 - before: `[x], 0, 0, 0, …`
@@ -498,22 +504,22 @@ Optionally write the lengths of all results to `?logfile`.
 
 # Bitwise operators
 
-## `bf.bnot\!` (λ)
-```(bf.bnot\!)```
+## `bf.bnot°!` (λ)
+```(bf.bnot°!)```
 
 bitwise not
 - before: `[x] 0`
 - after:  `[0] result`
 
-## `bf.shiftl\!` (λ)
-```(bf.shiftl\!)```
+## `bf.shiftl°!` (λ)
+```(bf.shiftl°!)```
 
 Bit shift current cell left by one = multiply by 2.
 - before: `[x] 0`
 - after:  `[0] x>>1`
 
-## `bf.rotatel\!` (λ)
-```(bf.rotatel\! ?distance)```
+## `bf.rotatel°!` (λ)
+```(bf.rotatel°! ?distance)```
 
 Rotate current cell left by `?distance` bits, the default is 1.
 If ??distance is nil or 1:
@@ -523,15 +529,15 @@ else:
 - before: `[x] 0 0 0 0 0`
 - after:  `[result] 0 0 0 0 0`
 
-## `bf.rotater\!` (λ)
-```(bf.rotater\! ?distance)```
+## `bf.rotater°!` (λ)
+```(bf.rotater°! ?distance)```
 
 Rotate current cell right by `?distance` bits, the default is 1.
 - before: `[x] 0 0 0 0 0`
 - after:  `[result] 0 0 0 0 0`
 
-## `bf.popcount\!` (λ)
-```(bf.popcount\!)```
+## `bf.popcount°!` (λ)
+```(bf.popcount°!)```
 
 Population count, count the number of 1s in the binary representation of the current cell.
 - before: `[x] 0 0 0 0 0 0`
@@ -609,8 +615,8 @@ Check if a doubled cell is zero.
 
 Increment a doubled cell by 3.
 
-## `bf.D.divmod\!` (λ)
-```(bf.D.divmod\! ?mod+1)```
+## `bf.D.divmod°!` (λ)
+```(bf.D.divmod°! ?mod+1)```
 
 Current cell divided/modulo by the next cell to the right.
 Uses 5 cells to the right of the current cell, cells must be initialized as shown:
@@ -618,8 +624,8 @@ Uses 5 cells to the right of the current cell, cells must be initialized as show
 - After:  `>0 d-n%d n%d n/d 0 0`
 If `?mod+1` is true, `n%d` is `n%d+1` instead.
 
-## `bf.D.divmod2\!` (λ)
-```(bf.D.divmod2\! ?mod+1)```
+## `bf.D.divmod2°!` (λ)
+```(bf.D.divmod2°! ?mod+1)```
 
 Current cell divided/modulo by the next cell to the right. Optimized for d<256.
 Uses 5 cells to the right of the current cell, cells must be initialized as shown:
@@ -627,22 +633,22 @@ Uses 5 cells to the right of the current cell, cells must be initialized as show
 - After:  `>0 d-n%d n%d n/d 0 0`
 If `?mod+1` is true, `n%d` is `n%d+1` instead.
 
-## `bf.D.print-cell\` (λ)
-```(bf.D.print-cell\)```
+## `bf.D.print-cell°` (λ)
+```(bf.D.print-cell°)```
 
 Print the value of the current doubled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
 
-## `bf.D.digits\` (λ)
-```(bf.D.digits\ ?+1)```
+## `bf.D.digits°` (λ)
+```(bf.D.digits° ?+1)```
 
-Doubled version of `bf.D.digits\`
+Doubled version of `bf.D.digits°`
 - before: `{[x], 0, 0, x}, 0, 0, 0, …`
 - after: `{x, 0, 0, x}, {0, 0, 0, 0}, ones, tens, hundreds, …, [0]`
 If `?+1` is true, each digit will be stored as digit+1 (i.e. 0→1, 9→10).
 
-## `bf.D.popcount\!` (λ)
-```(bf.D.popcount\!)```
+## `bf.D.popcount°!` (λ)
+```(bf.D.popcount°!)```
 
 Population count of a doubled cell, count the number of 1s in the binary representation of the current cell.
 - before: `[low] 0 0 high 0 0 0 0 0 0`
@@ -708,8 +714,8 @@ Quadrupled version `bf.mov`.
 
 Quadrupled version `bf.mov!`.
 
-## `bf.Q.print-cell\` (λ)
-```(bf.Q.print-cell\)```
+## `bf.Q.print-cell°` (λ)
+```(bf.Q.print-cell°)```
 
 Print the value of the current quadrupled cell.
 Based on: https://esolangs.org/wiki/Brainfuck_algorithms#Print_value_of_cell_x_as_number_for_ANY_sized_cell_(eg_8bit,_100000bit_etc)
@@ -848,4 +854,43 @@ Sum all elements in the array, the result is placed in the leftmost element.
 Sum all elements in the array, the result is placed in the rightmost element.
 - before: `[0], array, 0`
 - after: `0, …, 0, sum, [0]`
+
+# ArrayN functions
+These functions operate on arrays where each value is `N` cells large and can contain zero.
+Each value occupies N+1 cells: `…, 0, 0, 1, value*N, 1, value*N, 1, value*N, 0, 0, …`
+
+## `bf.arrayN.shiftr` (λ)
+```(bf.arrayN.shiftr N ?distance)```
+
+Shift array right by `?distance` cells (default is one).
+- before: `0, array, [0], 0`
+- after:  `0, [0], array, 0`
+
+## `bf.arrayN.shiftl` (λ)
+```(bf.arrayN.shiftl N ?distance)```
+
+Shift array left by `?distance` cells (default is one).
+- before: `0, [0], array, 0`
+- after:  `0, array, [0], 0`
+
+## `bf.arrayN.split` (λ)
+```(bf.arrayN.split N)```
+
+Split an array by inserting N+1 zeroed cells, the index is 0 based.
+- before: `0, 0, array, [0], index, 0`
+- after:  `array, 0*(N+1), array, [0], 0`
+
+## `bf.arrayN.get` (λ)
+```(bf.arrayN.get N)```
+
+Get an element of an array, the index is 0 based.
+- before: `0, 0, array, [0], index, 0`
+- after:  `0, 0, array, [0], 0*(N-1), result*N, 0`
+
+## `bf.arrayN.set` (λ)
+```(bf.arrayN.set N)```
+
+Get an element of an array, the index is 0 based.
+- before: `0, 0, array, [0], index, value*N`
+- after:  `0, 0, array, [0], 0, 0, …`
 

@@ -17,7 +17,7 @@
 symbol | meaning
 ---|---
 `!` | modifies the current cell
-`\\` | requires manual initialization of cells that are not specified as a parameter
+`°` | requires manual initialization of cells that are not specified as a parameter
 
 Parameters beginning with `temp` are always pointers to cells."
 

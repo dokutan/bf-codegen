@@ -16,6 +16,31 @@ function count_to_color(count::Int)
     end
 end
 
+function escape_html(char::Char)
+    if char == '>'
+        "&gt;"
+    elseif char == '<'
+        "&lt;"
+    else
+        char
+    end
+end
+
+function format_program(bf, instruction_count::Vector{Int})
+    result = ""
+    i = 1
+    while i < length(bf)
+        result *= """<span title="$(instruction_count[i])" style="background-color: $(count_to_color(instruction_count[i]));">""" * escape_html(bf[i])
+        while instruction_count[i] == instruction_count[i + 1] && i + 1 < length(bf)
+            result *= escape_html(bf[i + 1])
+            i += 1
+        end
+        result *= """</span>"""
+        i += 1
+    end
+    result
+end
+
 function profile(bf)
     cells::Int = 30000
     cell_size::Int = 256
@@ -83,13 +108,13 @@ function profile(bf)
     html =
         "<!DOCTYPE html><html>\n" *
         "<h2>program</h2><div style=\"font-family: monospace; font-size: x-large;\">" *
-        join(map(i->"""<span title="$(instruction_count[i])" style="background-color: $(count_to_color(instruction_count[i]));">$(bf[i])</span>""", 1:instructions_total)) *
+        format_program(bf, instruction_count) *
         "</div>\n<h2>statistics</h2>\n" *
         "<p><b>instructions:</b> $instructions_total</p>\n" *
         "<p><b>instructions run:</b> $instructions_run</p>\n" *
         "<h2>memory access</h2><table>\n" *
         "<tr><td><b>ptr</b></td><td><b>read</b></td><td><b>write</b></td></tr>\n" *
-        join(map(i->"<tr><td>$i</td><td>$(get(memory_read, i, ""))</td><td>$(get(memory_write, i, ""))</td></tr>\n", union(keys(memory_read), keys(memory_read))|>collect|>sort)) *
+        join(map(i->"<tr><td>$i</td><td>$(get(memory_read, i, """<span style="background-color:cyan;">---</span>"""))</td><td>$(get(memory_write, i, """<span style="background-color:cyan;">---</span>"""))</td></tr>\n", union(keys(memory_read), keys(memory_write))|>collect|>sort)) *
         "</table></html>\n"
 
     # optimize the program by removing instructions that were never executed
